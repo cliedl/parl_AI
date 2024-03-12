@@ -8,6 +8,7 @@ __pycache__/
 
 # Mac OS folder cache files
 **/.DS_Store
+/.DS_Store 
 
 # Distribution / packaging
 .Python
