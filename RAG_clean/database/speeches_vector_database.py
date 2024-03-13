@@ -1,17 +1,18 @@
 from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
+
+import sys
+sys.path.append("./parl_AI/RAG_clean")
+
 from models.embedding import ManifestoBertaEmbeddings
+from database.vector_database import VectorDatabaseCreator as BaseVectorDatabaseCreator
 import os
 
-class VectorDatabaseCreator:
-    def __init__(self, embedding_model, data_directory=".", db_directory=".DB/chroma_speeches", chunk_size=1000, chunk_overlap=100):
-        self.embedding_model = embedding_model
-        self.data_directory = data_directory
-        self.db_directory = db_directory
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
-        self.db = None
+
+class EnhancedVectorDatabaseCreator(BaseVectorDatabaseCreator):
+    def __init__(self, embedding_model, data_directory=".", db_directory="./DB/chroma_speeches", chunk_size=1000, chunk_overlap=100):
+        super().__init__(embedding_model, data_directory, db_directory, chunk_size, chunk_overlap)
 
         """
         Initializes the VectorDatabaseCreator.
@@ -42,12 +43,16 @@ class VectorDatabaseCreator:
         return self.db
 
     def build_database(self, loader):
+
         # Load documents
         docs = loader.load()
+        
         # Define text_splitter
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap)
+        
         # Create splits
         splits = text_splitter.split_documents(docs)
+        
         # Create database
         self.db = Chroma.from_documents(splits, self.embedding_model, persist_directory=self.db_directory)
         return self.db
