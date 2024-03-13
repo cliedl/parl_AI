@@ -1,12 +1,13 @@
 from langchain_openai import ChatOpenAI
 
-from langchain_core.runnables import RunnablePassthrough
+from langchain_core.runnables import RunnablePassthrough, RunnableParallel
+
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 
 from langchain.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 
-
+# Output format
 class PartySummaries(BaseModel):
     cdu_summary: str = Field(
         description="Zusammenfassung der Positionen der Partei CDU/CSU"
@@ -27,8 +28,11 @@ class PartySummaries(BaseModel):
         description="Zusammenfassung der Positionen der Partei AfD"
     )
 
-
-def generate_chain(retriever=None, llm=None, output_parser=None):
+def generate_chain(retriever=None, 
+                   llm=None, 
+                   output_parser="json", 
+                   verbose=False, 
+                   temperature=0.0):
     """
     Generates a langchain: Change this code to change the chain!
 
@@ -59,10 +63,10 @@ def generate_chain(retriever=None, llm=None, output_parser=None):
 
     # If None, use default llm (gpt-3.5-turbo)
     if llm == None:
-        llm = ChatOpenAI(model_name="gpt-3.5-turbo", max_tokens=1000, temperature=0.7)
+        llm = ChatOpenAI(model_name="gpt-3.5-turbo", max_tokens=1000, temperature=temperature)
 
     # If output parser is None, use JSON parser
-    if output_parser == None or output_parser == "json":
+    if output_parser == "json":
         output_parser = JsonOutputParser(pydantic_object=PartySummaries)
 
         prompt_template += "\n\n{format_instructions}\n"
@@ -84,7 +88,20 @@ def generate_chain(retriever=None, llm=None, output_parser=None):
     else:
         raise ValueError("output_parser must be 'json' or 'str'")
 
-    # Create chain
+
+    # Create chain that returns context
+    rag_chain_from_docs = (
+    RunnablePassthrough.assign(context=(lambda x: x["context"]))
+    | question_prompt
+    | llm
+    | StrOutputParser()
+    )
+
+    chain_with_source = RunnableParallel(
+        {"context": retriever, "question": RunnablePassthrough()}
+    ).assign(answer=rag_chain_from_docs)
+
+    # Create chain without context return
     chain = (
         {"context": retriever, "question": RunnablePassthrough()}
         | question_prompt
@@ -92,4 +109,7 @@ def generate_chain(retriever=None, llm=None, output_parser=None):
         | output_parser
     )
 
-    return chain
+    if verbose:
+        return chain_with_source
+    else:
+        return chain
