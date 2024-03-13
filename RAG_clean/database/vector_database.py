@@ -1,16 +1,19 @@
 from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-import os
 
 
 class VectorDatabaseCreator:
-    def __init__(self,
-                 embedding_model,
-                 data_directory=".",
-                 db_directory="./chroma",
-                 chunk_size=1000,
-                 chunk_overlap=100):
+    def __init__(
+        self,
+        embedding_model,
+        data_path=".",
+        db_directory="./chroma",
+        chunk_size=1000,
+        chunk_overlap=200,
+        loader="pdf",
+    ):
         """
         Initializes the VectorDatabaseCreator.
 
@@ -23,11 +26,12 @@ class VectorDatabaseCreator:
         """
 
         self.embedding_model = embedding_model
-        self.data_directory = data_directory
+        self.data_path = data_path
         self.db_directory = db_directory
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self.db = None
+        self.loader = loader
 
     def load_database(self):
         """
@@ -37,13 +41,12 @@ class VectorDatabaseCreator:
         - The loaded Chroma database.
         """
         self.db = Chroma(
-            persist_directory=self.db_directory,
-            embedding_function=self.embedding_model
+            persist_directory=self.db_directory, embedding_function=self.embedding_model
         )
 
         return self.db
 
-    def build_database(self, loader=None):
+    def build_database(self):
         """
         Builds a new Chroma database from the documents in the data directory.
 
@@ -54,17 +57,18 @@ class VectorDatabaseCreator:
         - The newly built Chroma database.
         """
 
-        # If None, use PDFLoader as default
-        if loader == None:
-            loader = PyPDFDirectoryLoader(self.data_directory)
+        # PDF is the default loader defined above
+        if self.loader == "pdf":
+            loader = PyPDFDirectoryLoader(self.data_path)
+        elif self.loader == "csv":
+            loader = CSVLoader(self.data_path)
 
         # Load documents
         docs = loader.load()
 
         # Define text_splitter
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap
+            chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
         )
 
         # Create splits
@@ -72,8 +76,7 @@ class VectorDatabaseCreator:
 
         # Create database
         self.db = Chroma.from_documents(
-            splits, self.embedding_model,
-            persist_directory=self.persist_directory
+            splits, self.embedding_model, persist_directory=self.db_directory
         )
 
         return self.db
