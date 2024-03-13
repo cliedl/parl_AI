@@ -16,7 +16,7 @@ class ManifestoBertaEmbeddings(Embeddings):
             "manifesto-project/manifestoberta-xlm-roberta-56policy-topics-sentence-2023-1-1"
         )
 
-    def _embed(self, text: str, sentence_level=True) -> List[float]:
+    def _embed(self, text: str, mean_over_tokens=True) -> List[float]:
         """Embed a text using ManifestoBerta.
 
         Args:
@@ -38,8 +38,8 @@ class ManifestoBertaEmbeddings(Embeddings):
         # Extract the last hidden states
         last_hidden_states = outputs.hidden_states[-1]
 
-        # Optionally, you can average the token embeddings for sentence-level representation
-        if sentence_level:
+        # Average the token embeddings for a representation of the whole text
+        if mean_over_tokens:
             embedding = torch.mean(last_hidden_states, dim=1)
         else:
             embedding = last_hidden_states
