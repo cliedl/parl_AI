@@ -11,6 +11,7 @@ class VectorDatabaseCreator:
     def __init__(
         self,
         embedding_model,
+        source_type,  # "manifestos" or "debates"
         data_path=".",
         db_directory="./chroma",
         chunk_size=1000,
@@ -30,6 +31,7 @@ class VectorDatabaseCreator:
         """
 
         self.embedding_model = embedding_model
+        self.source_type = source_type
         self.data_path = data_path
         self.db_directory = db_directory
         self.chunk_size = chunk_size
