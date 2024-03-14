@@ -1,8 +1,10 @@
-from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_community.document_loaders import PyPDFDirectoryLoader, PDFMinerLoader
+from langchain_community.document_loaders.pdf import UnstructuredPDFLoader
 from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-
+import glob
+import os
 
 class VectorDatabaseCreator:
     def __init__(
@@ -13,6 +15,7 @@ class VectorDatabaseCreator:
         chunk_size=1000,
         chunk_overlap=200,
         loader="pdf",
+        concatenate_pages=True
     ):
         """
         Initializes the VectorDatabaseCreator.
@@ -59,12 +62,28 @@ class VectorDatabaseCreator:
 
         # PDF is the default loader defined above
         if self.loader == "pdf":
-            loader = PyPDFDirectoryLoader(self.data_path)
+            #loader = PyPDFDirectoryLoader(self.data_path)
+            # get file_paths of all pdfs in data_folder
+            pdf_paths = glob.glob(os.path.join(self.data_path, "*.pdf"))
+
+            docs = []
+            for pdf_path in pdf_paths:  
+                file_name = os.path.basename(pdf_path)
+                party = file_name.split("_")[0]
+                # Create doc loader
+                loader = PDFMinerLoader(pdf_path, concatenate_pages=True)
+                # load document
+                doc = loader.load()
+                # Add party to metadata
+                for i in range(len(doc)):
+                    doc[i].metadata.update({"party": party})
+                # append  to list
+                docs.extend(doc)
+
         elif self.loader == "csv":
             loader = CSVLoader(self.data_path)
-
-        # Load documents
-        docs = loader.load()
+            # Load documents
+            docs = loader.load()
 
         # Define text_splitter
         text_splitter = RecursiveCharacterTextSplitter(
