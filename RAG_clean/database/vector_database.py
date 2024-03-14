@@ -7,7 +7,7 @@ import glob
 import os
 
 
-class VectorDatabaseCreator:
+class VectorDatabase:
     def __init__(
         self,
         embedding_model,
@@ -20,7 +20,7 @@ class VectorDatabaseCreator:
         concatenate_pages=True,
     ):
         """
-        Initializes the VectorDatabaseCreator.
+        Initializes the VectorDatabase.
 
         Parameters:
         - embedding_model: The model used to generate embeddings for the documents.
@@ -84,7 +84,11 @@ class VectorDatabaseCreator:
                 docs.extend(doc)
 
         elif self.loader == "csv":
-            loader = CSVLoader(self.data_path)
+            loader = CSVLoader(
+                self.data_path,
+                metadata_columns=["date", "fullName", "politicalGroup", "party"],
+            )
+
             # Load documents
             docs = loader.load()
 
