@@ -145,8 +145,7 @@ def generate_chain_with_balanced_retrieval(
     KONTEXT:
     {context}
     """
-
-    # If output parser is None, use JSON parser
+    # select output parser
     if output_parser == "json":
         output_parser = JsonOutputParser(pydantic_object=PartySummaries)
         prompt_template += "\n\n{format_instructions}\n"
@@ -174,6 +173,6 @@ def generate_chain_with_balanced_retrieval(
         }
     )
 
-    chain = inputs | question_prompt | llm | StrOutputParser()
+    chain = inputs | question_prompt | llm | output_parser
 
     return chain
