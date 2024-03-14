@@ -80,3 +80,15 @@ class VectorDatabaseCreator:
         )
 
         return self.db
+
+    def get_retriever(self, search_type="similarity", k=10):
+        retriever = self.db.as_retriever(
+            search_type=search_type,
+            search_kwargs={
+                "k": k,
+                # "where": {  # https://docs.trychroma.com/usage-guide#using-where-filters
+                #     "source": "something" #
+                # },
+            },
+        )
+        return retriever
