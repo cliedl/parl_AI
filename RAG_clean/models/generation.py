@@ -117,7 +117,7 @@ def generate_chain(
 
 
 def generate_chain_with_balanced_retrieval(
-    dbs: list, llm=None, output_parser="json", temperature=0.0
+    dbs: list, llm=None, output_parser="json", temperature=0.0, k=5
 ):
     """
     Generates a langchain: Change this code to change the chain!
@@ -127,6 +127,7 @@ def generate_chain_with_balanced_retrieval(
     - llm: language model to use (default: gpt-3.5-turbo)
     - output_parser: "json" or "str" (default: "json")
     - temperature: temperature for language model (default: 0.0)
+    - k: number of documents to retrieve from each database (default: 5)
     """
 
     if llm == None:
@@ -168,7 +169,7 @@ def generate_chain_with_balanced_retrieval(
         {
             "question": lambda x: x["question"],
             "context": lambda x: "\n\n".join(
-                [db.build_context(query=x["question"]) for db in dbs]
+                [db.build_context(query=x["question"], k=k) for db in dbs]
             ),
         }
     )
