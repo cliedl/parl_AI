@@ -168,4 +168,5 @@ data/.DS_Store
 
 
 # CHROMA DB
-*/chroma/
+data/debates/chroma/
+data/manifestos/chroma/
