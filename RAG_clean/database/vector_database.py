@@ -155,7 +155,7 @@ class VectorDatabase:
 
         for doc in docs:
             context += f"Ausschnitt aus {source_description} "
-            context += f"von der Partei {doc.metadata['source']}:\n"
+            context += f"von der Partei {doc.metadata['party']}:\n"
             context += f"{doc.page_content}\n\n"
 
         return context
