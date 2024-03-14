@@ -7,6 +7,7 @@ from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langchain.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 
+
 # Output format
 class PartySummaries(BaseModel):
     cdu_summary: str = Field(
@@ -28,11 +29,10 @@ class PartySummaries(BaseModel):
         description="Zusammenfassung der Positionen der Partei AfD"
     )
 
-def generate_chain(retriever=None, 
-                   llm=None, 
-                   output_parser="json", 
-                   verbose=False, 
-                   temperature=0.0):
+
+def generate_chain(
+    retriever=None, llm=None, output_parser="json", verbose=False, temperature=0.0
+):
     """
     Generates a langchain: Change this code to change the chain!
 
@@ -63,7 +63,9 @@ def generate_chain(retriever=None,
 
     # If None, use default llm (gpt-3.5-turbo)
     if llm == None:
-        llm = ChatOpenAI(model_name="gpt-3.5-turbo", max_tokens=1000, temperature=temperature)
+        llm = ChatOpenAI(
+            model_name="gpt-3.5-turbo", max_tokens=1000, temperature=temperature
+        )
 
     # If output parser is None, use JSON parser
     if output_parser == "json":
@@ -88,13 +90,12 @@ def generate_chain(retriever=None,
     else:
         raise ValueError("output_parser must be 'json' or 'str'")
 
-
     # Create chain that returns context
     rag_chain_from_docs = (
-    RunnablePassthrough.assign(context=(lambda x: x["context"]))
-    | question_prompt
-    | llm
-    | StrOutputParser()
+        RunnablePassthrough.assign(context=(lambda x: x["context"]))
+        | question_prompt
+        | llm
+        | StrOutputParser()
     )
 
     chain_with_source = RunnableParallel(
@@ -113,3 +114,66 @@ def generate_chain(retriever=None,
         return chain_with_source
     else:
         return chain
+
+
+def generate_chain_with_balanced_retrieval(
+    dbs: list, llm=None, output_parser="json", temperature=0.0
+):
+    """
+    Generates a langchain: Change this code to change the chain!
+
+    arguments:
+    - dbs (list): list of databases
+    - llm: language model to use (default: gpt-3.5-turbo)
+    - output_parser: "json" or "str" (default: "json")
+    - temperature: temperature for language model (default: 0.0)
+    """
+
+    if llm == None:
+        llm = ChatOpenAI(
+            model_name="gpt-3.5-turbo", max_tokens=1000, temperature=temperature
+        )
+
+    prompt_template = """
+    Du hilfst dabei, die politischen Positionen der Parteien CDU/CSU, SPD, Bündnis 90/Die Grünen, Die Linke, FDP und AfD zur Europawahl 2024 zusammenzufassen.
+    Beantworte die folgende Frage nur auf dem zur Verfügung gestellten Kontext.
+    Falls sich die Frage auf Basis des Kontexts nicht beantworten lässt, gib eine kurze Begründung an.
+    Beantworte die Frage auf Deutsch.
+
+    FRAGE: {question}
+
+    KONTEXT:
+    {context}
+    """
+
+    # If output parser is None, use JSON parser
+    if output_parser == "json":
+        output_parser = JsonOutputParser(pydantic_object=PartySummaries)
+        prompt_template += "\n\n{format_instructions}\n"
+        question_prompt = PromptTemplate(
+            template=prompt_template,
+            input_variables=["question", "context"],
+            partial_variables={
+                "format_instructions": output_parser.get_format_instructions()
+            },
+        )
+
+    elif output_parser == "str":
+        output_parser = StrOutputParser()
+        question_prompt = PromptTemplate.from_template(prompt_template)
+
+    else:
+        raise ValueError("output_parser must be 'json' or 'str'")
+
+    inputs = {"question": RunnablePassthrough()} | RunnableParallel(
+        {
+            "question": lambda x: x["question"],
+            "context": lambda x: "\n\n".join(
+                [db.build_context(query=x["question"]) for db in dbs]
+            ),
+        }
+    )
+
+    chain = inputs | question_prompt | llm | StrOutputParser()
+
+    return chain

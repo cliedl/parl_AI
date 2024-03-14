@@ -6,6 +6,7 @@ from langchain_community.vectorstores import Chroma
 import glob
 import os
 
+
 class VectorDatabaseCreator:
     def __init__(
         self,
@@ -15,7 +16,7 @@ class VectorDatabaseCreator:
         chunk_size=1000,
         chunk_overlap=200,
         loader="pdf",
-        concatenate_pages=True
+        concatenate_pages=True,
     ):
         """
         Initializes the VectorDatabaseCreator.
@@ -62,12 +63,12 @@ class VectorDatabaseCreator:
 
         # PDF is the default loader defined above
         if self.loader == "pdf":
-            #loader = PyPDFDirectoryLoader(self.data_path)
+            # loader = PyPDFDirectoryLoader(self.data_path)
             # get file_paths of all pdfs in data_folder
             pdf_paths = glob.glob(os.path.join(self.data_path, "*.pdf"))
 
             docs = []
-            for pdf_path in pdf_paths:  
+            for pdf_path in pdf_paths:
                 file_name = os.path.basename(pdf_path)
                 party = file_name.split("_")[0]
                 # Create doc loader
@@ -111,3 +112,47 @@ class VectorDatabaseCreator:
             },
         )
         return retriever
+
+    def build_context(self, query, k=5):
+
+        # TODO: Update this list later according to metadata
+        # sources = [
+        #     "SPD",
+        #     "CDU/CSU",
+        #     "Bündnis 90/Die Grünen",
+        #     "Die Linke",
+        #     "FDP",
+        #     "AfD",
+        # ]
+
+        # Sample sources for testing and debugging with manifestos
+        sources = [
+            "../data/manifestos/01_pdf_originals/gruene_manifesto.pdf",
+            "../data/manifestos/01_pdf_originals/spd_manifesto.pdf",
+            "../data/manifestos/01_pdf_originals/fdp_manifesto.pdf",
+        ]
+
+        docs = []
+
+        for source in sources:
+            docs.extend(
+                self.db.similarity_search(
+                    query, k=k, filter={"source": source}
+                )  # TODO: use correct metadata field
+            )
+
+        context = ""
+
+        if self.source_type == "manifestos":
+            context += "Ausschnitte aus den Wahlprogrammen zur Europawahl 2024:\n"
+            source_desc = "dem Wahlprogramm zur Europawahl 2024"
+        elif self.source_type == "debates":
+            context += "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n"
+            source_desc = "vergangenen Reden im Europaparlament"
+
+        for doc in docs:
+            context += f"Ausschnitt aus {source_desc} "
+            context += f"von der Partei {doc.metadata['source']}:\n"
+            context += f"{doc.page_content}\n\n"
+
+        return context
