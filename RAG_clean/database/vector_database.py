@@ -13,11 +13,10 @@ class VectorDatabase:
         embedding_model,
         source_type,  # "manifestos" or "debates"
         data_path=".",
-        db_directory="./chroma",
+        database_directory="./chroma",
         chunk_size=1000,
         chunk_overlap=200,
         loader="pdf",
-        concatenate_pages=True,
     ):
         """
         Initializes the VectorDatabase.
@@ -25,19 +24,21 @@ class VectorDatabase:
         Parameters:
         - embedding_model: The model used to generate embeddings for the documents.
         - data_directory (str): The directory where the source documents are located. Defaults to the current directory.
-        - db_directory (str): The directory to store the Chroma database. Defaults to './chroma'.
+        - database_directory (str): The directory to store the Chroma database. Defaults to './chroma'.
         - chunk_size (int): The size of text chunks to split the documents into. Defaults to 1000.
         - chunk_overlap (int): The number of characters to overlap between adjacent chunks. Defaults to 100.
+        - loader(str): "pdf" or "csv", depending on data format
         """
 
         self.embedding_model = embedding_model
         self.source_type = source_type
         self.data_path = data_path
-        self.db_directory = db_directory
+        self.database_directory = database_directory
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
-        self.db = None
         self.loader = loader
+        
+        self.database = self.load_database()
 
     def load_database(self):
         """
@@ -46,11 +47,14 @@ class VectorDatabase:
         Returns:
         - The loaded Chroma database.
         """
-        self.db = Chroma(
-            persist_directory=self.db_directory, embedding_function=self.embedding_model
-        )
+        try:
+            self.database = Chroma(
+                persist_directory=self.database_directory, embedding_function=self.embedding_model
+            )
+        except:
+            self.database = None
 
-        return self.db
+        return self.database
 
     def build_database(self):
         """
@@ -74,7 +78,7 @@ class VectorDatabase:
                 file_name = os.path.basename(pdf_path)
                 party = file_name.split("_")[0]
                 # Create doc loader
-                loader = PDFMinerLoader(pdf_path, concatenate_pages=True)
+                loader = PDFMinerLoader(pdf_path, concatenate_pages=self.concatenate_pages)
                 # load document
                 doc = loader.load()
                 # Add party to metadata
@@ -101,14 +105,14 @@ class VectorDatabase:
         splits = text_splitter.split_documents(docs)
 
         # Create database
-        self.db = Chroma.from_documents(
-            splits, self.embedding_model, persist_directory=self.db_directory
+        self.database = Chroma.from_documents(
+            splits, self.embedding_model, persist_directory=self.database_directory
         )
 
-        return self.db
+        return self.database
 
     def get_retriever(self, search_type="similarity", k=10):
-        retriever = self.db.as_retriever(
+        retriever = self.database.as_retriever(
             search_type=search_type,
             search_kwargs={
                 "k": k,
@@ -121,43 +125,36 @@ class VectorDatabase:
 
     def build_context(self, query, k=5):
 
-        # TODO: Update this list later according to metadata
-        # sources = [
-        #     "SPD",
-        #     "CDU/CSU",
-        #     "Bündnis 90/Die Grünen",
-        #     "Die Linke",
-        #     "FDP",
-        #     "AfD",
-        # ]
-
         # Sample sources for testing and debugging with manifestos
         sources = [
-            "../data/manifestos/01_pdf_originals/gruene_manifesto.pdf",
-            "../data/manifestos/01_pdf_originals/spd_manifesto.pdf",
-            "../data/manifestos/01_pdf_originals/fdp_manifesto.pdf",
+            "gruene",
+            "spd",
+            "cdu",
+            "afd",
+            "fdp",
+            "linke"
         ]
 
         docs = []
 
         for source in sources:
             docs.extend(
-                self.db.similarity_search(
-                    query, k=k, filter={"source": source}
-                )  # TODO: use correct metadata field
+                self.database.similarity_search(
+                    query, k=k, filter={"party": source}
+                )  
             )
 
         context = ""
 
         if self.source_type == "manifestos":
             context += "Ausschnitte aus den Wahlprogrammen zur Europawahl 2024:\n"
-            source_desc = "dem Wahlprogramm zur Europawahl 2024"
+            source_description = "dem Wahlprogramm zur Europawahl 2024"
         elif self.source_type == "debates":
             context += "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n"
-            source_desc = "vergangenen Reden im Europaparlament"
+            source_description = "vergangenen Reden im Europaparlament"
 
         for doc in docs:
-            context += f"Ausschnitt aus {source_desc} "
+            context += f"Ausschnitt aus {source_description} "
             context += f"von der Partei {doc.metadata['source']}:\n"
             context += f"{doc.page_content}\n\n"
 
