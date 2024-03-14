@@ -20,7 +20,7 @@ def load_embedding_model():
     return ManifestoBertaEmbeddings()
 
 
-embedding_model = ManifestoBertaEmbeddings()
+embedding_model = load_embedding_model()
 
 
 @st.cache_resource
