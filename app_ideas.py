@@ -9,8 +9,8 @@ from RAG_clean.models.generation import generate_chain_with_balanced_retrieval
 from RAG_clean.database.vector_database import VectorDatabase
 from RAG_clean.models.embedding import ManifestoBertaEmbeddings
 
-DATABASE_DIR_MANIFESTOS = "../data/manifestos/chroma"
-DATABASE_DIR_DEBATES = "../data/debates/chroma"
+DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma"
+DATABASE_DIR_DEBATES = "./data/debates/chroma"
 DELAY = 0.05  # pause between words in text stream (in seconds)
 
 
