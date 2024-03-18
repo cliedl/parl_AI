@@ -64,7 +64,7 @@ def generate_chain(
     # If None, use default llm (gpt-3.5-turbo)
     if llm == None:
         llm = ChatOpenAI(
-            model_name="gpt-3.5-turbo", max_tokens=1000, temperature=temperature
+            model_name="gpt-3.5-turbo", max_tokens=2000, temperature=temperature
         )
 
     # If output parser is None, use JSON parser
@@ -132,7 +132,7 @@ def generate_chain_with_balanced_retrieval(
 
     if llm == None:
         llm = ChatOpenAI(
-            model_name="gpt-3.5-turbo", max_tokens=1000, temperature=temperature
+            model_name="gpt-3.5-turbo", max_tokens=2000, temperature=temperature
         )
 
     prompt_template = """
