@@ -5,6 +5,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 import glob
 import os
+import shutil
+import time
 
 
 class VectorDatabase:
@@ -17,6 +19,7 @@ class VectorDatabase:
         chunk_size=1000,
         chunk_overlap=200,
         loader="pdf",
+        reload=True,
     ):
         """
         Initializes the VectorDatabase.
@@ -37,8 +40,9 @@ class VectorDatabase:
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self.loader = loader
-        
-        self.database = self.load_database()
+
+        if reload:
+            self.database = self.load_database()
 
     def load_database(self):
         """
@@ -47,16 +51,20 @@ class VectorDatabase:
         Returns:
         - The loaded Chroma database.
         """
-        try:
+        if os.path.exists(self.database_directory):
             self.database = Chroma(
-                persist_directory=self.database_directory, embedding_function=self.embedding_model
+                persist_directory=self.database_directory,
+                embedding_function=self.embedding_model,
             )
-        except:
-            self.database = None
+            print("reloaded database")
+        else:
+            raise AssertionError(
+                f"{self.data_base_directory} does not include database."
+            )
 
         return self.database
 
-    def build_database(self):
+    def build_database(self, overwrite=True):
         """
         Builds a new Chroma database from the documents in the data directory.
 
@@ -66,8 +74,17 @@ class VectorDatabase:
         Returns:
         - The newly built Chroma database.
         """
+        # # If overwrite flag is true, remove old databases from directory if they exist
+        # if overwrite:
+        #     if os.path.exists(self.database_directory):
+        #         shutil.rmtree(self.database_directory)
+        #         time.sleep(1)
 
         # PDF is the default loader defined above
+
+        if os.path.exists(self.database_directory):
+            raise AssertionError("Delete old database first and restart session!")
+
         if self.loader == "pdf":
             # loader = PyPDFDirectoryLoader(self.data_path)
             # get file_paths of all pdfs in data_folder
@@ -78,7 +95,7 @@ class VectorDatabase:
                 file_name = os.path.basename(pdf_path)
                 party = file_name.split("_")[0]
                 # Create doc loader
-                loader = PDFMinerLoader(pdf_path, concatenate_pages=self.concatenate_pages)
+                loader = PDFMinerLoader(pdf_path, concatenate_pages=True)
                 # load document
                 doc = loader.load()
                 # Add party to metadata
@@ -106,7 +123,10 @@ class VectorDatabase:
 
         # Create database
         self.database = Chroma.from_documents(
-            splits, self.embedding_model, persist_directory=self.database_directory
+            splits,
+            self.embedding_model,
+            persist_directory=self.database_directory,
+            collection_metadata={"hnsw:space": "cosine"},
         )
 
         return self.database
@@ -125,23 +145,13 @@ class VectorDatabase:
 
     def build_context(self, query, k=5):
 
-        # Sample sources for testing and debugging with manifestos
-        sources = [
-            "gruene",
-            "spd",
-            "cdu",
-            "afd",
-            "fdp",
-            "linke"
-        ]
+        sources = ["gruene", "spd", "cdu", "afd", "fdp", "linke"]
 
         docs = []
 
         for source in sources:
             docs.extend(
-                self.database.similarity_search(
-                    query, k=k, filter={"party": source}
-                )  
+                self.database.similarity_search(query, k=k, filter={"party": source})
             )
 
         context = ""
