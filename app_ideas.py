@@ -1,9 +1,9 @@
 import streamlit as st
-import sys
-import time
 import random
+from trubrics.integrations.streamlit import FeedbackCollector
+import os
 
-# Directory of RAG modules
+from langchain_openai import ChatOpenAI
 
 from RAG_clean.models.generation import generate_chain_with_balanced_retrieval
 from RAG_clean.database.vector_database import VectorDatabase
@@ -12,9 +12,13 @@ from RAG_clean.models.embedding import ManifestoBertaEmbeddings
 DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma"
 DATABASE_DIR_DEBATES = "./data/debates/chroma"
 DELAY = 0.05  # pause between words in text stream (in seconds)
+TEMPERATURE = 0.0
+LARGE_LANGUAGE_MODEL = ChatOpenAI(
+    model_name="gpt-3.5-turbo", max_tokens=2000, temperature=TEMPERATURE
+)
 
 
-### LANGCHAIN ###
+### LANGCHAIN SETUP ###
 @st.cache_resource
 def load_embedding_model():
     return ManifestoBertaEmbeddings()
@@ -34,21 +38,42 @@ def load_db_manifestos():
 
 db_manifestos = load_db_manifestos()
 
-chain = generate_chain_with_balanced_retrieval([db_manifestos])
+chain = generate_chain_with_balanced_retrieval(
+    [db_manifestos],
+    llm=LARGE_LANGUAGE_MODEL,
+)
+
+
+### TRUBRICS SETUP ###
+collector = FeedbackCollector(
+    project="default",
+    # for local testing, use environment variables:
+    email=os.environ.get("TRUBRICS_EMAIL"),
+    password=os.environ.get("TRUBRICS_PASSWORD"),
+    # for deployment, use streamlit secrets:
+    # email=st.secrets.TRUBRICS_EMAIL,
+    # password=st.secrets.TRUBRICS_PASSWORD,
+)
 
 
 ### INITIALIZATION ###
-if "query_submitted" not in st.session_state:
-    st.session_state.query_submitted = False
 if "response" not in st.session_state:
     st.session_state.response = None
+if "stage" not in st.session_state:
+    st.session_state.stage = 0
+if "logged_prompt" not in st.session_state:
+    st.session_state.logged_prompt = None
+if "feedback" not in st.session_state:
+    st.session_state.feedback = None
+if "feedback_key" not in st.session_state:
+    st.session_state.feedback_key = 0
 
 
-def streaming(text, delay=DELAY):
-    # Chose random response from a list
-    for word in text.split():
-        yield word + " "
-        time.sleep(delay)
+# def streaming(text, delay=DELAY):
+#     # Chose random response from a list
+#     for word in text.split():
+#         yield word + " "
+#         time.sleep(delay)
 
 
 party_dict = {
@@ -86,7 +111,11 @@ party_dict = {
 
 
 def submit_query():
-    st.session_state.query_submitted = True
+    st.session_state.logged_prompt = None
+    st.session_state.response = None
+    st.session_state.feedback = None
+    st.session_state.stage = 1
+    st.session_state.feedback_key += 1
 
 
 def generate_response():
@@ -105,50 +134,85 @@ query = st.text_input(
 
 st.button("Frage stellen", on_click=submit_query, type="primary")
 
-if st.session_state.query_submitted:
+# STAGE 1: GENERATE RESPONSE
+if st.session_state.stage == 1:
     with st.spinner(
         "Suche nach Antworten in Wahlprogrammen und Parlamentsdebatten... 🕵️‍♂️"
     ):
         generate_response()
 
+    st.session_state.logged_prompt = collector.log_prompt(
+        config_model={"model": LARGE_LANGUAGE_MODEL.model_name},
+        prompt=query,
+        generation=str(st.session_state.response),
+    )
+
+    st.session_state.stage = 2
+
+# STAGE >= 1: DISPLAY RESPONSE
+if st.session_state.stage > 1:
+    st.markdown(":grey[Die Reihenfolge der Parteien ist zufällig.]")
+
+    col1, col2 = st.columns([0.3, 0.7])
+    col3, col4 = st.columns([0.3, 0.7])
+    col5, col6 = st.columns([0.3, 0.7])
+    col7, col8 = st.columns([0.3, 0.7])
+    col9, col10 = st.columns([0.3, 0.7])
+    col11, col12 = st.columns([0.3, 0.7])
+
+    col_list = [
+        col1,
+        col2,
+        col3,
+        col4,
+        col5,
+        col6,
+        col7,
+        col8,
+        col9,
+        col10,
+        col11,
+        col12,
+    ]
+
     parties = list(party_dict.keys())
     random.shuffle(parties)
 
-    if st.session_state.response is not None:
-        st.markdown(":grey[Die Reihenfolge der Parteien ist zufällig.]")
+    i = 0
+    for party in parties:
+        with col_list[i]:
+            st.write("")
+            st.write("")
+            st.image(party_dict[party]["image"])
+        with col_list[i + 1]:
+            st.header(party_dict[party]["name"])
+            st.write(st.session_state.response[party])
+            st.write(
+                f'Mehr dazu im [Europawahlprogramm der Partei **{party_dict[party]["name"]}**]({party_dict[party]["manifesto_link"]})'
+            )
+        i += 2
 
-        col1, col2 = st.columns([0.3, 0.7])
-        col3, col4 = st.columns([0.3, 0.7])
-        col5, col6 = st.columns([0.3, 0.7])
-        col7, col8 = st.columns([0.3, 0.7])
-        col9, col10 = st.columns([0.3, 0.7])
-        col11, col12 = st.columns([0.3, 0.7])
+    st.markdown("---")
+    st.write("### Waren diese Antworten hilfreich für dich?")
+    st.write(
+        "Mit deinem Feedback hilfst du uns, die Qualität der Antworten zu verbessern."
+    )
 
-        col_list = [
-            col1,
-            col2,
-            col3,
-            col4,
-            col5,
-            col6,
-            col7,
-            col8,
-            col9,
-            col10,
-            col11,
-            col12,
-        ]
+    st.session_state.stage = 3
 
-        i = 0
-        for party in parties:
-            with col_list[i]:
-                st.write("")
-                st.write("")
-                st.image(party_dict[party]["image"])
-            with col_list[i + 1]:
-                st.header(party_dict[party]["name"])
-                st.write_stream(streaming(st.session_state.response[party]))
-                st.write(
-                    f'Mehr dazu im [Europawahlprogramm der Partei **{party_dict[party]["name"]}**]({party_dict[party]["manifesto_link"]})'
-                )
-            i += 2
+
+# TRUBRICS FEEDBACK
+if st.session_state.stage == 3:
+
+    st.session_state.feedback = collector.st_feedback(
+        component="default",
+        feedback_type="thumbs",
+        model=LARGE_LANGUAGE_MODEL.model_name,
+        prompt_id=st.session_state.logged_prompt.id,
+        open_feedback_label="Weiteres Feedback (optional)",
+        align="flex-start",
+        key=f"feedback_{st.session_state.feedback_key}",
+    )
+
+    if st.session_state.feedback is not None:
+        st.write("Vielen Dank für dein Feedback! 🙏")
