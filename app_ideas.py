@@ -61,6 +61,8 @@ if "response" not in st.session_state:
     st.session_state.response = None
 if "stage" not in st.session_state:
     st.session_state.stage = 0
+if "query" not in st.session_state:
+    st.session_state.query = ""
 if "logged_prompt" not in st.session_state:
     st.session_state.logged_prompt = None
 if "feedback" not in st.session_state:
@@ -123,14 +125,18 @@ def generate_response():
 
 
 ### INTERFACE ###
-st.title("🇪🇺 Europawahl 2024: Find your match")
+st.title("🇪🇺 Europawahl 2024")
 
 query = st.text_input(
     label="Stelle eine Frage an die Parteien zur Europawahl:",
-    # placeholder="Wie stehen die Parteien zum Emmissionshandel?",
-    value="Wie stehen die Parteien zum Emmissionshandel?",
+    placeholder="Wie stehen die Parteien zum Emmissionshandel?",
+    value="",
 )
 
+# This is a workaround to make sure the query is submitted when the user presses enter
+if st.session_state.query != query:
+    st.session_state.query = query
+    submit_query()
 
 st.button("Frage stellen", on_click=submit_query, type="primary")
 
