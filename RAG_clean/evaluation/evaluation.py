@@ -34,12 +34,15 @@ class Evaluator:
             ],
         )
         # Parse output into list
-        response = completion.choices[0].message.content
-        result = [int(x.strip()) for x in response.split(",")]
+        try:
+            response = completion.choices[0].message.content
+            result = [int(x.strip()) for x in response.split(",")]
 
-        # Check if all values are 0 or 1
-        if False in [r in [0, 1] for r in result]:
-            raise AssertionError
+            # Check if all values are 0 or 1
+            if False in [r in [0, 1] for r in result]:
+                raise AssertionError
+        except:
+            return response
 
         context_relevancy = sum(result) / len(result)
 
