@@ -42,6 +42,7 @@ db_manifestos = load_db_manifestos()
 chain = generate_chain_with_balanced_retrieval(
     [db_manifestos],
     llm=LARGE_LANGUAGE_MODEL,
+    return_context=True,
 )
 
 
@@ -187,6 +188,11 @@ if st.session_state.stage > 1:
 
     i = 0
     for party in parties:
+
+        most_relevant_manifesto_page_number = st.session_state.response["docs"][
+            "manifestos"
+        ][party][0].metadata["page"]
+
         with col_list[i]:
             st.write("")
             st.write("")
@@ -195,7 +201,7 @@ if st.session_state.stage > 1:
             st.header(party_dict[party]["name"])
             st.write(st.session_state.response["answer"][party])
             st.write(
-                f'Mehr dazu im [Europawahlprogramm der Partei **{party_dict[party]["name"]}**]({party_dict[party]["manifesto_link"]})'
+                f'Mehr dazu im [Europawahlprogramm der Partei **{party_dict[party]["name"]}** (z.B. Seite {most_relevant_manifesto_page_number+1})]({party_dict[party]["manifesto_link"]}#page={most_relevant_manifesto_page_number+1})'
             )
         i += 2
 
