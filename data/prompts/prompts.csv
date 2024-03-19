@@ -1,0 +1,51 @@
+PROMPTS
+" prompt_template = """"""
+Zusammenfassung der politischen Positionen der Parteien CDU/CSU, SPD, Bündnis 90/Die Grünen, Die Linke, FDP und AfD zur Europawahl 2024 auf Basis der Debatten im EU-Parlament und der Wahlprogramme. Die Antwort soll strikt die Informationen aus diesen Quellen widerspiegeln. Mach deutlich, die Antwort spiegelt die Position der Partei wieder.
+
+FRAGE: {question}
+
+Sollten die vorhandenen Daten keine klare Antwort zulassen, geben Sie bitte folgende Rückmeldung: ""Es wurde keine passende Antwort in den verfügbaren Daten gefunden.""
+
+    KONTEXT:
+    {context}
+    """"""
+
+"
+" prompt_template = """"""
+Analysieren und vergleichen Sie die politischen Positionen der Parteien CDU/CSU, SPD, Bündnis 90/Die Grünen, Die Linke, FDP und AfD zur Europawahl 2024. Nutzen Sie ausschließlich die Debatten im EU-Parlament und die Wahlprogramme der Parteien als Quelle. Heben Sie insbesondere die Unterschiede zwischen den Parteien hervor, um ein klares Bild ihrer jeweiligen Standpunkte zu zeichnen. Die Analyse sollte direkt auf den bereitgestellten Quellen basieren. Sollten Informationen zu einem bestimmten Thema fehlen, geben Sie bitte an: ""Zu diesem Thema wurden keine ausreichenden Informationen in den verfügbaren Daten gefunden.""
+
+FRAGE: {question}
+
+QUELLEN:
+- Debatten aus dem EU-Parlament
+- Wahlprogramme der Parteien
+
+Bitte fokussieren Sie sich darauf, die spezifischen Positionen jeder Partei klar zu definieren und gegenüberzustellen. Ziel ist es, ein umfassendes Verständnis der politischen Landschaft im Kontext der Europawahl 2024 zu vermitteln.
+
+
+    KONTEXT:
+    {context}
+    """"""
+"
+
+
+
+
+
+
+
+
+
+
+
+"    prompt_template = """"""
+    Du hilfst dabei, die politischen Positionen der Parteien CDU/CSU, SPD, Bündnis 90/Die Grünen, Die Linke, FDP und AfD zur Europawahl 2024 zusammenzufassen.
+    Beantworte die folgende Frage nur auf dem zur Verfügung gestellten Kontext.
+    Falls sich die Frage auf Basis des Kontexts nicht beantworten lässt, gib eine kurze Begründung an.
+    Beantworte die Frage auf Deutsch.
+
+    FRAGE: {question}
+
+    KONTEXT:
+    {context}
+    """""""

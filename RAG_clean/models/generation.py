@@ -117,7 +117,12 @@ def generate_chain(
 
 
 def generate_chain_with_balanced_retrieval(
-    dbs: list, llm=None, output_parser="json", temperature=0.0, k=5
+    dbs: list,
+    llm=None,
+    output_parser="json",
+    temperature=0.0,
+    k=5,
+    return_context=False,
 ):
     """
     Generates a langchain: Change this code to change the chain!
@@ -165,15 +170,40 @@ def generate_chain_with_balanced_retrieval(
     else:
         raise ValueError("output_parser must be 'json' or 'str'")
 
-    inputs = {"question": RunnablePassthrough()} | RunnableParallel(
-        {
-            "question": lambda x: x["question"],
-            "context": lambda x: "\n\n".join(
-                [db.build_context(query=x["question"], k=k) for db in dbs]
-            ),
-        }
-    )
+    if return_context:
+        # Create chain that returns context
+        prompting_chain = (
+            RunnablePassthrough.assign(context=(lambda x: x["context"]))
+            | question_prompt
+            | llm
+            | output_parser
+        )
 
-    chain = inputs | question_prompt | llm | output_parser
+        # Returns a dict of question, context, and answer
+        full_chain = {"question": RunnablePassthrough()} | RunnableParallel(
+            {
+                "question": lambda x: x["question"],
+                "context": lambda x: "\n\n".join(
+                    [db.build_context(query=x["question"], k=k) for db in dbs]
+                ),
+            }
+        ).assign(answer=prompting_chain)
 
-    return chain
+    else:
+        # Create chain without context return
+        input_chain = {"question": RunnablePassthrough()} | RunnableParallel(
+            {
+                "question": lambda x: x["question"],
+                "context": lambda x: "\n\n".join(
+                    [db.build_context(query=x["question"], k=k) for db in dbs]
+                ),
+            }
+        )
+
+        # Returns a dict of question and answer
+        full_chain = RunnableParallel(
+            question=RunnablePassthrough(),
+            answer=input_chain | question_prompt | llm | output_parser,
+        )
+
+    return full_chain
