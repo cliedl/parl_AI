@@ -59,7 +59,7 @@ class VectorDatabase:
             print("reloaded database")
         else:
             raise AssertionError(
-                f"{self.data_base_directory} does not include database."
+                f"{self.database_directory} does not include database."
             )
 
         return self.database
