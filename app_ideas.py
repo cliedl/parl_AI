@@ -192,7 +192,7 @@ if st.session_state.stage > 1:
             st.image(party_dict[party]["image"])
         with col_list[i + 1]:
             st.header(party_dict[party]["name"])
-            st.write(st.session_state.response[party])
+            st.write(st.session_state.response["answer"][party])
             st.write(
                 f'Mehr dazu im [Europawahlprogramm der Partei **{party_dict[party]["name"]}**]({party_dict[party]["manifesto_link"]})'
             )
