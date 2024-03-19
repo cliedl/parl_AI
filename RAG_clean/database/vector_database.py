@@ -194,9 +194,12 @@ class VectorDatabase:
             context += "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n"
             source_description = "vergangenen Reden im Europaparlament"
 
+        # Turn the dictionary of lists into a single (flat) list
+        docs = [doc for party_docs in docs.values() for doc in party_docs]
+
         for doc in docs:
             context += f"Ausschnitt aus {source_description} "
-            context += f"von der Partei {doc.metadata['party']}:\n"
+            context += f"von der Partei {doc.metadata['party'].upper()}:\n"
             context += f"{doc.page_content}\n\n"
 
         return context
