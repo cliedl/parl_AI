@@ -168,8 +168,7 @@ class VectorDatabase:
         )
         return retriever
 
-    def build_context(self, query, k=5):
-
+    def get_documents_for_each_party(self, query, k=5):
         sources = ["gruene", "spd", "cdu", "afd", "fdp", "linke"]
 
         random.shuffle(sources)
@@ -180,6 +179,11 @@ class VectorDatabase:
             docs.extend(
                 self.database.similarity_search(query, k=k, filter={"party": source})
             )
+        return docs
+
+    def build_context(self, query, k=5):
+
+        docs = self.get_documents_for_each_party(query, k=k)
 
         context = ""
 

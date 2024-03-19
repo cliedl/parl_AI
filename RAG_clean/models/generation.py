@@ -172,12 +172,7 @@ def generate_chain_with_balanced_retrieval(
 
     if return_context:
         # Create chain that returns context
-        prompting_chain = (
-            RunnablePassthrough.assign(context=(lambda x: x["context"]))
-            | question_prompt
-            | llm
-            | output_parser
-        )
+        prompting_chain = RunnablePassthrough() | question_prompt | llm | output_parser
 
         # Returns a dict of question, context, and answer
         full_chain = {"question": RunnablePassthrough()} | RunnableParallel(
@@ -186,6 +181,12 @@ def generate_chain_with_balanced_retrieval(
                 "context": lambda x: "\n\n".join(
                     [db.build_context(query=x["question"], k=k) for db in dbs]
                 ),
+                "docs": lambda x: {
+                    db.source_type: db.get_documents_for_each_party(
+                        query=x["question"], k=k
+                    )
+                    for db in dbs
+                },
             }
         ).assign(answer=prompting_chain)
 
