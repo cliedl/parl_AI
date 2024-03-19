@@ -176,8 +176,8 @@ class VectorDatabase:
         docs = {}
 
         for source in sources:
-            docs[source] = self.database.similarity_search(
-                query, k=k, filter={"party": source}
+            docs[source] = self.database.max_marginal_relevance_search(
+                query, k=k, fetch_k=20, filter={"party": source}
             )
         return docs
 
