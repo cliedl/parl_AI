@@ -86,41 +86,65 @@ class VectorDatabase:
         if os.path.exists(self.database_directory):
             raise AssertionError("Delete old database first and restart session!")
 
+        # Define text_splitter
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
+        )
+
         if self.loader == "pdf":
             # loader = PyPDFDirectoryLoader(self.data_path)
             # get file_paths of all pdfs in data_folder
             pdf_paths = glob.glob(os.path.join(self.data_path, "*.pdf"))
 
-            docs = []
+            splits = []
             for pdf_path in pdf_paths:
                 file_name = os.path.basename(pdf_path)
                 party = file_name.split("_")[0]
-                # Create doc loader
+
+                # Load pdf as single doc
                 loader = PDFMinerLoader(pdf_path, concatenate_pages=True)
-                # load document
                 doc = loader.load()
+
+                # Also load pdf as individual pages, this is important to extract the page number later
+                loader = PDFMinerLoader(pdf_path, concatenate_pages=False)
+                doc_pages = loader.load()
+
                 # Add party to metadata
                 for i in range(len(doc)):
                     doc[i].metadata.update({"party": party})
-                # append  to list
-                docs.extend(doc)
+
+                # Create splits
+                splits_temp = text_splitter.split_documents(doc)
+
+                # For each split, we search for the page on which it has occurred
+                for split in splits_temp:
+                    for i, doc_page in enumerate(doc_pages):
+                        # Create first and second half of split
+                        split_1 = split.page_content[
+                            : int(0.5 * len(split.page_content))
+                        ]
+                        split_2 = split.page_content[
+                            int(0.5 * len(split.page_content)) :
+                        ]
+                        # If the first half is on page i, set page=i
+                        if split_1 in doc_page.page_content:
+                            split.metadata.update({"page": i})
+                        # If the second half is on page i, set page=i
+                        elif split_2 in doc_page.page_content:
+                            split.metadata.update({"page": i})
+
+                splits.extend(splits_temp)
 
         elif self.loader == "csv":
             loader = CSVLoader(
                 self.data_path,
                 metadata_columns=["date", "fullName", "politicalGroup", "party"],
             )
-
             # Load documents
             docs = loader.load()
 
-        # Define text_splitter
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-        )
-
-        # Create splits
-        splits = text_splitter.split_documents(docs)
+            # Create splits
+            splits = text_splitter.split_documents(docs)
 
         # Create database
         self.database = Chroma.from_documents(
@@ -172,3 +196,24 @@ class VectorDatabase:
             context += f"{doc.page_content}\n\n"
 
         return context
+
+
+if __name__ == "__main__":
+    from langchain_openai import OpenAIEmbeddings
+
+    embedding_model = OpenAIEmbeddings(model="text-embedding-3-large")
+    embedding_name = "openai"
+
+    DATABASE_DIR = f"data/manifestos/chroma/{embedding_name}/"
+    DATA_PATH = "data/manifestos/01_pdf_originals"
+
+    database_manifestos = VectorDatabase(
+        embedding_model=embedding_model,
+        source_type="manifestos",
+        database_directory=DATABASE_DIR,
+        data_path=DATA_PATH,
+        loader="pdf",
+        reload=False,
+    )
+
+    database_manifestos.build_database()
