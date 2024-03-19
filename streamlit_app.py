@@ -3,14 +3,15 @@ import random
 from trubrics.integrations.streamlit import FeedbackCollector
 import os
 
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from RAG_clean.models.generation import generate_chain_with_balanced_retrieval
 from RAG_clean.database.vector_database import VectorDatabase
-from RAG_clean.models.embedding import ManifestoBertaEmbeddings
 
-DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma"
-DATABASE_DIR_DEBATES = "./data/debates/chroma"
+# from RAG_clean.models.embedding import ManifestoBertaEmbeddings
+
+DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
+DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
 DELAY = 0.05  # pause between words in text stream (in seconds)
 TEMPERATURE = 0.0
 LARGE_LANGUAGE_MODEL = ChatOpenAI(
@@ -21,7 +22,7 @@ LARGE_LANGUAGE_MODEL = ChatOpenAI(
 ### LANGCHAIN SETUP ###
 @st.cache_resource
 def load_embedding_model():
-    return ManifestoBertaEmbeddings()
+    return OpenAIEmbeddings(model="text-embedding-3-large")
 
 
 embedding_model = load_embedding_model()
@@ -31,7 +32,7 @@ embedding_model = load_embedding_model()
 def load_db_manifestos():
     return VectorDatabase(
         embedding_model=embedding_model,
-        source_type="debates",
+        source_type="manifestos",
         database_directory=DATABASE_DIR_MANIFESTOS,
     )
 
