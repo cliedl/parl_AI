@@ -141,7 +141,7 @@ def generate_chain_with_balanced_retrieval(
         )
 
     prompt_template = """   
-    Erstelle pro Partei eine Zusammenfassung der politischen Positionen von CDU/CSU, SPD, Bündnis 90/Die Grünen, Die Linke, FDP und AfD zur Europawahl 2024 auf Basis der Debatten im EU-Parlament und der EU-Wahlprogramme. 
+    Beantworte die Frage und erstelle pro Partei eine Zusammenfassung der politischen Positionen von CDU/CSU, SPD, Bündnis 90/Die Grünen, Die Linke, FDP und AfD zur Europawahl 2024 auf Basis der Debatten im EU-Parlament und der EU-Wahlprogramme. 
     Die Antwort soll strikt die Informationen aus den genannten Quellen widerspiegeln. 
     Mach deutlich, die Antwort entspricht den Position der Parteien.
 
