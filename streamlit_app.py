@@ -144,9 +144,7 @@ st.button("Frage stellen", on_click=submit_query, type="primary")
 
 # STAGE 1: GENERATE RESPONSE
 if st.session_state.stage == 1:
-    with st.spinner(
-        "Suche nach Antworten in Wahlprogrammen und Parlamentsdebatten... 🕵️‍♂️"
-    ):
+    with st.spinner("Suche nach Antworten in Wahlprogrammen... 🕵️‍♂️"):
         generate_response()
 
     st.session_state.logged_prompt = collector.log_prompt(
@@ -204,6 +202,23 @@ if st.session_state.stage > 1:
                 f'Mehr dazu im [Europawahlprogramm der Partei **{party_dict[party]["name"]}** (z.B. Seite {most_relevant_manifesto_page_number+1})]({party_dict[party]["manifesto_link"]}#page={most_relevant_manifesto_page_number+1})'
             )
         i += 2
+
+    st.subheader("Worauf basieren diese Antworten?")
+    st.write(
+        "Die Antworten wurden von dem KI-Sprachmodell GPT 3.5 generiert – unter Berücksichtigung der Wahlprogramme zur Europawahl 2024 und vergangenen Reden im Europaparlament im Zeitraum 2019-2024."
+    )
+    st.write("Hier kannst du die genutzten Ausschnitte aus den Quellen einsehen:")
+    with st.expander("Quellen anzeigen"):
+        for party in parties:
+            st.subheader(party_dict[party]["name"])
+            for doc in st.session_state.response["docs"]["manifestos"][party]:
+                manifesto_excerpt = doc.page_content.replace("\n", " ")
+                st.markdown(
+                    f"**Seite {doc.metadata['page']+1} im Wahlprogramm**: \n {manifesto_excerpt}\n\n"
+                )
+            # TODO: Add debates once we load them as well
+            # for doc in st.session_state.response["docs"]["debates"][party]:
+            #     st.write(f"Rede: {doc.page_content}")
 
     st.markdown("---")
     st.write("### Waren diese Antworten hilfreich für dich?")
