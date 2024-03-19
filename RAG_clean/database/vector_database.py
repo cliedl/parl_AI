@@ -5,6 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 import glob
 import os
+import random
 import shutil
 import time
 
@@ -146,6 +147,8 @@ class VectorDatabase:
     def build_context(self, query, k=5):
 
         sources = ["gruene", "spd", "cdu", "afd", "fdp", "linke"]
+
+        random.shuffle(sources)
 
         docs = []
 
