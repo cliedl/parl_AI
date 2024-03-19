@@ -173,11 +173,11 @@ class VectorDatabase:
 
         random.shuffle(sources)
 
-        docs = []
+        docs = {}
 
         for source in sources:
-            docs.extend(
-                self.database.similarity_search(query, k=k, filter={"party": source})
+            docs[source] = self.database.similarity_search(
+                query, k=k, filter={"party": source}
             )
         return docs
 
