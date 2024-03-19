@@ -140,16 +140,19 @@ def generate_chain_with_balanced_retrieval(
             model_name="gpt-3.5-turbo", max_tokens=2000, temperature=temperature
         )
 
-    prompt_template = """
-    Du hilfst dabei, die politischen Positionen der Parteien CDU/CSU, SPD, Bündnis 90/Die Grünen, Die Linke, FDP und AfD zur Europawahl 2024 zusammenzufassen.
-    Beantworte die folgende Frage nur auf dem zur Verfügung gestellten Kontext.
-    Falls sich die Frage auf Basis des Kontexts nicht beantworten lässt, gib eine kurze Begründung an.
-    Beantworte die Frage auf Deutsch.
-
-    FRAGE: {question}
+    prompt_template = """   
+    Erstelle pro Partei eine Zusammenfassung der politischen Positionen von CDU/CSU, SPD, Bündnis 90/Die Grünen, Die Linke, FDP und AfD zur Europawahl 2024 auf Basis der Debatten im EU-Parlament und der EU-Wahlprogramme. 
+    Die Antwort soll strikt die Informationen aus den genannten Quellen widerspiegeln. 
+    Mach deutlich, die Antwort entspricht den Position der Parteien.
 
     KONTEXT:
     {context}
+
+    Sollten die oben genannten Quellen keine klare Antwort auf die unten genannte Frage zulassen, gib bitte folgende Rückmeldung: "Es wurde keine passende Antwort in den verfügbaren Daten gefunden."
+    Andernfalls gib wie oben beschrieben eine Zusammenfassung der Positionen der Parteien wieder, wodurch die nun folgende Frage beantwortet wird:
+
+    FRAGE: 
+    {question}
     """
     # select output parser
     if output_parser == "json":
