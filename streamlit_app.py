@@ -80,32 +80,32 @@ if "feedback_key" not in st.session_state:
 
 
 party_dict = {
-    "cdu_summary": {
+    "cdu": {
         "name": "CDU/CSU",
         "image": "streamlit/assets/cdu_logo.png",
         "manifesto_link": "https://assets.ctfassets.net/nwwnl7ifahow/476rnHcYPkmyuONPvSTKO2/972e88ceb862ac4d4905d98441555e0c/europawahlprogramm-cdu-csu-2024_0.pdf",
     },
-    "spd_summary": {
+    "spd": {
         "name": "SPD",
         "image": "streamlit/assets/spd_logo.png",
         "manifesto_link": "https://www.spd.de/fileadmin/Dokumente/EuroDel/20240128_Europaprogramm.pdf",
     },
-    "gruene_summary": {
-        "name": "Bündnis 90 / Die Grünen",
+    "gruene": {
+        "name": "Bündnis 90/Die Grünen",
         "image": "streamlit/assets/gruene_logo.png",
         "manifesto_link": "https://cms.gruene.de/uploads/assets/Europawahlprogramm-2024-Bu%CC%88ndnis90Die-Gru%CC%88nen_Wohlstand_Gerechtigkeit_Frieden_Freiheit.pdf",
     },
-    "fdp_summary": {
+    "fdp": {
         "name": "FDP",
         "image": "streamlit/assets/fdp_logo.png",
         "manifesto_link": "https://www.fdp.de/sites/default/files/2024-01/fdp_europawahlprogramm-2024_vorabversion.pdf",
     },
-    "afd_summary": {
+    "afd": {
         "name": "AfD",
         "image": "streamlit/assets/afd_logo.png",
         "manifesto_link": "https://www.afd.de/wp-content/uploads/2023/11/2023-11-16-_-AfD-Europawahlprogramm-2024-_-web.pdf",
     },
-    "linke_summary": {
+    "linke": {
         "name": "Die Linke",
         "image": "streamlit/assets/linke_logo.png",
         "manifesto_link": "https://www.die-linke.de/fileadmin/user_upload/Europawahlprogramm_2023_neu2.pdf",
@@ -126,7 +126,7 @@ def generate_response():
 
 
 ### INTERFACE ###
-st.title("🇪🇺 Europawahl 2024")
+st.title("🇪🇺 europarl.ai 2024")
 
 query = st.text_input(
     label="Stelle eine Frage an die Parteien zur Europawahl:",
