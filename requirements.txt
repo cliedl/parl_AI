@@ -1,0 +1,6 @@
+trubrics==1.6.2
+trubrics[streamlit]
+streamlit==1.32.2
+streamlit-feedback==0.1.2
+langchain==0.1.12
+torch==2.2.1
