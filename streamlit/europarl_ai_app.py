@@ -2,19 +2,19 @@ import sys
 sys.path.append("..")
 
 import streamlit as st
-import random
 from trubrics.integrations.streamlit import FeedbackCollector
+import random
 import os
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-from ..RAG_clean.models.generation import generate_chain_with_balanced_retrieval
-from ..RAG_clean.database.vector_database import VectorDatabase
+from RAG_clean.models.generation import generate_chain_with_balanced_retrieval
+from RAG_clean.database.vector_database import VectorDatabase
 
 # from RAG_clean.models.embedding import ManifestoBertaEmbeddings
 
-DATABASE_DIR_MANIFESTOS = ".parl_ai/data/manifestos/chroma/openai"
-DATABASE_DIR_DEBATES = ".parl_ai/data/debates/chroma/openai"
+DATABASE_DIR_MANIFESTOS = "../data/manifestos/chroma/openai"
+DATABASE_DIR_DEBATES = "../data/debates/chroma/openai"
 DELAY = 0.05  # pause between words in text stream (in seconds)
 TEMPERATURE = 0.0
 LARGE_LANGUAGE_MODEL = ChatOpenAI(
