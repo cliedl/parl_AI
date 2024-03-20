@@ -168,5 +168,5 @@ data/.DS_Store
 
 
 # CHROMA DB
-data/debates/chroma/manifestoberta
-data/manifestos/chroma/manifestoberta
+data/debates/chroma/
+data/manifestos/chroma/
