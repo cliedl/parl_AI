@@ -10,7 +10,6 @@ from RAG_clean.database.vector_database import VectorDatabase
 from app_utils.translate import translate
 
 
-
 # from RAG_clean.models.embedding import ManifestoBertaEmbeddings
 
 DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
@@ -41,12 +40,6 @@ def load_db_manifestos():
 
 
 db_manifestos = load_db_manifestos()
-
-chain = generate_chain_with_balanced_retrieval(
-    [db_manifestos],
-    llm=LARGE_LANGUAGE_MODEL,
-    return_context=True,
-)
 
 
 ### TRUBRICS SETUP ###
@@ -137,9 +130,11 @@ def generate_response():
 
 
 ### INTERFACE ###
-  
+
 
 st.title("🇪🇺 europarl.ai 2024")
+
+st.sidebar.title("")
 
 selected_language = st.radio(
     label="Language",
@@ -149,6 +144,12 @@ selected_language = st.radio(
 languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
 st.session_state.language = languages[selected_language]
 
+chain = generate_chain_with_balanced_retrieval(
+    [db_manifestos],
+    llm=LARGE_LANGUAGE_MODEL,
+    return_context=True,
+    language=st.session_state.language,
+)
 query = st.text_input(
     label=translate(
         "Gib ein Stichwort ein oder stelle eine Frage an die Parteien zur Europawahl:",
