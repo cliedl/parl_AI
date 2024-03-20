@@ -346,11 +346,13 @@ if st.session_state.stage > 1:
             for doc in st.session_state.response["docs"]["manifestos"][true_party]:
                 manifesto_excerpt = doc.page_content.replace("\n", " ")
                 st.markdown(
-                    f"**Seite {doc.metadata['page']+1} im Wahlprogramm**: \n {manifesto_excerpt}\n\n"
+                    f'**Seite {doc.metadata["page"]+1} im Wahlprogramm**: \n "{manifesto_excerpt}"\n\n'
                 )
-            # TODO: Add debates once we load them as well
-            # for doc in st.session_state.response["docs"]["debates"][party]:
-            #     st.write(f"Rede: {doc.page_content}")
+            for doc in st.session_state.response["docs"]["debates"][true_party]:
+                debate_excerpt = doc.page_content.replace("\n", " ")
+                st.write(
+                    f'**Ausschnitt aus einer Rede im EU-Parlament**: "{doc.page_content}"\n\n'
+                )
 
     st.markdown("---")
     st.write(
