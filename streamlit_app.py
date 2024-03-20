@@ -231,6 +231,8 @@ if st.session_state.stage > 1:
             st.write("")
             if st.session_state.show_parties:
                 st.image(party_dict[party]["image"])
+            else:
+                st.image("streamlit/assets/placeholder_logo.png")
 
         with col_list[i + 1]:
             if st.session_state.show_parties:
