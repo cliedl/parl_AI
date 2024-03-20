@@ -130,7 +130,7 @@ def generate_response():
 st.title("🇪🇺 europarl.ai 2024")
 
 query = st.text_input(
-    label="Stelle eine Frage an die Parteien zur Europawahl:",
+    label="Gib ein Stichwort ein oder stelle eine Frage an die Parteien zur Europawahl:",
     placeholder="Wie stehen die Parteien zum Emmissionshandel?",
     value="",
 )
