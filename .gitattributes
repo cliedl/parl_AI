@@ -1,2 +1,2 @@
 data/debates/chroma/openai/ filter=lfs diff=lfs merge=lfs -text
-data/debates/manifestos/openai/ filter=lfs diff=lfs merge=lfs -text
+data/manifestos/chroma/openai/ filter=lfs diff=lfs merge=lfs -text
