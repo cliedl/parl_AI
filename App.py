@@ -10,6 +10,14 @@ from RAG.models.generation import generate_chain_with_balanced_retrieval
 from RAG.database.vector_database import VectorDatabase, rename_party
 from streamlit_app.utils.translate import translate
 
+# The following is necessary to make the code work in the deployed version.
+# (We need a newer version of sqlite3 than the one provided by Streamlit.)
+# The environment variable IS_DEPLOYED is created only in the Streamlit Secrets and set to the string "TRUE".
+if os.getenv("IS_DEPLOYED", default="FALSE") == "TRUE":
+    __import__("pysqlite3")
+    import sys
+
+    sys.modules["sqlite3"] = sys.modules["pysqlite3"]
 
 # from RAG.models.embedding import ManifestoBertaEmbeddings
 
