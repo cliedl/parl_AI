@@ -264,7 +264,7 @@ if st.session_state.stage > 1:
         )
     )
     with st.expander(translate("Quellen anzeigen", st.session_state.language)):
-        for party in parties:
+        for party in st.session_state.parties:
             st.subheader(party_dict[party]["name"])
             for doc in st.session_state.response["docs"]["manifestos"][party]:
                 manifesto_excerpt = doc.page_content.replace("\n", " ")
