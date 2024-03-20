@@ -135,11 +135,6 @@ query = st.text_input(
     value="",
 )
 
-# This is a workaround to make sure the query is submitted when the user presses enter
-if st.session_state.query != query:
-    st.session_state.query = query
-    submit_query()
-
 st.button("Frage stellen", on_click=submit_query, type="primary")
 
 # STAGE 1: GENERATE RESPONSE
