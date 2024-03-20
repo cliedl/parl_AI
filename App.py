@@ -129,17 +129,26 @@ if "feedback_key" not in st.session_state:
     st.session_state.feedback_key = 0
 if "language" not in st.session_state:
     st.session_state.language = "Deutsch"
-if "show_parties" not in st.session_state:
-    st.session_state.show_parties = True
 if "parties" not in st.session_state:
     st.session_state.parties = list(party_dict.keys())
+if "show_individual_parties" not in st.session_state:
+    # The values in this dict will only be set true if a party name is explicitly "revealed" by the user.
+    # The keys represent the (random) order of appearance of the parties in the app
+    # and not fixed parties as opposed to the above party_dict.
+    st.session_state.show_individual_parties = {
+        "party_1": False,
+        "party_2": False,
+        "party_3": False,
+        "party_4": False,
+        "party_5": False,
+        "party_6": False,
+    }
+if "show_all_parties" not in st.session_state:
+    st.session_state.show_all_parties = True
 
 
-# def streaming(text, delay=DELAY):
-#     # Chose random response from a list
-#     for word in text.split():
-#         yield word + " "
-#         time.sleep(delay)
+def reveal_party(p):
+    st.session_state.show_individual_parties[f"party_{p}"] = True
 
 
 def submit_query():
@@ -148,6 +157,14 @@ def submit_query():
     st.session_state.feedback = None
     st.session_state.stage = 1
     st.session_state.feedback_key += 1
+    st.session_state.show_individual_parties = {
+        "party_1": False,
+        "party_2": False,
+        "party_3": False,
+        "party_4": False,
+        "party_5": False,
+        "party_6": False,
+    }
     random.shuffle(st.session_state.parties)
 
 
@@ -189,7 +206,7 @@ query = st.text_input(
     value="",
 )
 
-st.session_state.show_parties = st.checkbox(
+st.session_state.show_all_parties = st.checkbox(
     label=translate("Parteinamen anzeigen", st.session_state.language),
     value=True,
     help=translate(
@@ -262,13 +279,29 @@ if st.session_state.stage > 1:
         with col_list[i]:
             st.write("")
             st.write("")
-            if st.session_state.show_parties:
+            if (
+                st.session_state.show_all_parties
+                or st.session_state.show_individual_parties[f"party_{p}"]
+            ):
                 st.image(party_dict[party]["image"])
             else:
                 st.image("streamlit_app/assets/placeholder_logo.png")
+            if not (
+                st.session_state.show_all_parties
+                or st.session_state.show_individual_parties[f"party_{p}"]
+            ):
+                st.button(
+                    translate("Partei aufdecken", st.session_state.language),
+                    on_click=reveal_party,
+                    args=(p,),
+                    key=p,
+                )
 
         with col_list[i + 1]:
-            if st.session_state.show_parties:
+            if (
+                st.session_state.show_all_parties
+                or st.session_state.show_individual_parties[f"party_{p}"]
+            ):
                 st.header(party_dict[party]["name"])
             else:
                 st.header(f"Partei {p}")
@@ -276,7 +309,10 @@ if st.session_state.stage > 1:
                 st.session_state.response["answer"][party]
             )
             st.write(answer)
-            if st.session_state.show_parties:
+            if (
+                st.session_state.show_all_parties
+                or st.session_state.show_individual_parties[f"party_{p}"]
+            ):
                 st.write(
                     f"""{translate('Mehr dazu im', st.session_state.language)}
                         [{translate('Europawahlprogramm der Partei', st.session_state.language)} 
