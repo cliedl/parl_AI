@@ -1,2 +1,0 @@
-git_lfs_test/debates_openai/** filter=lfs diff=lfs merge=lfs -text
-git_lfs_test/debates_openai/chroma.sqlite3 filter=lfs diff=lfs merge=lfs -text
