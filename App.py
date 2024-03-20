@@ -2,11 +2,12 @@ import streamlit as st
 import random
 from trubrics.integrations.streamlit import FeedbackCollector
 import os
+import re
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from RAG.models.generation import generate_chain_with_balanced_retrieval
-from RAG.database.vector_database import VectorDatabase
+from RAG.database.vector_database import VectorDatabase, rename_party
 from streamlit_app.utils.translate import translate
 
 
@@ -66,37 +67,42 @@ collector = FeedbackCollector(
 
 ### INITIALIZATION ###
 party_dict = {
-    "cdu": {
+    "partei_a": {
         "name": "CDU/CSU",
         "image": "streamlit_app/assets/cdu_logo.png",
         "manifesto_link": "https://assets.ctfassets.net/nwwnl7ifahow/476rnHcYPkmyuONPvSTKO2/972e88ceb862ac4d4905d98441555e0c/europawahlprogramm-cdu-csu-2024_0.pdf",
     },
-    "spd": {
+    "partei_b": {
         "name": "SPD",
         "image": "streamlit_app/assets/spd_logo.png",
         "manifesto_link": "https://www.spd.de/fileadmin/Dokumente/EuroDel/20240128_Europaprogramm.pdf",
     },
-    "gruene": {
+    "partei_c": {
         "name": "Bündnis 90/Die Grünen",
         "image": "streamlit_app/assets/gruene_logo.png",
         "manifesto_link": "https://cms.gruene.de/uploads/assets/Europawahlprogramm-2024-Bu%CC%88ndnis90Die-Gru%CC%88nen_Wohlstand_Gerechtigkeit_Frieden_Freiheit.pdf",
     },
-    "fdp": {
-        "name": "FDP",
-        "image": "streamlit_app/assets/fdp_logo.png",
-        "manifesto_link": "https://www.fdp.de/sites/default/files/2024-01/fdp_europawahlprogramm-2024_vorabversion.pdf",
-    },
-    "afd": {
-        "name": "AfD",
-        "image": "streamlit_app/assets/afd_logo.png",
-        "manifesto_link": "https://www.afd.de/wp-content/uploads/2023/11/2023-11-16-_-AfD-Europawahlprogramm-2024-_-web.pdf",
-    },
-    "linke": {
+    "partei_d": {
         "name": "Die Linke",
         "image": "streamlit_app/assets/linke_logo.png",
         "manifesto_link": "https://www.die-linke.de/fileadmin/user_upload/Europawahlprogramm_2023_neu2.pdf",
     },
+    "partei_e": {
+        "name": "FDP",
+        "image": "streamlit_app/assets/fdp_logo.png",
+        "manifesto_link": "https://www.fdp.de/sites/default/files/2024-01/fdp_europawahlprogramm-2024_vorabversion.pdf",
+    },
+    "partei_f": {
+        "name": "AfD",
+        "image": "streamlit_app/assets/afd_logo.png",
+        "manifesto_link": "https://www.afd.de/wp-content/uploads/2023/11/2023-11-16-_-AfD-Europawahlprogramm-2024-_-web.pdf",
+    },
 }
+
+
+# The following function replaces mentions of "Partei A/B/C/..." with "Partei"
+def clean_party_names_in_response(text):
+    return re.sub(r"Partei [A-F]", "Partei", text)
 
 
 if "response" not in st.session_state:
@@ -192,7 +198,8 @@ st.button(
 if st.session_state.stage == 1:
     with st.spinner(
         translate(
-            "Suche nach Antworten in Wahlprogrammen...", st.session_state.language
+            "Suche nach Antworten in Wahlprogrammen und Parlamentsdebatten...",
+            st.session_state.language,
         )
         + "🕵️"
     ):
@@ -240,7 +247,7 @@ if st.session_state.stage > 1:
 
         most_relevant_manifesto_page_number = st.session_state.response["docs"][
             "manifestos"
-        ][party][0].metadata["page"]
+        ][rename_party(party, "deanonymize")][0].metadata["page"]
 
         with col_list[i]:
             st.write("")
@@ -248,14 +255,17 @@ if st.session_state.stage > 1:
             if st.session_state.show_parties:
                 st.image(party_dict[party]["image"])
             else:
-                st.image("streamlit/assets/placeholder_logo.png")
+                st.image("streamlit_app/assets/placeholder_logo.png")
 
         with col_list[i + 1]:
             if st.session_state.show_parties:
                 st.header(party_dict[party]["name"])
             else:
                 st.header(f"Partei {p}")
-            st.write(st.session_state.response["answer"][party])
+            answer = clean_party_names_in_response(
+                st.session_state.response["answer"][party]
+            )
+            st.write(answer)
             if st.session_state.show_parties:
                 st.write(
                     f"""{translate('Mehr dazu im', st.session_state.language)}
@@ -266,6 +276,7 @@ if st.session_state.stage > 1:
         i += 2
         p += 1
 
+    st.markdown("---")
     st.subheader(
         translate("Worauf basieren diese Antworten?", st.session_state.language)
     )
@@ -284,7 +295,9 @@ if st.session_state.stage > 1:
     with st.expander(translate("Quellen anzeigen", st.session_state.language)):
         for party in st.session_state.parties:
             st.subheader(party_dict[party]["name"])
-            for doc in st.session_state.response["docs"]["manifestos"][party]:
+
+            true_party = rename_party(party, "deanonymize")
+            for doc in st.session_state.response["docs"]["manifestos"][true_party]:
                 manifesto_excerpt = doc.page_content.replace("\n", " ")
                 st.markdown(
                     f"**Seite {doc.metadata['page']+1} im Wahlprogramm**: \n {manifesto_excerpt}\n\n"

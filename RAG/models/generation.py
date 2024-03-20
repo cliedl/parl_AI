@@ -10,23 +10,23 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 
 # Output format
 class PartySummaries(BaseModel):
-    cdu: str = Field(
-        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei CDU/CSU"
+    partei_a: str = Field(
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei_A"
     )
-    spd: str = Field(
-        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei SPD"
+    partei_b: str = Field(
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei_B"
     )
-    gruene: str = Field(
-        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei Bündnis 90/Die Grünen"
+    partei_c: str = Field(
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei_C"
     )
-    linke: str = Field(
-        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei Die Linke"
+    partei_d: str = Field(
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei_D"
     )
-    fdp: str = Field(
-        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei FDP"
+    partei_e: str = Field(
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei_E"
     )
-    afd: str = Field(
-        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei AfD"
+    partei_f: str = Field(
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei_F"
     )
 
 
@@ -143,18 +143,20 @@ def generate_chain_with_balanced_retrieval(
         )
 
     prompt_template = f"""   
-    Beantworte die Frage und erstelle pro Partei eine Zusammenfassung der politischen Positionen von CDU/CSU, SPD, Bündnis 90/Die Grünen, Die Linke, FDP und AfD zur Europawahl 2024 auf Basis der Debatten im EU-Parlament und der EU-Wahlprogramme. 
-    Die Antwort soll strikt die Informationen aus den genannten Quellen widerspiegeln. 
-    Mach deutlich, die Antwort entspricht den Position der Parteien.
-    Gebe die Antwort auf {language}.
+    Beantworte die unten folgende FRAGE DES NUTZERS, indem du die politischen Positionen der im KONTEXT genannten Parteien zusammenfasst.
+    Der KONTEXT umfasst Ausschnitte aus Debatten im EU-Parlament und der EU-Wahlprogramme für 2024. 
+    Deine Antwort soll ausschließlich die Informationen aus dem genannten KONTEXT beinhalten.
+    Mach deutlich, dass die Antwort den subjektiven Position der Parteien entspricht und distanziere dich falls nötig davon (z.B. mit wörtlicher Rede oder Konjunktiven).
+    Benutze in deiner Antwort niemals die Parteinamen ("Partei_A", "Partei_B", etc.), sondern benutze immer nur die allgemeine Form "Die Partei" (z.B. "Die Partei unterstützt..." oder "Die Partei setzt sich ein für ...").
+    Gib die Antwort auf {language}.
 
     KONTEXT:
     {{context}}
 
-        Sollten die oben genannten Quellen keine klare Antwort auf die unten genannte Frage zulassen, gib bitte folgende Rückmeldung: "Es wurde keine passende Antwort in den verfügbaren Daten gefunden."
-    Andernfalls gib wie oben beschrieben eine Zusammenfassung der Positionen der Parteien wieder, wodurch die nun folgende Frage beantwortet wird:
+    Sollte für eine Partei der oben genannte KONTEXT keine klare Antwort auf die unten genannte FRAGE DES NUTZERS zulassen, gib für diese Partei bitte folgende Rückmeldung: "Es wurde keine passende Antwort in den verfügbaren Daten gefunden."
+    Andernfalls gib wie oben beschrieben eine Zusammenfassung der Positionen der Parteien wieder, um die nun folgende FRAGE DES NUTZERS zu beantworten:
 
-    FRAGE: 
+    FRAGE DES NUTZERS: 
     {{question}}
     """
     # select output parser

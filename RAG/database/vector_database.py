@@ -6,8 +6,37 @@ from langchain_community.vectorstores import Chroma
 import glob
 import os
 import random
-import shutil
-import time
+
+
+def rename_party(party: str, mode: str = "anonymize"):
+    """
+    Anonymizes or de-anonymizes party names.
+
+    arguments:
+    - party (str): party name
+    - mode (str): "anonymize" or "deanonymize"
+
+    returns:
+    - party (str): anonymized party name
+    """
+
+    party_dict = {
+        "cdu": "partei_a",
+        "spd": "partei_b",
+        "gruene": "partei_c",
+        "linke": "partei_d",
+        "fdp": "partei_e",
+        "afd": "partei_f",
+    }
+
+    if mode == "anonymize":
+        return party_dict[party.lower()]
+    elif mode == "deanonymize":
+        for key, value in party_dict.items():
+            if value == party.lower():
+                return key
+    else:
+        raise ValueError("mode must be 'anonymize' or 'deanonymize'")
 
 
 class VectorDatabase:
@@ -159,12 +188,7 @@ class VectorDatabase:
     def get_retriever(self, search_type="similarity", k=10):
         retriever = self.database.as_retriever(
             search_type=search_type,
-            search_kwargs={
-                "k": k,
-                # "where": {  # https://docs.trychroma.com/usage-guide#using-where-filters
-                #     "source": "something" #
-                # },
-            },
+            search_kwargs={"k": k},
         )
         return retriever
 
@@ -191,7 +215,7 @@ class VectorDatabase:
             context += "Ausschnitte aus den Wahlprogrammen zur Europawahl 2024:\n"
             source_description = "dem Wahlprogramm zur Europawahl 2024"
         elif self.source_type == "debates":
-            context += "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n"
+            context += "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n\n"
             source_description = "vergangenen Reden im Europaparlament"
 
         # Turn the dictionary of lists into a single (flat) list
@@ -199,7 +223,9 @@ class VectorDatabase:
 
         for doc in docs:
             context += f"Ausschnitt aus {source_description} "
-            context += f"von der Partei {doc.metadata['party'].upper()}:\n"
+            context += (
+                f"von der {rename_party(doc.metadata['party'], 'anonymize').upper()}:\n"
+            )
             context += f"{doc.page_content}\n\n"
 
         return context
