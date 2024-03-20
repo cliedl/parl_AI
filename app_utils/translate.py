@@ -17,11 +17,3 @@ def translate(text, language):
             return text_translated
         else:
             return text
-
-
-print(
-    translate(
-        "Mit deinem Feedback hilfst du uns, die Qualität der Antworten zu verbessern.",
-        "English",
-    )
-)

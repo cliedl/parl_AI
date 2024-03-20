@@ -60,29 +60,6 @@ collector = FeedbackCollector(
 
 
 ### INITIALIZATION ###
-if "response" not in st.session_state:
-    st.session_state.response = None
-if "stage" not in st.session_state:
-    st.session_state.stage = 0
-if "query" not in st.session_state:
-    st.session_state.query = ""
-if "logged_prompt" not in st.session_state:
-    st.session_state.logged_prompt = None
-if "feedback" not in st.session_state:
-    st.session_state.feedback = None
-if "feedback_key" not in st.session_state:
-    st.session_state.feedback_key = 0
-if "language" not in st.session_state:
-    st.session_state.language = "german"
-
-
-# def streaming(text, delay=DELAY):
-#     # Chose random response from a list
-#     for word in text.split():
-#         yield word + " "
-#         time.sleep(delay)
-
-
 party_dict = {
     "cdu": {
         "name": "CDU/CSU",
@@ -117,12 +94,40 @@ party_dict = {
 }
 
 
+if "response" not in st.session_state:
+    st.session_state.response = None
+if "stage" not in st.session_state:
+    st.session_state.stage = 0
+if "query" not in st.session_state:
+    st.session_state.query = ""
+if "logged_prompt" not in st.session_state:
+    st.session_state.logged_prompt = None
+if "feedback" not in st.session_state:
+    st.session_state.feedback = None
+if "feedback_key" not in st.session_state:
+    st.session_state.feedback_key = 0
+if "language" not in st.session_state:
+    st.session_state.language = "Deutsch"
+if "show_parties" not in st.session_state:
+    st.session_state.show_parties = True
+if "parties" not in st.session_state:
+    st.session_state.parties = list(party_dict.keys())
+
+
+# def streaming(text, delay=DELAY):
+#     # Chose random response from a list
+#     for word in text.split():
+#         yield word + " "
+#         time.sleep(delay)
+
+
 def submit_query():
     st.session_state.logged_prompt = None
     st.session_state.response = None
     st.session_state.feedback = None
     st.session_state.stage = 1
     st.session_state.feedback_key += 1
+    random.shuffle(st.session_state.parties)
 
 
 def generate_response():
@@ -131,8 +136,15 @@ def generate_response():
 
 ### INTERFACE ###
 st.title("🇪🇺 europarl.ai 2024")
-st.session_state.language = st.selectbox("Language", ["Deutsch", "English"])
-# st.radio(label="Language", ["Deutsch", "English"])
+
+selected_language = st.radio(
+    label="Language",
+    options=["🇩🇪 Deutsch", "🇬🇧 English"],
+    horizontal=True,
+)
+languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
+st.session_state.language = languages[selected_language]
+
 query = st.text_input(
     label=translate(
         "Gib ein Stichwort ein oder stelle eine Frage an die Parteien zur Europawahl:",
@@ -143,6 +155,15 @@ query = st.text_input(
         language=st.session_state.language,
     ),
     value="",
+)
+
+st.session_state.show_parties = st.checkbox(
+    label=translate("Parteinamen anzeigen", st.session_state.language),
+    value=True,
+    help=translate(
+        "Du kannst die Namen der Parteien ausblenden, wenn du die Antworten zunächst unvoreingenommen lesen möchtest.",
+        st.session_state.language,
+    ),
 )
 
 st.button(
@@ -197,11 +218,9 @@ if st.session_state.stage > 1:
         col12,
     ]
 
-    parties = list(party_dict.keys())
-    random.shuffle(parties)
-
     i = 0
-    for party in parties:
+    p = 1
+    for party in st.session_state.parties:
 
         most_relevant_manifesto_page_number = st.session_state.response["docs"][
             "manifestos"
@@ -210,17 +229,24 @@ if st.session_state.stage > 1:
         with col_list[i]:
             st.write("")
             st.write("")
-            st.image(party_dict[party]["image"])
+            if st.session_state.show_parties:
+                st.image(party_dict[party]["image"])
+
         with col_list[i + 1]:
-            st.header(party_dict[party]["name"])
+            if st.session_state.show_parties:
+                st.header(party_dict[party]["name"])
+            else:
+                st.header(f"Partei {p}")
             st.write(st.session_state.response["answer"][party])
-            st.write(
-                f"""{translate('Mehr dazu im', st.session_state.language)}
-                    [{translate('Europawahlprogramm der Partei', st.session_state.language)} 
-                    **{party_dict[party]['name']}** 
-                    ({translate('z.B. Seite', st.session_state.language)} {most_relevant_manifesto_page_number+1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number+1})"""
-            )
+            if st.session_state.show_parties:
+                st.write(
+                    f"""{translate('Mehr dazu im', st.session_state.language)}
+                        [{translate('Europawahlprogramm der Partei', st.session_state.language)} 
+                        **{party_dict[party]['name']}** 
+                        ({translate('z.B. Seite', st.session_state.language)} {most_relevant_manifesto_page_number+1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number+1})"""
+                )
         i += 2
+        p += 1
 
     st.subheader(
         translate("Worauf basieren diese Antworten?", st.session_state.language)
