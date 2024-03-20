@@ -5,12 +5,12 @@ import os
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-from RAG_clean.models.generation import generate_chain_with_balanced_retrieval
-from RAG_clean.database.vector_database import VectorDatabase
-from app_utils.translate import translate
+from RAG.models.generation import generate_chain_with_balanced_retrieval
+from RAG.database.vector_database import VectorDatabase
+from streamlit_app.utils.translate import translate
 
 
-# from RAG_clean.models.embedding import ManifestoBertaEmbeddings
+# from RAG.models.embedding import ManifestoBertaEmbeddings
 
 DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
 DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
@@ -39,7 +39,17 @@ def load_db_manifestos():
     )
 
 
+@st.cache_resource
+def load_db_debates():
+    return VectorDatabase(
+        embedding_model=embedding_model,
+        source_type="debates",
+        database_directory=DATABASE_DIR_DEBATES,
+    )
+
+
 db_manifestos = load_db_manifestos()
+db_debates = load_db_debates()
 
 
 ### TRUBRICS SETUP ###
@@ -58,32 +68,32 @@ collector = FeedbackCollector(
 party_dict = {
     "cdu": {
         "name": "CDU/CSU",
-        "image": "streamlit/assets/cdu_logo.png",
+        "image": "streamlit_app/assets/cdu_logo.png",
         "manifesto_link": "https://assets.ctfassets.net/nwwnl7ifahow/476rnHcYPkmyuONPvSTKO2/972e88ceb862ac4d4905d98441555e0c/europawahlprogramm-cdu-csu-2024_0.pdf",
     },
     "spd": {
         "name": "SPD",
-        "image": "streamlit/assets/spd_logo.png",
+        "image": "streamlit_app/assets/spd_logo.png",
         "manifesto_link": "https://www.spd.de/fileadmin/Dokumente/EuroDel/20240128_Europaprogramm.pdf",
     },
     "gruene": {
         "name": "Bündnis 90/Die Grünen",
-        "image": "streamlit/assets/gruene_logo.png",
+        "image": "streamlit_app/assets/gruene_logo.png",
         "manifesto_link": "https://cms.gruene.de/uploads/assets/Europawahlprogramm-2024-Bu%CC%88ndnis90Die-Gru%CC%88nen_Wohlstand_Gerechtigkeit_Frieden_Freiheit.pdf",
     },
     "fdp": {
         "name": "FDP",
-        "image": "streamlit/assets/fdp_logo.png",
+        "image": "streamlit_app/assets/fdp_logo.png",
         "manifesto_link": "https://www.fdp.de/sites/default/files/2024-01/fdp_europawahlprogramm-2024_vorabversion.pdf",
     },
     "afd": {
         "name": "AfD",
-        "image": "streamlit/assets/afd_logo.png",
+        "image": "streamlit_app/assets/afd_logo.png",
         "manifesto_link": "https://www.afd.de/wp-content/uploads/2023/11/2023-11-16-_-AfD-Europawahlprogramm-2024-_-web.pdf",
     },
     "linke": {
         "name": "Die Linke",
-        "image": "streamlit/assets/linke_logo.png",
+        "image": "streamlit_app/assets/linke_logo.png",
         "manifesto_link": "https://www.die-linke.de/fileadmin/user_upload/Europawahlprogramm_2023_neu2.pdf",
     },
 }
@@ -145,10 +155,11 @@ languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
 st.session_state.language = languages[selected_language]
 
 chain = generate_chain_with_balanced_retrieval(
-    [db_manifestos],
+    [db_manifestos, db_debates],
     llm=LARGE_LANGUAGE_MODEL,
     return_context=True,
     language=st.session_state.language,
+    k=3,
 )
 query = st.text_input(
     label=translate(
