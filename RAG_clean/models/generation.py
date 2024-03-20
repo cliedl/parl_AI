@@ -10,16 +10,24 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 
 # Output format
 class PartySummaries(BaseModel):
-    cdu: str = Field(description="Zusammenfassung der Positionen der Partei CDU/CSU")
-    spd: str = Field(description="Zusammenfassung der Positionen der Partei SPD")
+    cdu: str = Field(
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei CDU/CSU"
+    )
+    spd: str = Field(
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei SPD"
+    )
     gruene: str = Field(
-        description="Zusammenfassung der Positionen der Partei Bündnis 90/Die Grünen"
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei Bündnis 90/Die Grünen"
     )
     linke: str = Field(
-        description="Zusammenfassung der Positionen der Partei Die Linke"
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei Die Linke"
     )
-    fdp: str = Field(description="Zusammenfassung der Positionen der Partei FDP")
-    afd: str = Field(description="Zusammenfassung der Positionen der Partei AfD")
+    fdp: str = Field(
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei FDP"
+    )
+    afd: str = Field(
+        description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei AfD"
+    )
 
 
 def generate_chain(
