@@ -147,7 +147,6 @@ def generate_chain_with_balanced_retrieval(
     Der KONTEXT umfasst Ausschnitte aus Debatten im EU-Parlament und der EU-Wahlprogramme für 2024. 
     Deine Antwort soll ausschließlich die Informationen aus dem genannten KONTEXT beinhalten.
     Mach deutlich, dass die Antwort den subjektiven Position der Parteien entspricht und distanziere dich falls nötig davon (z.B. mit wörtlicher Rede oder Konjunktiven).
-    Benutze in deiner Antwort niemals die Parteinamen ("Partei_A", "Partei_B", etc.), sondern benutze immer nur die allgemeine Form "Die Partei" (z.B. "Die Partei unterstützt..." oder "Die Partei setzt sich ein für ...").
     Gib die Antwort auf {language}.
 
     KONTEXT:
