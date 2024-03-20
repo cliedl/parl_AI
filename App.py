@@ -173,19 +173,16 @@ def generate_response():
 
 
 ### INTERFACE ###
+sidebar = st.sidebar.title("")
 
-
-st.title("🇪🇺 europarl.ai 2024")
-
-st.sidebar.title("")
-
-selected_language = st.radio(
-    label="Language",
-    options=["🇩🇪 Deutsch", "🇬🇧 English"],
-    horizontal=True,
-)
-languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
-st.session_state.language = languages[selected_language]
+with sidebar:
+    selected_language = st.radio(
+        label="Language",
+        options=["🇩🇪 Deutsch", "🇬🇧 English"],
+        horizontal=True,
+    )
+    languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
+    st.session_state.language = languages[selected_language]
 
 chain = generate_chain_with_balanced_retrieval(
     [db_manifestos, db_debates],
@@ -194,9 +191,18 @@ chain = generate_chain_with_balanced_retrieval(
     language=st.session_state.language,
     k=3,
 )
+
+st.title("🇪🇺 europarl.ai")
+st.write(
+    translate(
+        "Erfahre die Positionen der Parteien zur Europawahl 2024.",
+        st.session_state.language,
+    )
+)
+
 query = st.text_input(
     label=translate(
-        "Gib ein Stichwort ein oder stelle eine Frage an die Parteien zur Europawahl:",
+        "Gib ein Stichwort ein oder stelle eine Frage:",
         st.session_state.language,
     ),
     placeholder=translate(
