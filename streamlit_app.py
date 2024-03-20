@@ -21,6 +21,7 @@ LARGE_LANGUAGE_MODEL = ChatOpenAI(
 )
 
 
+
 ### LANGCHAIN SETUP ###
 @st.cache_resource
 def load_embedding_model():
@@ -41,12 +42,6 @@ def load_db_manifestos():
 
 db_manifestos = load_db_manifestos()
 
-chain = generate_chain_with_balanced_retrieval(
-    [db_manifestos],
-    llm=LARGE_LANGUAGE_MODEL,
-    return_context=True,
-)
-
 
 ### TRUBRICS SETUP ###
 collector = FeedbackCollector(
@@ -61,27 +56,6 @@ collector = FeedbackCollector(
 
 
 ### INITIALIZATION ###
-if "response" not in st.session_state:
-    st.session_state.response = None
-if "stage" not in st.session_state:
-    st.session_state.stage = 0
-if "query" not in st.session_state:
-    st.session_state.query = ""
-if "logged_prompt" not in st.session_state:
-    st.session_state.logged_prompt = None
-if "feedback" not in st.session_state:
-    st.session_state.feedback = None
-if "feedback_key" not in st.session_state:
-    st.session_state.feedback_key = 0
-
-
-# def streaming(text, delay=DELAY):
-#     # Chose random response from a list
-#     for word in text.split():
-#         yield word + " "
-#         time.sleep(delay)
-
-
 party_dict = {
     "cdu": {
         "name": "CDU/CSU",
@@ -116,12 +90,40 @@ party_dict = {
 }
 
 
+if "response" not in st.session_state:
+    st.session_state.response = None
+if "stage" not in st.session_state:
+    st.session_state.stage = 0
+if "query" not in st.session_state:
+    st.session_state.query = ""
+if "logged_prompt" not in st.session_state:
+    st.session_state.logged_prompt = None
+if "feedback" not in st.session_state:
+    st.session_state.feedback = None
+if "feedback_key" not in st.session_state:
+    st.session_state.feedback_key = 0
+if "language" not in st.session_state:
+    st.session_state.language = "Deutsch"
+if "show_parties" not in st.session_state:
+    st.session_state.show_parties = True
+if "parties" not in st.session_state:
+    st.session_state.parties = list(party_dict.keys())
+
+
+# def streaming(text, delay=DELAY):
+#     # Chose random response from a list
+#     for word in text.split():
+#         yield word + " "
+#         time.sleep(delay)
+
+
 def submit_query():
     st.session_state.logged_prompt = None
     st.session_state.response = None
     st.session_state.feedback = None
     st.session_state.stage = 1
     st.session_state.feedback_key += 1
+    random.shuffle(st.session_state.parties)
 
 
 def generate_response():
@@ -129,19 +131,61 @@ def generate_response():
 
 
 ### INTERFACE ###
+
+
 st.title("🇪🇺 europarl.ai 2024")
 
+st.sidebar.title("")
+
+selected_language = st.radio(
+    label="Language",
+    options=["🇩🇪 Deutsch", "🇬🇧 English"],
+    horizontal=True,
+)
+languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
+st.session_state.language = languages[selected_language]
+
+chain = generate_chain_with_balanced_retrieval(
+    [db_manifestos],
+    llm=LARGE_LANGUAGE_MODEL,
+    return_context=True,
+    language=st.session_state.language,
+)
 query = st.text_input(
-    label="Gib ein Stichwort ein oder stelle eine Frage an die Parteien zur Europawahl:",
-    placeholder="Wie stehen die Parteien zum Emmissionshandel?",
+    label=translate(
+        "Gib ein Stichwort ein oder stelle eine Frage an die Parteien zur Europawahl:",
+        st.session_state.language,
+    ),
+    placeholder=translate(
+        "Wie stehen die Parteien zum Emmissionshandel?",
+        language=st.session_state.language,
+    ),
     value="",
 )
 
-st.button("Frage stellen", on_click=submit_query, type="primary")
+st.session_state.show_parties = st.checkbox(
+    label=translate("Parteinamen anzeigen", st.session_state.language),
+    value=True,
+    help=translate(
+        "Du kannst die Namen der Parteien ausblenden, wenn du die Antworten zunächst unvoreingenommen lesen möchtest.",
+        st.session_state.language,
+    ),
+)
+
+st.button(
+    translate("Frage stellen", st.session_state.language),
+    on_click=submit_query,
+    type="primary",
+)
 
 # STAGE 1: GENERATE RESPONSE
 if st.session_state.stage == 1:
-    with st.spinner("Suche nach Antworten in Wahlprogrammen... 🕵️‍♂️"):
+    with st.spinner(
+        translate(
+            "Suche nach Antworten in Wahlprogrammen...", st.session_state.language
+        )
+        + "🕵️"
+    ):
         generate_response()
 
     st.session_state.logged_prompt = collector.log_prompt(
@@ -154,7 +198,9 @@ if st.session_state.stage == 1:
 
 # STAGE >= 1: DISPLAY RESPONSE
 if st.session_state.stage > 1:
-    st.markdown(":grey[Die Reihenfolge der Parteien ist zufällig.]")
+    st.markdown(
+        f":grey[{translate('Die Reihenfolge der Parteien ist zufällig.', st.session_state.language,)}]",
+    )
 
     col1, col2 = st.columns([0.3, 0.7])
     col3, col4 = st.columns([0.3, 0.7])
@@ -178,11 +224,9 @@ if st.session_state.stage > 1:
         col12,
     ]
 
-    parties = list(party_dict.keys())
-    random.shuffle(parties)
-
     i = 0
-    for party in parties:
+    p = 1
+    for party in st.session_state.parties:
 
         most_relevant_manifesto_page_number = st.session_state.response["docs"][
             "manifestos"
@@ -191,53 +235,10 @@ if st.session_state.stage > 1:
         with col_list[i]:
             st.write("")
             st.write("")
-            st.image(party_dict[party]["image"])
+            if st.session_state.show_parties:
+                st.image(party_dict[party]["image"])
+            else:
+                st.image("streamlit/assets/placeholder_logo.png")
+
         with col_list[i + 1]:
-            st.header(party_dict[party]["name"])
-            st.write(st.session_state.response["answer"][party])
-            st.write(
-                f'Mehr dazu im [Europawahlprogramm der Partei **{party_dict[party]["name"]}** (z.B. Seite {most_relevant_manifesto_page_number+1})]({party_dict[party]["manifesto_link"]}#page={most_relevant_manifesto_page_number+1})'
-            )
-        i += 2
-
-    st.subheader("Worauf basieren diese Antworten?")
-    st.write(
-        "Die Antworten wurden von dem KI-Sprachmodell GPT 3.5 generiert – unter Berücksichtigung der Wahlprogramme zur Europawahl 2024 und vergangenen Reden im Europaparlament im Zeitraum 2019-2024."
-    )
-    st.write("Hier kannst du die genutzten Ausschnitte aus den Quellen einsehen:")
-    with st.expander("Quellen anzeigen"):
-        for party in parties:
-            st.subheader(party_dict[party]["name"])
-            for doc in st.session_state.response["docs"]["manifestos"][party]:
-                manifesto_excerpt = doc.page_content.replace("\n", " ")
-                st.markdown(
-                    f"**Seite {doc.metadata['page']+1} im Wahlprogramm**: \n {manifesto_excerpt}\n\n"
-                )
-            # TODO: Add debates once we load them as well
-            # for doc in st.session_state.response["docs"]["debates"][party]:
-            #     st.write(f"Rede: {doc.page_content}")
-
-    st.markdown("---")
-    st.write("### Waren diese Antworten hilfreich für dich?")
-    st.write(
-        "Mit deinem Feedback hilfst du uns, die Qualität der Antworten zu verbessern."
-    )
-
-    st.session_state.stage = 3
-
-
-# TRUBRICS FEEDBACK
-if st.session_state.stage == 3:
-
-    st.session_state.feedback = collector.st_feedback(
-        component="default",
-        feedback_type="thumbs",
-        model=LARGE_LANGUAGE_MODEL.model_name,
-        prompt_id=st.session_state.logged_prompt.id,
-        open_feedback_label="Weiteres Feedback (optional)",
-        align="flex-start",
-        key=f"feedback_{st.session_state.feedback_key}",
-    )
-
-    if st.session_state.feedback is not None:
-        st.write("Vielen Dank für dein Feedback! 🙏")
+            if st.session_state.show_parties:
