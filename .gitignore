@@ -170,3 +170,4 @@ data/.DS_Store
 # CHROMA DB
 data/debates/chroma/
 data/manifestos/chroma/
+locust/locustfile.py

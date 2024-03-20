@@ -115,6 +115,7 @@ def generate_chain_with_balanced_retrieval(
     temperature=0.0,
     k=5,
     return_context=False,
+    language="Deutsch",
 ):
     """
     Generates a langchain: Change this code to change the chain!
@@ -125,6 +126,7 @@ def generate_chain_with_balanced_retrieval(
     - output_parser: "json" or "str" (default: "json")
     - temperature: temperature for language model (default: 0.0)
     - k: number of documents to retrieve from each database (default: 5)
+    - return context (boolean): If true, return dictionary that includes questions and context
     """
 
     if llm == None:
@@ -132,19 +134,20 @@ def generate_chain_with_balanced_retrieval(
             model_name="gpt-3.5-turbo", max_tokens=2000, temperature=temperature
         )
 
-    prompt_template = """   
+    prompt_template = f"""   
     Beantworte die Frage und erstelle pro Partei eine Zusammenfassung der politischen Positionen von CDU/CSU, SPD, Bündnis 90/Die Grünen, Die Linke, FDP und AfD zur Europawahl 2024 auf Basis der Debatten im EU-Parlament und der EU-Wahlprogramme. 
     Die Antwort soll strikt die Informationen aus den genannten Quellen widerspiegeln. 
     Mach deutlich, die Antwort entspricht den Position der Parteien.
+    Gebe die Antwort auf {language}.
 
     KONTEXT:
-    {context}
+    {{context}}
 
-    Sollten die oben genannten Quellen keine klare Antwort auf die unten genannte Frage zulassen, gib bitte folgende Rückmeldung: "Es wurde keine passende Antwort in den verfügbaren Daten gefunden."
+        Sollten die oben genannten Quellen keine klare Antwort auf die unten genannte Frage zulassen, gib bitte folgende Rückmeldung: "Es wurde keine passende Antwort in den verfügbaren Daten gefunden."
     Andernfalls gib wie oben beschrieben eine Zusammenfassung der Positionen der Parteien wieder, wodurch die nun folgende Frage beantwortet wird:
 
     FRAGE: 
-    {question}
+    {{question}}
     """
     # select output parser
     if output_parser == "json":
