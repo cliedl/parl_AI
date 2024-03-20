@@ -9,6 +9,8 @@ from RAG_clean.models.generation import generate_chain_with_balanced_retrieval
 from RAG_clean.database.vector_database import VectorDatabase
 from app_utils.translate import translate
 
+
+
 # from RAG_clean.models.embedding import ManifestoBertaEmbeddings
 
 DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
@@ -135,6 +137,8 @@ def generate_response():
 
 
 ### INTERFACE ###
+  
+
 st.title("🇪🇺 europarl.ai 2024")
 
 selected_language = st.radio(
