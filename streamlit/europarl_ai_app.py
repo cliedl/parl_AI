@@ -244,3 +244,76 @@ if st.session_state.stage > 1:
 
         with col_list[i + 1]:
             if st.session_state.show_parties:
+                st.header(party_dict[party]["name"])
+            else:
+                st.header(f"Partei {p}")
+            st.write(st.session_state.response["answer"][party])
+            if st.session_state.show_parties:
+                st.write(
+                    f"""{translate('Mehr dazu im', st.session_state.language)}
+                        [{translate('Europawahlprogramm der Partei', st.session_state.language)} 
+                        **{party_dict[party]['name']}** 
+                        ({translate('z.B. Seite', st.session_state.language)} {most_relevant_manifesto_page_number+1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number+1})"""
+                )
+        i += 2
+        p += 1
+
+    st.subheader(
+        translate("Worauf basieren diese Antworten?", st.session_state.language)
+    )
+    st.write(
+        translate(
+            "Die Antworten wurden von dem KI-Sprachmodell GPT 3.5 generiert – unter Berücksichtigung der Wahlprogramme zur Europawahl 2024 und vergangenen Reden im Europaparlament im Zeitraum 2019-2024.",
+            st.session_state.language,
+        )
+    )
+    st.write(
+        translate(
+            "Hier kannst du die genutzten Ausschnitte aus den Quellen einsehen:",
+            st.session_state.language,
+        )
+    )
+    with st.expander(translate("Quellen anzeigen", st.session_state.language)):
+        for party in st.session_state.parties:
+            st.subheader(party_dict[party]["name"])
+            for doc in st.session_state.response["docs"]["manifestos"][party]:
+                manifesto_excerpt = doc.page_content.replace("\n", " ")
+                st.markdown(
+                    f"**Seite {doc.metadata['page']+1} im Wahlprogramm**: \n {manifesto_excerpt}\n\n"
+                )
+            # TODO: Add debates once we load them as well
+            # for doc in st.session_state.response["docs"]["debates"][party]:
+            #     st.write(f"Rede: {doc.page_content}")
+
+    st.markdown("---")
+    st.write(
+        f"### {translate('Waren diese Antworten hilfreich für dich?', st.session_state.language)}"
+    )
+    st.write(
+        translate(
+            "Mit deinem Feedback hilfst du uns, die Qualität der Antworten zu verbessern.",
+            st.session_state.language,
+        )
+    )
+
+    st.session_state.stage = 3
+
+
+# TRUBRICS FEEDBACK
+if st.session_state.stage == 3:
+
+    st.session_state.feedback = collector.st_feedback(
+        component="default",
+        feedback_type="thumbs",
+        model=LARGE_LANGUAGE_MODEL.model_name,
+        prompt_id=st.session_state.logged_prompt.id,
+        open_feedback_label="Weiteres Feedback (optional)",
+        align="flex-start",
+        key=f"feedback_{st.session_state.feedback_key}",
+    )
+
+    if st.session_state.feedback is not None:
+        st.write(
+            translate("Vielen Dank für dein Feedback!", st.session_state.language)
+            + " 🙏"
+        )
