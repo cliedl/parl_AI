@@ -198,6 +198,13 @@ class VectorDatabase:
             )
         return docs
 
+    def get_documents_for_party(self, query, party, k=5):
+
+        docs = self.database.max_marginal_relevance_search(
+            query, k=k, fetch_k=20, filter={"party": party}
+        )
+        return docs
+
     def build_context(self, query, k=5):
 
         docs = self.get_documents_for_each_party(query, k=k)
@@ -223,6 +230,25 @@ class VectorDatabase:
 
         return context
 
+    def build_context_for_party(self, query, party, k=5):
+
+        context_docs = self.get_documents_for_party(query, party, k=k)
+
+        if self.source_type == "manifestos":
+            context_header = "Ausschnitte aus den Wahlprogrammen zur Europawahl 2024:\n"
+        elif self.source_type == "debates":
+            context_header = "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n\n"
+
+        context_content = "\n\n".join([doc.page_content for doc in context_docs])
+
+        context_party = f"""
+        {context_header}
+
+        {context_content}
+        """
+
+        return context_party
+
 
 if __name__ == "__main__":
     from langchain_openai import OpenAIEmbeddings
@@ -239,7 +265,11 @@ if __name__ == "__main__":
         database_directory=DATABASE_DIR,
         data_path=DATA_PATH,
         loader="pdf",
-        reload=False,
+        reload=True,
     )
 
-    database_manifestos.build_database()
+    print(
+        database_manifestos.build_context_for_party(
+            query="Was halten die Parteien vom Klimaschutz", party="cdu", k=2
+        )
+    )
