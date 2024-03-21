@@ -2,32 +2,24 @@ import streamlit as st
 import time
 import numpy as np
 
-st.set_page_config(page_title="Plotting Demo", page_icon="📈")
+st.set_page_config(page_title="Project europarl.ai", page_icon="")
 
-st.markdown("# Plotting Demo")
-st.sidebar.header("Plotting Demo")
+st.sidebar.header("Was ist europarl.ai?")
+
+st.header('Projekt europarl.ai', divider='rainbow')
 st.write(
-    """This demo illustrates a combination of plotting and animation with
-Streamlit. We're generating a bunch of random numbers in a loop for around
-5 seconds. Enjoy!"""
+    """Europa ist cool, aber auch mega kompliziert. Und am 9.6.2024 ist schon die Europawahl. Welcher Partei also die Stimme geben?
+    Mit europarl.ai kannst du dir die Positionen der Parteien zu einem bestimmten Thema anzeigen lassen.
+    Was planen die Parteien auf europäischer Ebene im Bereich Energie, Renten, Migration?
+    Mit europarl.ai durchsuchen wir im Hintergrund die Wahlprogramme der deutschen Parteien zur Europawahl und die Reden der Parteien im EU-Parlament.
+    Du bekommst dann in der App pro Partei eine Position der Parteien zusammengefasst. 
+    
+
+    """
 )
 
-progress_bar = st.sidebar.progress(0)
-status_text = st.sidebar.empty()
-last_rows = np.random.randn(1, 1)
-chart = st.line_chart(last_rows)
 
-for i in range(1, 101):
-    new_rows = last_rows[-1, :] + np.random.randn(5, 1).cumsum(axis=0)
-    status_text.text("%i%% Complete" % i)
-    chart.add_rows(new_rows)
-    progress_bar.progress(i)
-    last_rows = new_rows
-    time.sleep(0.05)
-
-progress_bar.empty()
 
 # Streamlit widgets automatically run the script from top to bottom. Since
 # this button is not connected to any other logic, it just causes a plain
 # rerun.
-st.button("Re-run")
