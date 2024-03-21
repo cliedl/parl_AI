@@ -6,7 +6,7 @@ from urllib.error import URLError
 st.set_page_config(page_title="Team", page_icon="🌍")
 
 st.markdown("# Team europarl.ai")
-st.sidebar.header("Wer macht europarl.ai?")
+st.sidebar.header("Das sind wir")
 
 st.header('Chris Liedl')
 st.write(
