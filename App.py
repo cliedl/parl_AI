@@ -345,81 +345,54 @@ if st.session_state.stage > 1:
         f":grey[{translate('Die Reihenfolge der Parteien ist zufällig.', st.session_state.language,)}]",
     )
 
-    col1, col2 = st.columns([0.3, 0.7])
-    col3, col4 = st.columns([0.3, 0.7])
-    col5, col6 = st.columns([0.3, 0.7])
-    col7, col8 = st.columns([0.3, 0.7])
-    col9, col10 = st.columns([0.3, 0.7])
-    col11, col12 = st.columns([0.3, 0.7])
+    # Initialize an empty list to hold all columns
+    col_list = []
+    # Create a pair of columns for each party
+    num_parties = len(st.session_state.parties)
+    col_list = [st.columns([0.3, 0.7]) for _ in range(num_parties)]
 
-    col_list = [
-        col1,
-        col2,
-        col3,
-        col4,
-        col5,
-        col6,
-        col7,
-        col8,
-        col9,
-        col10,
-        col11,
-        col12,
-    ]
-
-    i = 0
-    p = 1
-    for party in st.session_state.parties:
+    # Show image and RAG response for each party
+    for i, party in enumerate(st.session_state.parties):
+        p = i + 1
+        col1, col2 = col_list[i]
 
         most_relevant_manifesto_page_number = st.session_state.response["docs"][
             "manifestos"
         ][rename_party(party, "deanonymize")][0].metadata["page"]
 
-        with col_list[i]:
-            st.write("")
-            st.write("")
-            if (
-                st.session_state.show_all_parties
-                or st.session_state.show_individual_parties[f"party_{p}"]
-            ):
+        show_party = (
+            st.session_state.show_all_parties
+            or st.session_state.show_individual_parties[f"party_{p}"]
+        )
+
+        # In this column, we show the party image
+        with col1:
+            st.write("\n" * 2)
+            if show_party:
                 st.image(party_dict[party]["image"])
             else:
                 st.image("streamlit_app/assets/placeholder_logo.png")
-            if not (
-                st.session_state.show_all_parties
-                or st.session_state.show_individual_parties[f"party_{p}"]
-            ):
                 st.button(
                     translate("Partei aufdecken", st.session_state.language),
                     on_click=reveal_party,
                     args=(p,),
                     key=p,
                 )
-
-        with col_list[i + 1]:
-            if (
-                st.session_state.show_all_parties
-                or st.session_state.show_individual_parties[f"party_{p}"]
-            ):
+        # In this column, we show the RAG response
+        with col2:
+            if show_party:
                 st.header(party_dict[party]["name"])
             else:
                 st.header(f"Partei {p}")
+
             answer = clean_party_names_in_response(
                 st.session_state.response["answer"][party]
             )
             st.write(answer)
-            if (
-                st.session_state.show_all_parties
-                or st.session_state.show_individual_parties[f"party_{p}"]
-            ):
+            if show_party:
                 st.write(
-                    f"""{translate('Mehr dazu im', st.session_state.language)}
-                        [{translate('Europawahlprogramm der Partei', st.session_state.language)} 
-                        **{party_dict[party]['name']}** 
-                        ({translate('z.B. Seite', st.session_state.language)} {most_relevant_manifesto_page_number+1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number+1})"""
+                    f"""{translate('Mehr dazu im', st.session_state.language)} [{translate('Europawahlprogramm der Partei', st.session_state.language)} **{party_dict[party]['name']}** ({translate('z.B. Seite', st.session_state.language)} {most_relevant_manifesto_page_number + 1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number + 1})"""
                 )
-        i += 2
-        p += 1
 
     st.markdown("---")
     st.subheader(
