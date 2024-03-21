@@ -16,6 +16,14 @@ Physiker und löst gern Känguru-Probleme
 
     """)
 
+col1, col2 = st.columns(2)
+with col1:
+    st.link_button("Github", "https://github.com/cliedl")
+
+with col2:
+    st.link_button("Linkedin", "https://www.linkedin.com/in/christian-liedl-2aaa03133/")
+
+
 st.header('Anna Neifer')
 st.write(
     """
@@ -37,3 +45,11 @@ st.write(
 UX Researcher und baut gern Dinge mit langchain
 
   """)
+
+col1, col2 = st.columns(2)
+with col1:
+    st.link_button("Github", "https://github.com/josh-nowak")
+
+with col2:
+    st.link_button("Linkedin", "https://www.linkedin.com/in/nowakjoshua/")
+
