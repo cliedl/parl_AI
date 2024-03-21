@@ -171,3 +171,4 @@ data/.DS_Store
 data/debates/chroma/
 data/manifestos/chroma/
 locust/locustfile.py
+RAG/local_tests/
