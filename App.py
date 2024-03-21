@@ -111,7 +111,9 @@ party_dict = {
 # The following function replaces mentions of "Partei A/B/C/..." with "Partei"
 def clean_party_names_in_response(text):
     text = re.sub(r"Partei [A-F]", "Partei", text)
+    text = re.sub(r"PARTEI [A-F]", "Partei", text)
     text = re.sub(r"Partei_[A-F]", "Partei", text)
+    text = re.sub(r"PARTEI_[A-F]", "Partei", text)
     return text
 
 
