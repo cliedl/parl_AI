@@ -10,7 +10,7 @@ from datetime import datetime
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-from RAG.models.generation import generate_chain_with_balanced_retrieval
+from RAG.models.generation import generate_chain
 from RAG.database.vector_database import VectorDatabase, rename_party
 from streamlit_app.utils.translate import translate
 
@@ -258,7 +258,7 @@ with sidebar:
     languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
     st.session_state.language = languages[selected_language]
 
-chain = generate_chain_with_balanced_retrieval(
+chain = generate_chain(
     [db_manifestos, db_debates],
     llm=LARGE_LANGUAGE_MODEL,
     return_context=True,
