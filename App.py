@@ -198,6 +198,21 @@ def generate_response():
         try:
             print("Getting response")
             st.session_state.response = chain.invoke(query)
+
+            print(set(st.session_state.response["answer"].keys()))
+            print(set(party_dict.keys()))
+
+            # Assert that the response contains all parties
+            assert set(st.session_state.response["answer"].keys()) == set(
+                party_dict.keys()
+            ), "LLM response does not contain all parties, please try again"
+
+            # Assert that the response contains non-empty strings
+            assert all(
+                isinstance(party_answer, str) and party_answer
+                for party_answer in st.session_state.response["answer"].values()
+            ), "Some entries in the LLM response are empty strings, please try again"
+
             break
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -206,7 +221,9 @@ def generate_response():
             if retry_count > max_retries:
                 print(f"Max number of tries ({max_retries}) reached, aborting")
                 st.session_state.response = None
-                break
+
+                # Display error message in app:
+                raise e
             else:
                 print(f"Retrying, retry number {retry_count}")
                 pass
