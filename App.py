@@ -152,13 +152,18 @@ if "show_individual_parties" not in st.session_state:
 if "show_all_parties" not in st.session_state:
     st.session_state.show_all_parties = True
 if "example_prompts" not in st.session_state:
-    all_example_prompts = []
-    with open("data/questions/complex_questions.csv", "r") as file:
-        reader = csv.reader(file)
-        next(reader)  # Skip the first line
+    all_example_prompts = {}
+    with open("data/questions/complex_questions_with_translations.csv", "r") as file:
+        reader = csv.DictReader(file, delimiter=";")
         for row in reader:
-            all_example_prompts.append(row[0])
-    st.session_state.example_prompts = random.sample(all_example_prompts, 3)
+            for key, value in row.items():
+                if key not in all_example_prompts:
+                    all_example_prompts[key] = []
+                all_example_prompts[key].append(value)
+
+    st.session_state.example_prompts = {
+        key: random.sample(value, 3) for key, value in all_example_prompts.items()
+    }
 
 
 def reveal_party(p):
@@ -245,19 +250,19 @@ query = st.text_input(
 st.write(translate("Oder wähle aus den Beispielen:", st.session_state.language))
 
 st.button(
-    st.session_state.example_prompts[0],
+    st.session_state.example_prompts[st.session_state.language][0],
     on_click=set_query,
-    args=(st.session_state.example_prompts[0],),
+    args=(st.session_state.example_prompts[st.session_state.language][0],),
 )
 st.button(
-    st.session_state.example_prompts[1],
+    st.session_state.example_prompts[st.session_state.language][1],
     on_click=set_query,
-    args=(st.session_state.example_prompts[1],),
+    args=(st.session_state.example_prompts[st.session_state.language][1],),
 )
 st.button(
-    st.session_state.example_prompts[2],
+    st.session_state.example_prompts[st.session_state.language][2],
     on_click=set_query,
-    args=(st.session_state.example_prompts[2],),
+    args=(st.session_state.example_prompts[st.session_state.language][2],),
 )
 
 
@@ -398,7 +403,7 @@ if st.session_state.stage > 1:
     for party in st.session_state.parties:
         with st.expander(
             translate(
-                f"Quellen: {party_dict[party]['name']}",
+                f"{translate('Quellen', st.session_state.language)}: {party_dict[party]['name']}",
                 st.session_state.language,
             )
         ):
