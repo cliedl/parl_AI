@@ -192,7 +192,24 @@ def set_query(query):
 
 
 def generate_response():
-    st.session_state.response = chain.invoke(query)
+    max_retries = 2
+    retry_count = 0
+    while retry_count <= max_retries:
+        try:
+            print("Getting response")
+            st.session_state.response = chain.invoke(query)
+            break
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            # Error occured, increment retry counter
+            retry_count += 1
+            if retry_count > max_retries:
+                print(f"Max number of tries ({max_retries}) reached, aborting")
+                st.session_state.response = None
+                break
+            else:
+                print(f"Retrying, retry number {retry_count}")
+                pass
 
 
 # The following function converts a date string from the format "YYYY-MM-DD" to "DD.MM.YYYY"
