@@ -185,13 +185,6 @@ class VectorDatabase:
 
         return self.database
 
-    def get_retriever(self, search_type="similarity", k=10):
-        retriever = self.database.as_retriever(
-            search_type=search_type,
-            search_kwargs={"k": k},
-        )
-        return retriever
-
     def get_documents_for_each_party(self, query, k=5):
         sources = ["gruene", "spd", "cdu", "afd", "fdp", "linke"]
 
