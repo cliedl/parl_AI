@@ -5,6 +5,7 @@ import os
 import re
 import csv
 import random
+from datetime import datetime
 
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -189,6 +190,18 @@ def generate_response():
     st.session_state.response = chain.invoke(query)
 
 
+# The following function converts a date string from the format "YYYY-MM-DD" to "DD.MM.YYYY"
+# (for display in the sources)
+def convert_date_format(date_string):
+    # Parse the date string into a datetime object
+    date_obj = datetime.strptime(date_string, "%Y-%m-%d")
+
+    # Format the datetime object into the new string format
+    new_date_string = date_obj.strftime("%d.%m.%Y")
+
+    return new_date_string
+
+
 ### INTERFACE ###
 sidebar = st.sidebar.title("")
 
@@ -229,7 +242,7 @@ query = st.text_input(
     value=st.session_state.query,
 )
 
-st.write("Oder wähle aus den Beispielen:")
+st.write(translate("Oder wähle aus den Beispielen:", st.session_state.language))
 
 st.button(
     st.session_state.example_prompts[0],
@@ -366,7 +379,9 @@ if st.session_state.stage > 1:
 
     st.markdown("---")
     st.subheader(
-        translate("Worauf basieren diese Antworten?", st.session_state.language)
+        translate(
+            "Quellen: Worauf basieren diese Antworten?", st.session_state.language
+        )
     )
     st.write(
         translate(
@@ -380,20 +395,28 @@ if st.session_state.stage > 1:
             st.session_state.language,
         )
     )
-    with st.expander(translate("Quellen anzeigen", st.session_state.language)):
-        for party in st.session_state.parties:
-            st.subheader(party_dict[party]["name"])
-
+    for party in st.session_state.parties:
+        with st.expander(
+            translate(
+                f"Quellen: {party_dict[party]['name']}",
+                st.session_state.language,
+            )
+        ):
             true_party = rename_party(party, "deanonymize")
             for doc in st.session_state.response["docs"]["manifestos"][true_party]:
                 manifesto_excerpt = doc.page_content.replace("\n", " ")
+                page_number_of_excerpt = doc.metadata["page"] + 1
+                link_to_manifesto_page = f"{party_dict[party]['manifesto_link']}#page={page_number_of_excerpt}"
                 st.markdown(
-                    f'**Seite {doc.metadata["page"]+1} im Wahlprogramm**: \n "{manifesto_excerpt}"\n\n'
+                    f'[**Seite {page_number_of_excerpt} im Wahlprogramm**]({link_to_manifesto_page}): \n "{manifesto_excerpt}"\n\n'
                 )
             for doc in st.session_state.response["docs"]["debates"][true_party]:
                 debate_excerpt = doc.page_content.replace("\n", " ")
+                date_of_excerpt = convert_date_format(doc.metadata["date"])
+                speaker_of_excerpt = doc.metadata["fullName"]
+
                 st.write(
-                    f'**Ausschnitt aus einer Rede im EU-Parlament**: "{doc.page_content}"\n\n'
+                    f'**Ausschnitt aus einer Rede im EU-Parlament von {speaker_of_excerpt} am {date_of_excerpt}**: "{debate_excerpt}"\n\n'
                 )
 
     st.markdown("---")
