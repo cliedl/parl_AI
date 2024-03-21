@@ -6,7 +6,7 @@ st.set_page_config(page_title="Projekt europarl.ai", page_icon=":iphone:")
 
 st.sidebar.header("Mehr zu europarl.ai")
 
-st.header('Am 9. Juni ist Europawahl. Informier dich mit europarl.ai!', divider='blue')
+st.header('Am 9. Juni ist Europawahl. ✖️ :Informier Informier dich mit europarl.ai!', divider='blue')
 
 st.subheader('Was ist europarl.ai?')
 
@@ -38,7 +38,8 @@ st.subheader('Welche Daten verwendet ihr für die App?')
 
 st.write(
     """
-Wir nutzen die öffentlichen Wahlprogramme der deutschen Parteien zur Europawahl. Außerdem laden wir die öffentlichen Reden von deutschen Politiker:innen im Europarlament aus der Legislaturperiode 2019 - 2024 über eine API.
+Wir nutzen die öffentlichen Wahlprogramme der deutschen Parteien zur Europawahl. Außerdem laden wir die öffentlichen Reden von deutschen Politiker_innen im Europarlament aus der Legislaturperiode 2019 - 2024 über eine API.
+
 
     """
 )
@@ -78,7 +79,7 @@ st.subheader('Warum wurde europarl.ai entwickelt?')
 st.write(
     """
 europarl.ai ist unser Abschluss-Projekt für das "Data Science Retreat", ein Bootcamp in Berlin bei dem wir Techniken rund um Data Scince, Maschinelles Lernen und Künstliche Intelligenz erlernt haben.
-Mit europarl.ai wollen wir es Wähler:innen erleichtern, sich vor der Europawahl 2024 zu informieren.
+Mit europarl.ai wollen wir es Wähler_innen erleichtern, sich vor der Europawahl 2024 zu informieren.
 
     """
 )
