@@ -3,5 +3,5 @@ trubrics[streamlit]
 streamlit==1.32.2
 streamlit-feedback==0.1.2
 langchain==0.1.12
-langchain_openai
+langchain_openai==0.1.0
 torch==2.2.1
