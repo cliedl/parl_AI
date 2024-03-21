@@ -197,7 +197,18 @@ def generate_response():
     while retry_count <= max_retries:
         try:
             print("Getting response")
-            st.session_state.response = chain.invoke(query)
+            # st.session_state.response = chain.invoke(query)
+
+            # This is just for testing:
+            st.session_state.response = {
+                "answer": {
+                    "partei_a": "Die Partei A setzt sich für einen EU-Rahmen ein, der Empfehlungen zu präventiven und reaktiven Maßnahmen zur Vermeidung und Bewältigung von Obdachlosigkeit gibt. Sie fordert eine nationale Strategie zur Bewältigung von Obdachlosigkeit und ein Monitoring der Zielsetzungen durch das Europäische Semester.",
+                    "partei_b": "Die Partei B fordert einen kohärenten Aktionsplan für bezahlbaren Wohnraum, um den entfesselten Markt zu regulieren. Sie setzt sich für Maßnahmen gegen Airbnb und für einen Mietendeckel ein.",
+                    "partei_c": "Die Partei C unterstützt die Housing First-Strategie als Paradigmenwechsel im Umgang mit Obdachlosigkeit. Sie fordert eine EU-weite nationale Strategie zur Vermeidung und Bewältigung von Obdachlosigkeit sowie ein Monitoring der Zielsetzungen durch das Europäische Semester.",
+                    "partei_d": "Die Partei D setzt sich für verbindliche Mietobergrenzen, ein Verbot von Indexmietverträgen und einen Ausbau des sozialen Wohnungsbau ein, um Wohnungsnot und Obdachlosigkeit zu bekämpfen.",
+                    "partei_e": "Es wurde keine passende Antwort in den verfügbaren Daten gefunden.",
+                }
+            }
 
             print(set(st.session_state.response["answer"].keys()))
             print(set(party_dict.keys()))
@@ -205,13 +216,13 @@ def generate_response():
             # Assert that the response contains all parties
             assert set(st.session_state.response["answer"].keys()) == set(
                 party_dict.keys()
-            ), "LLM response does not contain all parties, please try again"
+            ), "LLM response does not contain all parties"
 
             # Assert that the response contains non-empty strings
             assert all(
                 isinstance(party_answer, str) and party_answer
                 for party_answer in st.session_state.response["answer"].values()
-            ), "Some entries in the LLM response are empty strings, please try again"
+            ), "Some entries in the LLM response are empty strings"
 
             break
         except Exception as e:
@@ -221,7 +232,12 @@ def generate_response():
             if retry_count > max_retries:
                 print(f"Max number of tries ({max_retries}) reached, aborting")
                 st.session_state.response = None
-
+                st.error(
+                    translate(
+                        "Das Sprachmodell hat eine inkompatible Antwort generiert. Das kann zufällig passieren. **Bitte versuche es erneut.**",
+                        st.session_state.language,
+                    )
+                )
                 # Display error message in app:
                 raise e
             else:
