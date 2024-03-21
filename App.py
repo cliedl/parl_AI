@@ -3,6 +3,9 @@ import random
 from trubrics.integrations.streamlit import FeedbackCollector
 import os
 import re
+import csv
+import random
+
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
@@ -147,6 +150,14 @@ if "show_individual_parties" not in st.session_state:
     }
 if "show_all_parties" not in st.session_state:
     st.session_state.show_all_parties = True
+if "example_prompts" not in st.session_state:
+    all_example_prompts = []
+    with open("data/questions/complex_questions.csv", "r") as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip the first line
+        for row in reader:
+            all_example_prompts.append(row[0])
+    st.session_state.example_prompts = random.sample(all_example_prompts, 3)
 
 
 def reveal_party(p):
@@ -168,6 +179,10 @@ def submit_query():
         "party_6": False,
     }
     random.shuffle(st.session_state.parties)
+
+
+def set_query(query):
+    st.session_state.query = query
 
 
 def generate_response():
@@ -204,15 +219,34 @@ st.write(
 
 query = st.text_input(
     label=translate(
-        "Gib ein Stichwort ein oder stelle eine Frage:",
+        "Stelle eine Frage oder gib ein Stichwort ein:",
         st.session_state.language,
     ),
     placeholder=translate(
         "Wie stehen die Parteien zum Emmissionshandel?",
         language=st.session_state.language,
     ),
-    value="",
+    value=st.session_state.query,
 )
+
+st.write("Oder wähle aus den Beispielen:")
+
+st.button(
+    st.session_state.example_prompts[0],
+    on_click=set_query,
+    args=(st.session_state.example_prompts[0],),
+)
+st.button(
+    st.session_state.example_prompts[1],
+    on_click=set_query,
+    args=(st.session_state.example_prompts[1],),
+)
+st.button(
+    st.session_state.example_prompts[2],
+    on_click=set_query,
+    args=(st.session_state.example_prompts[2],),
+)
+
 
 st.session_state.show_all_parties = st.checkbox(
     label=translate("Parteinamen anzeigen", st.session_state.language),
