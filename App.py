@@ -11,7 +11,7 @@ from datetime import datetime
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from RAG.models.generation import generate_chain
-from RAG.database.vector_database import VectorDatabase, rename_party
+from RAG.database.vector_database import VectorDatabase
 from streamlit_app.utils.translate import translate
 
 # The following is necessary to make the code work in the deployed version.
@@ -30,7 +30,7 @@ DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
 DELAY = 0.05  # pause between words in text stream (in seconds)
 TEMPERATURE = 0.0
 LARGE_LANGUAGE_MODEL = ChatOpenAI(
-    model_name="gpt-3.5-turbo", max_tokens=2000, temperature=TEMPERATURE
+    model_name="gpt-3.5-turbo", max_tokens=400, temperature=TEMPERATURE
 )
 
 
@@ -79,32 +79,32 @@ collector = FeedbackCollector(
 
 ### INITIALIZATION ###
 party_dict = {
-    "partei_a": {
+    "cdu": {
         "name": "CDU/CSU",
         "image": "streamlit_app/assets/cdu_logo.png",
         "manifesto_link": "https://assets.ctfassets.net/nwwnl7ifahow/476rnHcYPkmyuONPvSTKO2/972e88ceb862ac4d4905d98441555e0c/europawahlprogramm-cdu-csu-2024_0.pdf",
     },
-    "partei_b": {
+    "spd": {
         "name": "SPD",
         "image": "streamlit_app/assets/spd_logo.png",
         "manifesto_link": "https://www.spd.de/fileadmin/Dokumente/EuroDel/20240128_Europaprogramm.pdf",
     },
-    "partei_c": {
+    "gruene": {
         "name": "Bündnis 90/Die Grünen",
         "image": "streamlit_app/assets/gruene_logo.png",
         "manifesto_link": "https://cms.gruene.de/uploads/assets/Europawahlprogramm-2024-Bu%CC%88ndnis90Die-Gru%CC%88nen_Wohlstand_Gerechtigkeit_Frieden_Freiheit.pdf",
     },
-    "partei_d": {
+    "linke": {
         "name": "Die Linke",
         "image": "streamlit_app/assets/linke_logo.png",
         "manifesto_link": "https://www.die-linke.de/fileadmin/user_upload/Europawahlprogramm_2023_neu2.pdf",
     },
-    "partei_e": {
+    "fdp": {
         "name": "FDP",
         "image": "streamlit_app/assets/fdp_logo.png",
         "manifesto_link": "https://www.fdp.de/sites/default/files/2024-01/fdp_europawahlprogramm-2024_vorabversion.pdf",
     },
-    "partei_f": {
+    "afd": {
         "name": "AfD",
         "image": "streamlit_app/assets/afd_logo.png",
         "manifesto_link": "https://www.afd.de/wp-content/uploads/2023/11/2023-11-16-_-AfD-Europawahlprogramm-2024-_-web.pdf",
@@ -112,13 +112,16 @@ party_dict = {
 }
 
 
-# The following function replaces mentions of "Partei A/B/C/..." with "Partei"
-def clean_party_names_in_response(text):
-    text = re.sub(r"Partei [A-F]", "Partei", text)
-    text = re.sub(r"PARTEI [A-F]", "Partei", text)
-    text = re.sub(r"Partei_[A-F]", "Partei", text)
-    text = re.sub(r"PARTEI_[A-F]", "Partei", text)
-    return text
+def format_response(response):
+    q = response[next(iter(response))]["question"]
+    c = {party: response[party]["context"] for party in response.keys()}
+    d = {
+        source: {party: response[party]["docs"][source] for party in response.keys()}
+        for source in response[list(response.keys())[0]]["docs"].keys()
+    }
+    a = {party: response[party]["answer"] for party in response.keys()}
+    response = {"question": q, "context": c, "docs": d, "answer": a}
+    return response
 
 
 if "response" not in st.session_state:
@@ -141,14 +144,12 @@ if "show_individual_parties" not in st.session_state:
     # The values in this dict will only be set true if a party name is explicitly "revealed" by the user.
     # The keys represent the (random) order of appearance of the parties in the app
     # and not fixed parties as opposed to the above party_dict.
+
     st.session_state.show_individual_parties = {
-        "party_1": False,
-        "party_2": False,
-        "party_3": False,
-        "party_4": False,
-        "party_5": False,
-        "party_6": False,
+        f"party_{i+1}": False for i in range(len(st.session_state.parties))
     }
+
+
 if "show_all_parties" not in st.session_state:
     st.session_state.show_all_parties = True
 if "example_prompts" not in st.session_state:
@@ -177,12 +178,7 @@ def submit_query():
     st.session_state.stage = 1
     st.session_state.feedback_key += 1
     st.session_state.show_individual_parties = {
-        "party_1": False,
-        "party_2": False,
-        "party_3": False,
-        "party_4": False,
-        "party_5": False,
-        "party_6": False,
+        f"party_{i+1}": False for i in range(len(st.session_state.parties))
     }
     random.shuffle(st.session_state.parties)
 
@@ -198,22 +194,14 @@ def generate_response():
         try:
             print("Getting response")
             st.session_state.response = chain.invoke(query)
-
-            print(set(st.session_state.response["answer"].keys()))
-            print(set(party_dict.keys()))
+            st.session_state.response = format_response(st.session_state.response)
 
             # Assert that the response contains all parties
             assert set(st.session_state.response["answer"].keys()) == set(
                 party_dict.keys()
             ), "LLM response does not contain all parties"
-
-            # Assert that the response contains non-empty strings
-            assert all(
-                isinstance(party_answer, str) and party_answer
-                for party_answer in st.session_state.response["answer"].values()
-            ), "Some entries in the LLM response are empty strings"
-
             break
+
         except Exception as e:
             print(f"An error occurred: {e}")
             # Error occured, increment retry counter
@@ -223,7 +211,7 @@ def generate_response():
                 st.session_state.response = None
                 st.error(
                     translate(
-                        "Das Sprachmodell hat eine inkompatible Antwort generiert. Das kann zufällig passieren. **Bitte versuche es erneut.**",
+                        "Das Sprachmodell ist gerade nicht verfügbar. **Bitte versuche es gleich nochmal.**",
                         st.session_state.language,
                     )
                 )
@@ -258,10 +246,10 @@ with sidebar:
     languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
     st.session_state.language = languages[selected_language]
 
+
 chain = generate_chain(
     [db_manifestos, db_debates],
     llm=LARGE_LANGUAGE_MODEL,
-    return_context=True,
     language=st.session_state.language,
     k=3,
 )
@@ -358,7 +346,7 @@ if st.session_state.stage > 1:
 
         most_relevant_manifesto_page_number = st.session_state.response["docs"][
             "manifestos"
-        ][rename_party(party, "deanonymize")][0].metadata["page"]
+        ][party][0].metadata["page"]
 
         show_party = (
             st.session_state.show_all_parties
@@ -385,10 +373,7 @@ if st.session_state.stage > 1:
             else:
                 st.header(f"Partei {p}")
 
-            answer = clean_party_names_in_response(
-                st.session_state.response["answer"][party]
-            )
-            st.write(answer)
+            st.write(st.session_state.response["answer"][party])
             if show_party:
                 st.write(
                     f"""{translate('Mehr dazu im', st.session_state.language)} [{translate('Europawahlprogramm der Partei', st.session_state.language)} **{party_dict[party]['name']}** ({translate('z.B. Seite', st.session_state.language)} {most_relevant_manifesto_page_number + 1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number + 1})"""
@@ -419,15 +404,14 @@ if st.session_state.stage > 1:
                 st.session_state.language,
             )
         ):
-            true_party = rename_party(party, "deanonymize")
-            for doc in st.session_state.response["docs"]["manifestos"][true_party]:
+            for doc in st.session_state.response["docs"]["manifestos"][party]:
                 manifesto_excerpt = doc.page_content.replace("\n", " ")
                 page_number_of_excerpt = doc.metadata["page"] + 1
                 link_to_manifesto_page = f"{party_dict[party]['manifesto_link']}#page={page_number_of_excerpt}"
                 st.markdown(
                     f'[**Seite {page_number_of_excerpt} im Wahlprogramm**]({link_to_manifesto_page}): \n "{manifesto_excerpt}"\n\n'
                 )
-            for doc in st.session_state.response["docs"]["debates"][true_party]:
+            for doc in st.session_state.response["docs"]["debates"][party]:
                 debate_excerpt = doc.page_content.replace("\n", " ")
                 date_of_excerpt = convert_date_format(doc.metadata["date"])
                 speaker_of_excerpt = doc.metadata["fullName"]
