@@ -266,15 +266,6 @@ st.write(
         st.session_state.language,
     )
 )
-percentage_value = 9
-
-with st.expander("❗ DISCLAIMER", expanded=True):
-    st.write(
-        translate(
-            "Die Antworten werden von einem KI Sprachmodell generiert, basierend auf Wahlprogrammen und Plenardebatten. Dadurch können Fehler entstehen. Im Zweifelsfall können weiter unten die Quellen eingesehen werden.",
-            st.session_state.language,
-        )
-    )
 
 query = st.text_input(
     label=translate(
@@ -345,8 +336,22 @@ if st.session_state.stage == 1:
 
 # STAGE >= 1: DISPLAY RESPONSE
 if st.session_state.stage > 1:
-    st.markdown(
-        f":grey[{translate('Die Reihenfolge der Parteien ist zufällig.', st.session_state.language,)}]",
+    st.info(
+        "☝️ "
+        + translate(
+            "**Die Antworten wurden von einem Sprachmodell generiert und können fehlerhaft sein.**",
+            st.session_state.language,
+        )
+        + "  \n"
+        + translate(
+            "Bitte informiere dich zusätzlich in den verlinkten Wahlprogrammen.",
+            st.session_state.language,
+        )
+        + "  \n"
+        + translate(
+            "Die Reihenfolge der angezeigten Parteien ist zufällig.",
+            st.session_state.language,
+        )
     )
 
     # Initialize an empty list to hold all columns
