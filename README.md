@@ -1,4 +1,4 @@
-# parl_AI: DSR Final Project for European Elections
+# europarl-ai: DSR Final Project for European Elections
 
 ### Description
 This is our final project for the Data Science Retreat, a boocamp in Berlin. We are on a mission to enhance the democratic process within the European Union by developing an innovative chatbot application. This application will be powered by a Retrieval-Augmented Generation (RAG) system, which will be meticulously fed with comprehensive data from EU election programs and the speeches of politicians throughout the preceding legislative period. The core of our system is a Large Language Model (LLM) to analyze and synthesize the nuances of EU policies and political party stances. By integrating the LLM with our RAG system, we enable the chatbot to process voter inquiries.
