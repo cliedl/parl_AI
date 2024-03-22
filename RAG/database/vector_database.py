@@ -8,37 +8,6 @@ import os
 import random
 
 
-def rename_party(party: str, mode: str = "anonymize"):
-    """
-    Anonymizes or de-anonymizes party names.
-
-    arguments:
-    - party (str): party name
-    - mode (str): "anonymize" or "deanonymize"
-
-    returns:
-    - party (str): anonymized party name
-    """
-
-    party_dict = {
-        "cdu": "partei_a",
-        "spd": "partei_b",
-        "gruene": "partei_c",
-        "linke": "partei_d",
-        "fdp": "partei_e",
-        "afd": "partei_f",
-    }
-
-    if mode == "anonymize":
-        return party_dict[party.lower()]
-    elif mode == "deanonymize":
-        for key, value in party_dict.items():
-            if value == party.lower():
-                return key
-    else:
-        raise ValueError("mode must be 'anonymize' or 'deanonymize'")
-
-
 class VectorDatabase:
     def __init__(
         self,
@@ -185,70 +154,6 @@ class VectorDatabase:
 
         return self.database
 
-    def get_documents_for_each_party(self, query, k=5):
-        sources = ["gruene", "spd", "cdu", "afd", "fdp", "linke"]
-
-        random.shuffle(sources)
-
-        docs = {}
-
-        for source in sources:
-            docs[source] = self.database.max_marginal_relevance_search(
-                query, k=k, fetch_k=20, filter={"party": source}
-            )
-        return docs
-
-    def get_documents_for_party(self, query, party, k=5):
-
-        docs = self.database.max_marginal_relevance_search(
-            query, k=k, fetch_k=20, filter={"party": party}
-        )
-        return docs
-
-    def build_context(self, query, k=5):
-
-        docs = self.get_documents_for_each_party(query, k=k)
-
-        context = ""
-
-        if self.source_type == "manifestos":
-            context += "Ausschnitte aus den Wahlprogrammen zur Europawahl 2024:\n"
-            source_description = "dem Wahlprogramm zur Europawahl 2024"
-        elif self.source_type == "debates":
-            context += "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n\n"
-            source_description = "vergangenen Reden im Europaparlament"
-
-        # Turn the dictionary of lists into a single (flat) list
-        docs = [doc for party_docs in docs.values() for doc in party_docs]
-
-        for doc in docs:
-            context += f"Ausschnitt aus {source_description} "
-            context += (
-                f"von der {rename_party(doc.metadata['party'], 'anonymize').upper()}:\n"
-            )
-            context += f"{doc.page_content}\n\n"
-
-        return context
-
-    def build_context_for_party(self, query, party, k=5):
-
-        context_docs = self.get_documents_for_party(query, party, k=k)
-
-        if self.source_type == "manifestos":
-            context_header = "Ausschnitte aus den Wahlprogrammen zur Europawahl 2024:\n"
-        elif self.source_type == "debates":
-            context_header = "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n\n"
-
-        context_content = "\n\n".join([doc.page_content for doc in context_docs])
-
-        context_party = f"""
-        {context_header}
-
-        {context_content}
-        """
-
-        return context_party
-
 
 if __name__ == "__main__":
     from langchain_openai import OpenAIEmbeddings
@@ -266,10 +171,4 @@ if __name__ == "__main__":
         data_path=DATA_PATH,
         loader="pdf",
         reload=True,
-    )
-
-    print(
-        database_manifestos.build_context_for_party(
-            query="Was halten die Parteien vom Klimaschutz", party="cdu", k=2
-        )
     )
