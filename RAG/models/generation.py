@@ -264,25 +264,24 @@ def generate_chain(
 
     if llm == None:
         llm = ChatOpenAI(
-            model_name="gpt-3.5-turbo", max_tokens=2000, temperature=temperature
+            model_name="gpt-3.5-turbo", max_tokens=300, temperature=temperature
         )
 
     prompt_template = f"""   
-    Beantworte die unten folgende FRAGE DES NUTZERS, indem du die politischen Positionen im KONTEXT zusammenfasst.
-    Der KONTEXT umfasst Ausschnitte aus Debatten im EU-Parlament und der EU-Wahlprogramme für 2024 für eine Partei. 
-    Deine Antwort soll ausschließlich die Informationen aus dem genannten KONTEXT beinhalten.
-    Mach deutlich, dass die Antwort den subjektiven Position der Partei entspricht und distanziere dich falls nötig davon (z.B. mit wörtlicher Rede oder Konjunktiven).
-    Gib die Antwort auf {language}.
+Beantworte die unten folgende FRAGE DES NUTZERS, indem du die politischen Positionen der Partei im unten angegebenen KONTEXT zusammenfasst.
+Der KONTEXT umfasst Ausschnitte aus Redebeiträgen im EU-Parlament und aus dem EU-Wahlprogramm für 2024 für die Partei. 
+Deine Antwort soll ausschließlich die Informationen aus dem genannten KONTEXT beinhalten.
+Verwende in deiner Antwort NICHT den Namen der Partei, sondern beziehe dich auf die Partei ausschließlich mit "die Partei".
+Sollte der KONTEXT keine Antwort auf die FRAGE DES NUTZERS zulassen, gib anstelle der Zusammenfassung NUR die folgende Rückmeldung: 
+"Es wurde keine passende Antwort in den Quellen gefunden."
+Gib die Antwort auf {language}.
 
-    KONTEXT:
-    {{context}}
+KONTEXT:
+{{context}}
 
-    Sollte der oben genannte KONTEXT keine Antwort auf die unten genannte FRAGE DES NUTZERS zulassen, gib anstatt der Zusammenfassung NUR die folgende Rückmeldung: 
-    "Es wurde keine passende Antwort in den verfügbaren Daten gefunden."
-    Andernfalls gib wie oben beschrieben eine Zusammenfassung der Positionen der Partei wieder, um die nun folgende FRAGE DES NUTZERS zu beantworten:
 
-    FRAGE DES NUTZERS: 
-    {{question}}
+FRAGE DES NUTZERS: 
+{{question}}
     """
 
     output_parser = StrOutputParser()
