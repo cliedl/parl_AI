@@ -13,6 +13,8 @@ sys.path.append("RAG")
 from database.vector_database import VectorDatabase
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
+import random
+
 
 # Output format
 class PartySummaries(BaseModel):
@@ -36,7 +38,110 @@ class PartySummaries(BaseModel):
     )
 
 
-def generate_chain(
+# Deprecated
+def rename_party(party: str, mode: str = "anonymize"):
+    """
+    Anonymizes or de-anonymizes party names.
+
+    arguments:
+    - party (str): party name
+    - mode (str): "anonymize" or "deanonymize"
+
+    returns:
+    - party (str): anonymized party name
+    """
+
+    party_dict = {
+        "cdu": "partei_a",
+        "spd": "partei_b",
+        "gruene": "partei_c",
+        "linke": "partei_d",
+        "fdp": "partei_e",
+        "afd": "partei_f",
+    }
+
+    if mode == "anonymize":
+        return party_dict[party.lower()]
+    elif mode == "deanonymize":
+        for key, value in party_dict.items():
+            if value == party.lower():
+                return key
+    else:
+        raise ValueError("mode must be 'anonymize' or 'deanonymize'")
+
+
+# Deprecated
+def get_documents_for_all_parties(self, query, k=5):
+    sources = ["gruene", "spd", "cdu", "afd", "fdp", "linke"]
+
+    random.shuffle(sources)
+
+    docs = {}
+
+    for source in sources:
+        docs[source] = self.database.max_marginal_relevance_search(
+            query, k=k, fetch_k=20, filter={"party": source}
+        )
+    return docs
+
+
+def get_documents_for_party(db, query, party, k=5):
+
+    docs = db.database.max_marginal_relevance_search(
+        query, k=k, fetch_k=20, filter={"party": party}
+    )
+    return docs
+
+
+# Deprecated
+def build_context(self, query, k=5):
+
+    docs = self.get_documents_for_all_parties(query, k=k)
+
+    context = ""
+
+    if self.source_type == "manifestos":
+        context += "Ausschnitte aus den Wahlprogrammen zur Europawahl 2024:\n"
+        source_description = "dem Wahlprogramm zur Europawahl 2024"
+    elif self.source_type == "debates":
+        context += "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n\n"
+        source_description = "vergangenen Reden im Europaparlament"
+
+    # Turn the dictionary of lists into a single (flat) list
+    docs = [doc for party_docs in docs.values() for doc in party_docs]
+
+    for doc in docs:
+        context += f"Ausschnitt aus {source_description} "
+        context += (
+            f"von der {rename_party(doc.metadata['party'], 'anonymize').upper()}:\n"
+        )
+        context += f"{doc.page_content}\n\n"
+
+    return context
+
+
+def build_context_for_party(db, query, party, k=5):
+
+    context_docs = get_documents_for_party(db, query, party, k=k)
+
+    if db.source_type == "manifestos":
+        context_header = "Ausschnitte aus den Wahlprogrammen zur Europawahl 2024:\n"
+    elif db.source_type == "debates":
+        context_header = "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n\n"
+
+    context_content = "\n\n".join([doc.page_content for doc in context_docs])
+
+    context_party = f"""
+    {context_header}
+
+    {context_content}
+    """
+
+    return context_party
+
+
+# Deprecated
+def generate_chain_all_in_one(
     dbs: list,
     llm=None,
     output_parser="json",
@@ -137,7 +242,7 @@ def generate_chain(
     return full_chain
 
 
-def generate_chain_per_party(
+def generate_chain(
     dbs: list,
     llm=None,
     output_parser="json",
@@ -164,16 +269,17 @@ def generate_chain_per_party(
 
     prompt_template = f"""   
     Beantworte die unten folgende FRAGE DES NUTZERS, indem du die politischen Positionen im KONTEXT zusammenfasst.
-    Der KONTEXT umfasst Ausschnitte aus Debatten im EU-Parlament und der EU-Wahlprogramme für 2024. 
+    Der KONTEXT umfasst Ausschnitte aus Debatten im EU-Parlament und der EU-Wahlprogramme für 2024 für eine Partei. 
     Deine Antwort soll ausschließlich die Informationen aus dem genannten KONTEXT beinhalten.
-    Mach deutlich, dass die Antwort den subjektiven Position der Parteien entspricht und distanziere dich falls nötig davon (z.B. mit wörtlicher Rede oder Konjunktiven).
+    Mach deutlich, dass die Antwort den subjektiven Position der Partei entspricht und distanziere dich falls nötig davon (z.B. mit wörtlicher Rede oder Konjunktiven).
     Gib die Antwort auf {language}.
 
     KONTEXT:
     {{context}}
 
-    Sollte für eine Partei der oben genannte KONTEXT keine klare Antwort auf die unten genannte FRAGE DES NUTZERS zulassen, gib für diese Partei bitte folgende Rückmeldung: "Es wurde keine passende Antwort in den verfügbaren Daten gefunden."
-    Andernfalls gib wie oben beschrieben eine Zusammenfassung der Positionen der Parteien wieder, um die nun folgende FRAGE DES NUTZERS zu beantworten:
+    Sollte der oben genannte KONTEXT keine Antwort auf die unten genannte FRAGE DES NUTZERS zulassen, gib anstatt der Zusammenfassung NUR die folgende Rückmeldung: 
+    "Es wurde keine passende Antwort in den verfügbaren Daten gefunden."
+    Andernfalls gib wie oben beschrieben eine Zusammenfassung der Positionen der Partei wieder, um die nun folgende FRAGE DES NUTZERS zu beantworten:
 
     FRAGE DES NUTZERS: 
     {{question}}
@@ -191,13 +297,13 @@ def generate_chain_per_party(
         retrieval_chain = RunnableParallel(
             {
                 "question": lambda x: x["question"],
-                "context": lambda x: "\n\n".join(
-                    db.build_context_for_party(query=x["question"], party=party, k=k)
+                "context": lambda x, party=party: "\n\n".join(
+                    build_context_for_party(db, query=x["question"], party=party, k=k)
                     for db in dbs
                 ),
-                "docs": lambda x: {
-                    db.source_type: db.get_documents_for_party(
-                        query=x["question"], party=party, k=k
+                "docs": lambda x, party=party: {
+                    db.source_type: get_documents_for_party(
+                        db, query=x["question"], party=party, k=k
                     )
                     for db in dbs
                 },
@@ -235,11 +341,12 @@ if __name__ == "__main__":
         reload=True,
     )
 
-    chain = generate_chain_per_party(
+    chain, party_chains = generate_chain(
         [db_manifestos],
-        k=2,
+        k=1,
     )
 
     response = chain.invoke("Was sagen die Parteien zum Verhältnis zu Russland?")
-    print(response)
-    print(response.keys())
+    print(response["cdu"]["docs"])
+    print()
+    print(response["spd"]["docs"])
