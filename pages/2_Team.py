@@ -43,8 +43,7 @@ st.subheader("Joshua Nowak")
 
 st.write(
     """
-UX Researcher und baut gern Dinge mit langchain
-
+Joshua hat als User Researcher und Psychologe verschiedene digitale Produkte mitgestaltet.
   """
 )
 
