@@ -259,7 +259,7 @@ chain = generate_chain(
     k=3,
 )
 
-st.title("🇪🇺 europarl.ai")
+st.header("🇪🇺 europarl.ai", divider="blue")
 st.write(
     translate(
         "Informiere dich über die Positionen der Parteien zur Europawahl 2024.",
