@@ -1,4 +1,4 @@
-22.03.2024, experiment performed with commit a0bd6c5
+22.03.2024, experiment performed with commit 15fe371
 
 # Experiment 2_llm:
 This experiment tests how the lllm influences faithfulness and answer_relevancy
