@@ -34,6 +34,10 @@ LARGE_LANGUAGE_MODEL = ChatOpenAI(
 )
 
 
+# Streamlit page conifg
+st.set_page_config(page_title="europarl.ai", page_icon="🇪🇺", layout="centered")
+
+
 ### LANGCHAIN SETUP ###
 @st.cache_resource
 def load_embedding_model():
@@ -237,6 +241,7 @@ def convert_date_format(date_string):
 ### INTERFACE ###
 sidebar = st.sidebar.title("")
 
+
 with sidebar:
     selected_language = st.radio(
         label="Language",
@@ -257,10 +262,19 @@ chain = generate_chain(
 st.title("🇪🇺 europarl.ai")
 st.write(
     translate(
-        "Erfahre die Positionen der Parteien zur Europawahl 2024.",
+        "Informiere dich über die Positionen der Parteien zur Europawahl 2024.",
         st.session_state.language,
     )
 )
+percentage_value = 9
+
+with st.expander("❗ DISCLAIMER", expanded=True):
+    st.write(
+        translate(
+            "Die Antworten werden von einem KI Sprachmodell generiert, basierend auf Wahlprogrammen und Plenardebatten. Dadurch können Fehler entstehen. Im Zweifelsfall können weiter unten die Quellen eingesehen werden.",
+            st.session_state.language,
+        )
+    )
 
 query = st.text_input(
     label=translate(
@@ -274,23 +288,25 @@ query = st.text_input(
     value=st.session_state.query,
 )
 
-st.write(translate("Oder wähle aus den Beispielen:", st.session_state.language))
-
-st.button(
-    st.session_state.example_prompts[st.session_state.language][0],
-    on_click=set_query,
-    args=(st.session_state.example_prompts[st.session_state.language][0],),
-)
-st.button(
-    st.session_state.example_prompts[st.session_state.language][1],
-    on_click=set_query,
-    args=(st.session_state.example_prompts[st.session_state.language][1],),
-)
-st.button(
-    st.session_state.example_prompts[st.session_state.language][2],
-    on_click=set_query,
-    args=(st.session_state.example_prompts[st.session_state.language][2],),
-)
+with st.expander(
+    translate("Oder wähle aus den Beispielen:", st.session_state.language),
+    expanded=False,
+):
+    st.button(
+        st.session_state.example_prompts[st.session_state.language][0],
+        on_click=set_query,
+        args=(st.session_state.example_prompts[st.session_state.language][0],),
+    )
+    st.button(
+        st.session_state.example_prompts[st.session_state.language][1],
+        on_click=set_query,
+        args=(st.session_state.example_prompts[st.session_state.language][1],),
+    )
+    st.button(
+        st.session_state.example_prompts[st.session_state.language][2],
+        on_click=set_query,
+        args=(st.session_state.example_prompts[st.session_state.language][2],),
+    )
 
 
 st.session_state.show_all_parties = st.checkbox(
@@ -371,7 +387,7 @@ if st.session_state.stage > 1:
             if show_party:
                 st.header(party_dict[party]["name"])
             else:
-                st.header(f"Partei {p}")
+                st.header(f"{translate('Partei', st.session_state.language)} {p}")
 
             st.write(st.session_state.response["answer"][party])
             if show_party:
