@@ -7,7 +7,7 @@ st.set_page_config(page_title="europarl.ai - Team", page_icon="🇪🇺")
 
 
 st.header("Das europarl.ai Team:", divider="blue")
-st.sidebar.header("Das sind wir")
+# st.sidebar.header("Das sind wir")
 
 st.subheader("Christian Liedl")
 st.write(

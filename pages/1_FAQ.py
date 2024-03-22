@@ -4,7 +4,7 @@ import numpy as np
 
 st.set_page_config(page_title="europarl.ai - FAQ", page_icon="🇪🇺")
 
-st.sidebar.header("Mehr zu europarl.ai")
+# st.sidebar.header("Mehr zu europarl.ai")
 
 st.header(
     "Am 9. Juni ist Europawahl. 🗳️ :Informier Informier dich mit europarl.ai!",
