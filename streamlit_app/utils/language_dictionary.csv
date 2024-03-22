@@ -2,7 +2,7 @@
 0;Stelle eine Frage oder gib ein Stichwort ein:;Ask a question or enter a keyword:
 1;Wie stehen die Parteien zum Emmissionshandel?;What do the parties think about emissions trading?
 2;Frage stellen;Ask question 
-3;Suche nach Antworten in Wahlprogrammen...;Searching for answers in the party manifestos…
+3;Suche nach Antworten in Wahlprogrammen und Parlamentsdebatten...;Searching for answers in the party manifestos and parliament debates…
 4;Die Reihenfolge der Parteien ist zufällig.;The order of the parties is random.
 5;Mehr dazu im;More on this in
 6;Europawahlprogramm der Partei; the European election programme of the party
@@ -20,5 +20,6 @@
 18;Partei aufdecken;Reveal party
 19;Erfahre die Positionen der Parteien zur Europawahl 2024.;For the 2024 European elections, find out what the parties' positions are.
 20;Oder wähle aus den Beispielen:;Or choose from the examples:
-21;Quellen;Sources
+21;Quellen: Worauf basieren diese Antworten?;Sources: What are the answers based on? 
 22;Das Sprachmodell hat eine inkompatible Antwort generiert. Das kann zufällig passieren. **Bitte versuche es erneut.**;The language model has generated an incompatible answer. This can happen sometimes. **Please try again.**
+23;Partei;Party
