@@ -158,7 +158,7 @@ if "show_all_parties" not in st.session_state:
     st.session_state.show_all_parties = True
 if "example_prompts" not in st.session_state:
     all_example_prompts = {}
-    with open("data/questions/complex_questions_with_translations.csv", "r") as file:
+    with open("streamlit_app/example_prompts.csv", "r") as file:
         reader = csv.DictReader(file, delimiter=";")
         for row in reader:
             for key, value in row.items():
@@ -279,25 +279,22 @@ query = st.text_input(
     value=st.session_state.query,
 )
 
-with st.expander(
-    translate("Oder wähle aus den Beispielen:", st.session_state.language),
-    expanded=False,
-):
-    st.button(
-        st.session_state.example_prompts[st.session_state.language][0],
-        on_click=set_query,
-        args=(st.session_state.example_prompts[st.session_state.language][0],),
-    )
-    st.button(
-        st.session_state.example_prompts[st.session_state.language][1],
-        on_click=set_query,
-        args=(st.session_state.example_prompts[st.session_state.language][1],),
-    )
-    st.button(
-        st.session_state.example_prompts[st.session_state.language][2],
-        on_click=set_query,
-        args=(st.session_state.example_prompts[st.session_state.language][2],),
-    )
+st.write(translate("Oder wähle aus den Beispielen:", st.session_state.language))
+st.button(
+    st.session_state.example_prompts[st.session_state.language][0],
+    on_click=set_query,
+    args=(st.session_state.example_prompts[st.session_state.language][0],),
+)
+st.button(
+    st.session_state.example_prompts[st.session_state.language][1],
+    on_click=set_query,
+    args=(st.session_state.example_prompts[st.session_state.language][1],),
+)
+st.button(
+    st.session_state.example_prompts[st.session_state.language][2],
+    on_click=set_query,
+    args=(st.session_state.example_prompts[st.session_state.language][2],),
+)
 
 
 st.session_state.show_all_parties = st.checkbox(
