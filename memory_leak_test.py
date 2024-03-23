@@ -75,6 +75,7 @@ def run():
         parties = ["afd", "cdu", "fdp", "spd", "gruene", "linke"]
         context = {}
         response = {}
+        prompts = {}
         for party in parties:
             # context = build_context_for_party(db_manifestos, query=query, party=party, k=5)
             docs = db_manifestos.database.max_marginal_relevance_search(
@@ -88,7 +89,9 @@ def run():
             )
             language = "Deutsch"
 
-            prompt = f"""
+            prompts[
+                party
+            ] = f"""
             Beantworte die unten folgende FRAGE DES NUTZERS, indem du die politischen Positionen der Partei im unten angegebenen KONTEXT zusammenfasst.
             Der KONTEXT umfasst Ausschnitte aus Redebeiträgen im EU-Parlament und aus dem EU-Wahlprogramm für 2024 für die Partei.
             Deine Antwort soll ausschließlich die Informationen aus dem genannten KONTEXT beinhalten.
@@ -104,7 +107,9 @@ def run():
             {query}
             """
 
-            response[party] = LARGE_LANGUAGE_MODEL.invoke(prompt)
+        import asyncio
+
+        response = asyncio.run(LARGE_LANGUAGE_MODEL.abatch(list(prompts.values())))
 
     t1 = time.time()
     print(f"Memory usage {process.memory_info().rss/(1024**2)} MB")
