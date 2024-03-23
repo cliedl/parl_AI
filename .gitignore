@@ -173,3 +173,4 @@ data/manifestos/chroma/
 locust/locustfile.py
 RAG/local_tests/
 local_tests/
+RAG/evaluation/Experiments/testing.ipynb
