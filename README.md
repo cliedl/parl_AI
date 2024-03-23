@@ -11,22 +11,22 @@ Data-Driven Insights: Utilizes EU election programs of six German parties and sp
 # Installation
 To set up europarl.ai, follow these steps:
 
-## Clone the repository:
+### Clone the repository:
 bash
 Copy code
 git clone https://github.com/europarl-ai/europarl-ai.git
 
-## Navigate to the cloned repository:
+### Navigate to the cloned repository:
 bash
 Copy code
 cd europarl-ai
 
-## Install dependencies (ensure you have Python installed):
+### Install dependencies (ensure you have Python installed):
 bash
 Copy code
 pip install -r requirements.txt
 
-## Run the Streamlit app:
+### Run the Streamlit app:
 bash
 Copy code
 streamlit run App.py
