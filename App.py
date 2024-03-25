@@ -6,12 +6,13 @@ import re
 import csv
 import random
 from datetime import datetime
-from streamlit_extras.buy_me_a_coffee import button
+
 
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from RAG.models.generation import generate_chain
+from RAG.models.RAG import RAG
 from RAG.database.vector_database import VectorDatabase
 from streamlit_app.utils.translate import translate
 
@@ -66,8 +67,11 @@ def load_db_debates():
     )
 
 
-db_manifestos = load_db_manifestos()
-db_debates = load_db_debates()
+rag = RAG(
+    databases=[load_db_manifestos(), load_db_debates()],
+    llm=LARGE_LANGUAGE_MODEL,
+    k=3,
+)
 
 
 ### TRUBRICS SETUP ###
@@ -76,6 +80,11 @@ collector = FeedbackCollector(
     # for local testing, use environment variables:
     email=os.environ.get("TRUBRICS_EMAIL"),
     password=os.environ.get("TRUBRICS_PASSWORD"),
+    # for deployment, use streamlit secrets:
+    # email=st.secrets.TRUBRICS_EMAIL,
+    # password=st.secrets.TRUBRICS_PASSWORD,
+)
+
 
 ### INITIALIZATION ###
 party_dict = {
@@ -112,18 +121,6 @@ party_dict = {
 }
 
 
-def format_response(response):
-    q = response[next(iter(response))]["question"]
-    c = {party: response[party]["context"] for party in response.keys()}
-    d = {
-        source: {party: response[party]["docs"][source] for party in response.keys()}
-        for source in response[list(response.keys())[0]]["docs"].keys()
-    }
-    a = {party: response[party]["answer"] for party in response.keys()}
-    response = {"question": q, "context": c, "docs": d, "answer": a}
-    return response
-
-
 if "response" not in st.session_state:
     st.session_state.response = None
 if "stage" not in st.session_state:
@@ -138,6 +135,8 @@ if "feedback_key" not in st.session_state:
     st.session_state.feedback_key = 0
 if "language" not in st.session_state:
     st.session_state.language = "Deutsch"
+else:
+    rag.language = st.session_state.language
 if "parties" not in st.session_state:
     st.session_state.parties = list(party_dict.keys())
 if "show_individual_parties" not in st.session_state:
@@ -193,8 +192,7 @@ def generate_response():
     while retry_count <= max_retries:
         try:
             print("Getting response")
-            st.session_state.response = chain.invoke(query)
-            st.session_state.response = format_response(st.session_state.response)
+            st.session_state.response = rag.query(query)
 
             # Assert that the response contains all parties
             assert set(st.session_state.response["answer"].keys()) == set(
@@ -246,14 +244,8 @@ with sidebar:
     )
     languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
     st.session_state.language = languages[selected_language]
+    rag.language = st.session_state.language
 
-
-chain = generate_chain(
-    [db_manifestos, db_debates],
-    llm=LARGE_LANGUAGE_MODEL,
-    language=st.session_state.language,
-    k=3,
-)
 
 st.header("🇪🇺 europarl.ai", divider="blue")
 st.write(
@@ -274,13 +266,6 @@ query = st.text_input(
     ),
     value=st.session_state.query,
 )
-
-st.button(
-    translate("Frage stellen", st.session_state.language),
-    on_click=submit_query,
-    type="primary",
-)
-
 
 st.write(translate("Hier sind Beispielfragen:", st.session_state.language))
 st.button(
@@ -309,6 +294,11 @@ st.session_state.show_all_parties = st.checkbox(
     ),
 )
 
+st.button(
+    translate("Frage stellen", st.session_state.language),
+    on_click=submit_query,
+    type="primary",
+)
 
 # STAGE 1: GENERATE RESPONSE
 if st.session_state.stage == 1:
@@ -319,23 +309,23 @@ if st.session_state.stage == 1:
         )
         + "🕵️"
     ):
-     
+
         with st.info(
-        "☝️ "
-        + translate(
-            "**Die Antworten wurden von einem Sprachmodell generiert und können fehlerhaft sein.**",
-            st.session_state.language,
-        )
-        + "  \n"
-        + translate(
-            "Bitte informiere dich zusätzlich in den verlinkten Wahlprogrammen.",
-            st.session_state.language,
-        )
-        + "  \n"
-        + translate(
-            "Die Reihenfolge der angezeigten Parteien ist zufällig.",
-            st.session_state.language,
-        )
+            "☝️ "
+            + translate(
+                "**Die Antworten wurden von einem Sprachmodell generiert und können fehlerhaft sein.**",
+                st.session_state.language,
+            )
+            + "  \n"
+            + translate(
+                "Bitte informiere dich zusätzlich in den verlinkten Wahlprogrammen.",
+                st.session_state.language,
+            )
+            + "  \n"
+            + translate(
+                "Die Reihenfolge der angezeigten Parteien ist zufällig.",
+                st.session_state.language,
+            )
         ):
             generate_response()
 
@@ -349,7 +339,6 @@ if st.session_state.stage == 1:
 
 # STAGE >= 1: DISPLAY RESPONSE
 if st.session_state.stage > 1:
-    
 
     # Initialize an empty list to hold all columns
     col_list = []
@@ -400,11 +389,9 @@ if st.session_state.stage > 1:
     st.markdown("---")
     st.subheader(
         translate(
-st.button(
-    translate("Frage stellen", st.session_state.language),
-    on_click=submit_query,
-    type="primary",
-)
+            "Quellen: Worauf basieren diese Antworten?", st.session_state.language
+        )
+    )
     st.write(
         translate(
             "Die Antworten wurden von dem KI-Sprachmodell GPT 3.5 generiert – unter Berücksichtigung der Wahlprogramme zur Europawahl 2024 und vergangenen Reden im Europaparlament im Zeitraum 2019-2024.",
@@ -472,6 +459,7 @@ if st.session_state.stage == 3:
             translate("Vielen Dank für dein Feedback!", st.session_state.language)
             + " 🙏"
         )
+
 
 # BUY US A COFFEE
 
