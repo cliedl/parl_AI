@@ -5,4 +5,4 @@ streamlit-feedback==0.1.2
 langchain==0.1.12
 langchain_openai
 chromadb==0.4.22
-pysqlite3-binary
+#pysqlite3-binary

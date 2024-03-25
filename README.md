@@ -25,3 +25,14 @@ streamlit run App.py
 
 # Usage
 After launching the app, simply input your question or keyword related to the EU elections. The app will process your inquiry and present a summary of relevant party positions. You can choose to reveal the identities of the parties or keep them anonymous for an unbiased comparison.
+
+# Dockerization
+* Create .env file with environmental variables
+    * OPENAI_API_KEY=<value>
+    * LANGCHAIN_TRACING_V2=<value>
+    * LANGCHAIN_API_KEY=<value>
+    * TRUBRICS_EMAIL=<value>
+    * TRUBRICS_PASSWORD=<value>
+
+* docker build -t europarl .
+* docker run -p 8080:8080 --env-file .env europarl
