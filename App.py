@@ -301,7 +301,7 @@ st.session_state.show_all_parties = st.checkbox(
     label=translate("Parteinamen anzeigen", st.session_state.language),
     value=True,
     help=translate(
-        "Du kannst die Namen der Parteien ausblenden, wenn du die Antworten zunächst unvoreingenommen lesen möchtest.",
+        "Blende die Parteinamen aus, um Antworten unvoreingenommen lesen zu können.",
         st.session_state.language,
     ),
 )
