@@ -273,13 +273,13 @@ query = st.text_input(
         st.session_state.language,
     ),
     placeholder=translate(
-        "Wie stehen die Parteien zum Emmissionshandel?",
+        "Tippe hier deine Frage ein oder wähle unten eine aus!",
         language=st.session_state.language,
     ),
     value=st.session_state.query,
 )
 
-st.write(translate("Oder wähle aus den Beispielen:", st.session_state.language))
+st.write(translate("Hier sind Beispielfragen:", st.session_state.language))
 st.button(
     st.session_state.example_prompts[st.session_state.language][0],
     on_click=set_query,
@@ -321,19 +321,8 @@ if st.session_state.stage == 1:
         )
         + "🕵️"
     ):
-        generate_response()
-
-    st.session_state.logged_prompt = collector.log_prompt(
-        config_model={"model": LARGE_LANGUAGE_MODEL.model_name},
-        prompt=query,
-        generation=str(st.session_state.response),
-    )
-
-    st.session_state.stage = 2
-
-# STAGE >= 1: DISPLAY RESPONSE
-if st.session_state.stage > 1:
-    st.info(
+     
+        with st.info(
         "☝️ "
         + translate(
             "**Die Antworten wurden von einem Sprachmodell generiert und können fehlerhaft sein.**",
@@ -349,7 +338,20 @@ if st.session_state.stage > 1:
             "Die Reihenfolge der angezeigten Parteien ist zufällig.",
             st.session_state.language,
         )
+        ):
+            generate_response()
+
+    st.session_state.logged_prompt = collector.log_prompt(
+        config_model={"model": LARGE_LANGUAGE_MODEL.model_name},
+        prompt=query,
+        generation=str(st.session_state.response),
     )
+
+    st.session_state.stage = 2
+
+# STAGE >= 1: DISPLAY RESPONSE
+if st.session_state.stage > 1:
+    
 
     # Initialize an empty list to hold all columns
     col_list = []
