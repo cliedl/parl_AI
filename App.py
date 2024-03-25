@@ -405,12 +405,7 @@ if st.session_state.stage > 1:
         translate(
             "Hier kannst du die genutzten Ausschnitte aus den Quellen einsehen:",
             st.session_state.language,
-        )
-    )
-    for party in st.session_state.parties:
-        with st.expander(
-            translate(
-                f"{translate('Quellen', st.session_state.language)}: {party_dict[party]['name']}",
+        )se('Quellen', st.session_state.language)}: {party_dict[party]['name']}",
                 st.session_state.language,
             )
         ):
