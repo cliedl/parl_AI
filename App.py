@@ -6,6 +6,7 @@ import re
 import csv
 import random
 from datetime import datetime
+from streamlit_extras import extra
 
 
 
@@ -267,21 +268,28 @@ query = st.text_input(
     value=st.session_state.query,
 )
 
+
+st.button(
+    translate("Frage stellen", st.session_state.language),
+    on_click=submit_query,
+    type="primary",
+)
+
 st.write(translate("Hier sind Beispielfragen:", st.session_state.language))
 st.button(
     st.session_state.example_prompts[st.session_state.language][0],
-    on_click=set_query,
-    args=(st.session_state.example_prompts[st.session_state.language][0],),
+    on_click=submit_query,
+    type="primary",
 )
 st.button(
     st.session_state.example_prompts[st.session_state.language][1],
-    on_click=set_query,
-    args=(st.session_state.example_prompts[st.session_state.language][1],),
+    on_click=submit_query,
+    type="primary",
 )
 st.button(
     st.session_state.example_prompts[st.session_state.language][2],
-    on_click=set_query,
-    args=(st.session_state.example_prompts[st.session_state.language][2],),
+    on_click=submit_query,
+    type="primary",
 )
 
 
@@ -294,11 +302,6 @@ st.session_state.show_all_parties = st.checkbox(
     ),
 )
 
-st.button(
-    translate("Frage stellen", st.session_state.language),
-    on_click=submit_query,
-    type="primary",
-)
 
 # STAGE 1: GENERATE RESPONSE
 if st.session_state.stage == 1:
@@ -460,10 +463,28 @@ if st.session_state.stage == 3:
             + " 🙏"
         )
 
-
 # BUY US A COFFEE
+if st.session_state.stage == 3:
+    st.markdown("---")
+    st.write(
+        f"### {translate('Kaffee spendieren?', st.session_state.language)}"
+    )
+    st.write(
+        translate(
+            "Dieses App ist ehrenamtlich entstanden. Wenn sie dir hilft, kannst du uns gern einen Kaffee spendieren. Danke :)",
+            st.session_state.language,
+        )
+    )
 
-from streamlit_extras.buy_me_a_coffee import button
+    import sys
+    sys.path.append("..")
+    from streamlit_app.streamlit_extras.buy_me_a_coffee import button
 
-def example():
-    button(username="fake-username", floating=False, width=221)
+    st.button(
+        translate("Kaffe kaufen", st.session_state.language),
+        on_click=button,
+        type="primary",
+    )
+
+    def example():
+        button(username="europarlai", floating=False, width=221)

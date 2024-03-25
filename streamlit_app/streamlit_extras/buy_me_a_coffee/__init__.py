@@ -1,15 +1,33 @@
+from streamlit_extras import extra
+
+def extra(func):
+    def wrapper(*args, **kwargs):
+        # Vor-Ausführungslogik oder Anpassungen
+        print(f"Aufruf von {func.__name__} mit args={args} und kwargs={kwargs}")
+        
+        result = func(*args, **kwargs)  # Die eigentliche Funktion ausführen
+        
+        # Nach-Ausführungslogik oder Anpassungen
+        print(f"{func.__name__} erfolgreich ausgeführt.")
+        
+        return result
+    return wrapper
+
+
 @extra
 def button(
-    username: str,
-    floating: bool = True,
-    text: str = "Buy me a coffee",
-    emoji: str = "",
-    bg_color: str = "#FFDD00",
-    font: Font = "Cookie",
-    font_color: str = "#000000",
-    coffee_color: str = "#000000",
-    width: int = 220,
+    username="europarlai",
+    floating=True,
+    text="Buy me a coffee",
+    emoji="",
+    bg_color="#FFDD00",
+    font="Cookie",
+    font_color="#000000",
+    coffee_color="#000000",
+    width=220,
 ):
+
+
     """
     Display a button which links to your Buy Me a Coffee page.
 
