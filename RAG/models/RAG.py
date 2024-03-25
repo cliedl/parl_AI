@@ -1,21 +1,5 @@
 from langchain_openai import ChatOpenAI
-
-from langchain_core.runnables import RunnablePassthrough, RunnableParallel
-
-from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
-
-from langchain.prompts import PromptTemplate
-from langchain_core.pydantic_v1 import BaseModel, Field
-
-import sys
-
-sys.path.append("RAG")
-from database.vector_database import VectorDatabase
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-
-import random
 import asyncio
-from dataclasses import dataclass
 
 
 class RAG:
@@ -28,7 +12,7 @@ class RAG:
 
         if self.llm == None:
             self.llm = ChatOpenAI(
-                model_name="gpt-3.5-turbo", max_tokens=2000, temperature=temperature
+                model_name="gpt-3.5-turbo", max_tokens=2000, temperature=0
             )
 
     def get_documents_for_party(self, questions, party):
