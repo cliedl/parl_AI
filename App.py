@@ -6,6 +6,7 @@ import re
 import csv
 import random
 from datetime import datetime
+from streamlit_extras.buy_me_a_coffee import button
 
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -75,11 +76,6 @@ collector = FeedbackCollector(
     # for local testing, use environment variables:
     email=os.environ.get("TRUBRICS_EMAIL"),
     password=os.environ.get("TRUBRICS_PASSWORD"),
-    # for deployment, use streamlit secrets:
-    # email=st.secrets.TRUBRICS_EMAIL,
-    # password=st.secrets.TRUBRICS_PASSWORD,
-)
-
 
 ### INITIALIZATION ###
 party_dict = {
@@ -279,6 +275,13 @@ query = st.text_input(
     value=st.session_state.query,
 )
 
+st.button(
+    translate("Frage stellen", st.session_state.language),
+    on_click=submit_query,
+    type="primary",
+)
+
+
 st.write(translate("Hier sind Beispielfragen:", st.session_state.language))
 st.button(
     st.session_state.example_prompts[st.session_state.language][0],
@@ -306,11 +309,6 @@ st.session_state.show_all_parties = st.checkbox(
     ),
 )
 
-st.button(
-    translate("Frage stellen", st.session_state.language),
-    on_click=submit_query,
-    type="primary",
-)
 
 # STAGE 1: GENERATE RESPONSE
 if st.session_state.stage == 1:
@@ -402,9 +400,11 @@ if st.session_state.stage > 1:
     st.markdown("---")
     st.subheader(
         translate(
-            "Quellen: Worauf basieren diese Antworten?", st.session_state.language
-        )
-    )
+st.button(
+    translate("Frage stellen", st.session_state.language),
+    on_click=submit_query,
+    type="primary",
+)
     st.write(
         translate(
             "Die Antworten wurden von dem KI-Sprachmodell GPT 3.5 generiert – unter Berücksichtigung der Wahlprogramme zur Europawahl 2024 und vergangenen Reden im Europaparlament im Zeitraum 2019-2024.",
@@ -472,3 +472,10 @@ if st.session_state.stage == 3:
             translate("Vielen Dank für dein Feedback!", st.session_state.language)
             + " 🙏"
         )
+
+# BUY US A COFFEE
+
+from streamlit_extras.buy_me_a_coffee import button
+
+def example():
+    button(username="fake-username", floating=False, width=221)
