@@ -13,7 +13,7 @@ st.subheader("GitHub - Account")
 st.write(
     """
     Wir arbeiten als Team zusammen und haben auf GitHub einen gemeinsamen Account erstellt.
-    Hier findest du ("europarl.ai auf GitHub", "https://github.com/europarl-ai/").
+    Hier findest du [europarl.ai auf GitHub](https://github.com/europarl-ai/).
     """
 )
 
