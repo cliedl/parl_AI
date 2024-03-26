@@ -2,6 +2,7 @@ trubrics==1.6.2
 trubrics[streamlit]
 streamlit==1.32.2
 streamlit-feedback==0.1.2
+streamlit-extras==0.4.0
 langchain==0.1.12
 langchain_openai
 chromadb==0.4.22
