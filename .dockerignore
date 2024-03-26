@@ -8,7 +8,6 @@ data/manifestos/chroma/manifestoberta
 data/debates/*.csv
 data/manifestos/*.csv
 
-
 data_scraping
 EDA
 

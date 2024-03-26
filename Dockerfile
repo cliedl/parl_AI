@@ -9,7 +9,7 @@ COPY . /app
 # Install requirements
 RUN pip install -r requirements.txt
 
-# Expose por 80 to world outside of the container
+# Expose port 8080 to world outside of the container
 EXPOSE 8080
 
 # Run streamlit app
