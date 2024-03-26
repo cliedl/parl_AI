@@ -9,6 +9,15 @@ st.set_page_config(page_title="europarl.ai - Team", page_icon="🇪🇺")
 st.header("Das europarl.ai Team:", divider="blue")
 # st.sidebar.header("Das sind wir")
 
+st.subheader("GitHub - Account")
+st.write(
+    """
+    Wir arbeiten als Team zusammen und haben auf GitHub einen gemeinsamen Account erstellt.
+    Hier findest du ("europarl.ai auf GitHub", "https://github.com/europarl-ai/").
+    """
+)
+
+
 st.subheader("Christian Liedl")
 st.write(
     """
