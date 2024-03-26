@@ -2,20 +2,18 @@ import streamlit as st
 import random
 from trubrics.integrations.streamlit import FeedbackCollector
 import os
-import re
 import csv
 import random
 from datetime import datetime
-from streamlit_extras import extra
+import base64
+from pathlib import Path
 
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-from RAG.models.generation import generate_chain
 from RAG.models.RAG import RAG
 from RAG.database.vector_database import VectorDatabase
 from streamlit_app.utils.translate import translate
-from streamlit_extras.buy_me_a_coffee import button as coffee_button
 from streamlit_app.utils.support_button import support_button
 
 # The following is necessary to make the code work in the deployed version.
@@ -172,6 +170,19 @@ def reveal_party(p):
     st.session_state.show_individual_parties[f"party_{p}"] = True
 
 
+def img_to_bytes(img_path):
+    img_bytes = Path(img_path).read_bytes()
+    encoded = base64.b64encode(img_bytes).decode()
+    return encoded
+
+
+def img_to_html(img_path):
+    img_html = "<img src='data:image/png;base64,{}' class='img-fluid' style='width:100%'>".format(
+        img_to_bytes(img_path)
+    )
+    return img_html
+
+
 def submit_query():
     st.session_state.logged_prompt = None
     st.session_state.response = None
@@ -262,7 +273,7 @@ with sidebar:
     rag.language = st.session_state.language
 
 
-st.header("🇪🇺 europarl.ai", divider="blue")
+st.header("🇪🇺 electify.eu", divider="blue")
 st.write(
     "##### :grey["
     + translate(
@@ -310,7 +321,6 @@ if st.session_state.stage == 0:
             args=(st.session_state.example_prompts[st.session_state.language][i],),
             key=f"example_prompt_{i}",
         )
-
 
 # STAGE 1: GENERATE RESPONSE
 if st.session_state.stage == 1:
@@ -377,9 +387,12 @@ if st.session_state.stage > 1:
         with col1:
             st.write("\n" * 2)
             if show_party:
-                st.image(party_dict[party]["image"])
+                file_loc = party_dict[party]["image"]
+                st.markdown(img_to_html(file_loc), unsafe_allow_html=True)
+
             else:
-                st.image("streamlit_app/assets/placeholder_logo.png")
+                file_loc = "streamlit_app/assets/placeholder_logo.png"
+                st.markdown(img_to_html(file_loc), unsafe_allow_html=True)
                 st.button(
                     translate("Partei aufdecken", st.session_state.language),
                     on_click=reveal_party,
