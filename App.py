@@ -16,6 +16,7 @@ from RAG.models.RAG import RAG
 from RAG.database.vector_database import VectorDatabase
 from streamlit_app.utils.translate import translate
 from streamlit_extras.buy_me_a_coffee import button as coffee_button
+from streamlit_app.utils.support_button import support_button
 
 # The following is necessary to make the code work in the deployed version.
 # (We need a newer version of sqlite3 than the one provided by Streamlit.)
@@ -239,15 +240,12 @@ def convert_date_format(date_string):
 
 
 ### INTERFACE ###
-coffee_button(
-    username="europarlai",
-    floating=True,
-    text="Unterstützen",
-    emoji="⚡️",
+support_button(
+    text="⚡️ Unterstützen",
+    link="https://buymeacoffee.com/europarlai",
     bg_color="#2b55a6",
     font_color="#ffffff",
-    font="Inter",
-    width=250,
+    font_size="18px",
 )
 
 sidebar = st.sidebar.title("")
@@ -302,15 +300,16 @@ with col_checkbox:
         ),
     )
 
-st.write(translate("Oder wähle aus den Beispielen:", st.session_state.language))
+if st.session_state.stage == 0:
+    st.write(translate("Oder wähle aus den Beispielen:", st.session_state.language))
 
-for i in range(3):
-    st.button(
-        st.session_state.example_prompts[st.session_state.language][i],
-        on_click=submit_example,
-        args=(st.session_state.example_prompts[st.session_state.language][i],),
-        key=f"example_prompt_{i}",
-    )
+    for i in range(3):
+        st.button(
+            st.session_state.example_prompts[st.session_state.language][i],
+            on_click=submit_example,
+            args=(st.session_state.example_prompts[st.session_state.language][i],),
+            key=f"example_prompt_{i}",
+        )
 
 
 # STAGE 1: GENERATE RESPONSE
@@ -323,10 +322,10 @@ if st.session_state.stage == 1:
         + "🕵️"
     ):
 
-        with st.info(
+        st.info(
             "☝️ "
             + translate(
-                "**Die Antworten wurden von einem Sprachmodell generiert und können fehlerhaft sein.**",
+                "**Die Antworten werden von einem Sprachmodell generiert und können fehlerhaft sein.**",
                 st.session_state.language,
             )
             + "  \n"
@@ -334,13 +333,14 @@ if st.session_state.stage == 1:
                 "Bitte informiere dich zusätzlich in den verlinkten Wahlprogrammen.",
                 st.session_state.language,
             )
-            + "  \n"
+            + "  \n\n"
             + translate(
                 "Die Reihenfolge der angezeigten Parteien ist zufällig.",
                 st.session_state.language,
-            )
-        ):
-            generate_response()
+            ),
+        )
+
+        generate_response()
 
     st.session_state.logged_prompt = collector.log_prompt(
         config_model={"model": LARGE_LANGUAGE_MODEL.model_name},
