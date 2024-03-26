@@ -241,7 +241,7 @@ def convert_date_format(date_string):
 
 ### INTERFACE ###
 support_button(
-    text="⚡️ Unterstützen",
+    text=f"⚡️ {translate('Unterstützen', st.session_state.language)}",
     link="https://buymeacoffee.com/europarlai",
     bg_color="#2b55a6",
     font_color="#ffffff",
