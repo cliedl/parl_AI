@@ -9,13 +9,13 @@ from datetime import datetime
 from streamlit_extras import extra
 
 
-
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from RAG.models.generation import generate_chain
 from RAG.models.RAG import RAG
 from RAG.database.vector_database import VectorDatabase
 from streamlit_app.utils.translate import translate
+from streamlit_extras.buy_me_a_coffee import button as coffee_button
 
 # The following is necessary to make the code work in the deployed version.
 # (We need a newer version of sqlite3 than the one provided by Streamlit.)
@@ -187,6 +187,11 @@ def set_query(query):
     st.session_state.query = query
 
 
+def submit_example(query):
+    set_query(query)
+    submit_query()
+
+
 def generate_response():
     max_retries = 2
     retry_count = 0
@@ -234,6 +239,17 @@ def convert_date_format(date_string):
 
 
 ### INTERFACE ###
+coffee_button(
+    username="europarlai",
+    floating=True,
+    text="Unterstützen",
+    emoji="⚡️",
+    bg_color="#2b55a6",
+    font_color="#ffffff",
+    font="Inter",
+    width=250,
+)
+
 sidebar = st.sidebar.title("")
 
 
@@ -250,10 +266,12 @@ with sidebar:
 
 st.header("🇪🇺 europarl.ai", divider="blue")
 st.write(
-    translate(
+    "##### :grey["
+    + translate(
         "Informiere dich über die Positionen der Parteien zur Europawahl 2024.",
         st.session_state.language,
     )
+    + "]"
 )
 
 query = st.text_input(
@@ -261,46 +279,38 @@ query = st.text_input(
         "Stelle eine Frage oder gib ein Stichwort ein:",
         st.session_state.language,
     ),
-    placeholder=translate(
-        "Tippe hier deine Frage ein oder wähle unten eine aus!",
-        language=st.session_state.language,
-    ),
+    placeholder="",
     value=st.session_state.query,
 )
 
+col_submit, col_checkbox = st.columns([1, 3])
 
-st.button(
-    translate("Frage stellen", st.session_state.language),
-    on_click=submit_query,
-    type="primary",
-)
+with col_submit:
+    st.button(
+        translate("Frage stellen", st.session_state.language),
+        on_click=submit_query,
+        type="primary",
+    )
 
-st.write(translate("Hier sind Beispielfragen:", st.session_state.language))
-st.button(
-    st.session_state.example_prompts[st.session_state.language][0],
-    on_click=submit_query,
-    type="primary",
-)
-st.button(
-    st.session_state.example_prompts[st.session_state.language][1],
-    on_click=submit_query,
-    type="primary",
-)
-st.button(
-    st.session_state.example_prompts[st.session_state.language][2],
-    on_click=submit_query,
-    type="primary",
-)
+with col_checkbox:
+    st.session_state.show_all_parties = st.checkbox(
+        label=translate("Parteinamen anzeigen", st.session_state.language),
+        value=True,
+        help=translate(
+            "Blende die Parteinamen aus, um Antworten unvoreingenommen lesen zu können.",
+            st.session_state.language,
+        ),
+    )
 
+st.write(translate("Oder wähle aus den Beispielen:", st.session_state.language))
 
-st.session_state.show_all_parties = st.checkbox(
-    label=translate("Parteinamen anzeigen", st.session_state.language),
-    value=True,
-    help=translate(
-        "Blende die Parteinamen aus, um Antworten unvoreingenommen lesen zu können.",
-        st.session_state.language,
-    ),
-)
+for i in range(3):
+    st.button(
+        st.session_state.example_prompts[st.session_state.language][i],
+        on_click=submit_example,
+        args=(st.session_state.example_prompts[st.session_state.language][i],),
+        key=f"example_prompt_{i}",
+    )
 
 
 # STAGE 1: GENERATE RESPONSE
@@ -463,28 +473,26 @@ if st.session_state.stage == 3:
             + " 🙏"
         )
 
-# BUY US A COFFEE
-if st.session_state.stage == 3:
-    st.markdown("---")
-    st.write(
-        f"### {translate('Kaffee spendieren?', st.session_state.language)}"
-    )
-    st.write(
-        translate(
-            "Dieses App ist ehrenamtlich entstanden. Wenn sie dir hilft, kannst du uns gern einen Kaffee spendieren. Danke :)",
-            st.session_state.language,
-        )
-    )
+# # BUY US A COFFEE
+# if st.session_state.stage == 3:
+#     st.markdown("---")
+#     st.write(f"### {translate('Kaffee spendieren?', st.session_state.language)}")
+#     st.write(
+#         translate(
+#             "Dieses App ist ehrenamtlich entstanden. Wenn sie dir hilft, kannst du uns gern einen Kaffee spendieren. Danke :)",
+#             st.session_state.language,
+#         )
+#     )
 
-    import sys
-    sys.path.append("..")
-    from streamlit_app.streamlit_extras.buy_me_a_coffee import button
+#     import sys
 
-    st.button(
-        translate("Kaffe kaufen", st.session_state.language),
-        on_click=button,
-        type="primary",
-    )
+#     sys.path.append("..")
 
-    def example():
-        button(username="europarlai", floating=False, width=221)
+#     st.button(
+#         translate("Kaffe kaufen", st.session_state.language),
+#         on_click=button,
+#         type="primary",
+#     )
+
+#     def example():
+#         button(username="europarlai", floating=False, width=221)
