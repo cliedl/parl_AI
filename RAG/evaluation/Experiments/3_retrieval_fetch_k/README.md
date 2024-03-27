@@ -1,4 +1,4 @@
-22.03.2024, experiment performed with commit 15fe371
+22.03.2024, experiment performed with commit 335c64b
 
 # Experiment 3_retrieval_fetch_k:
 This experiments tests the fetch_k hyperparameter of max_marginal_relevance_search
