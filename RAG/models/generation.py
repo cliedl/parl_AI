@@ -88,7 +88,7 @@ def get_documents_for_all_parties(self, query, k=5):
 def get_documents_for_party(db, query, party, k=5):
 
     docs = db.database.max_marginal_relevance_search(
-        query, k=k, fetch_k=20, filter={"party": party}
+        query, k=k, fetch_k=5, filter={"party": party}
     )
     return docs
 
