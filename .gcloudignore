@@ -1,5 +1,8 @@
 .git
 .gitignore
 .gcloudignore
-#!data/manifestos/chroma/openai
-#!data/debates/chroma/openai
+#!include:.gitignore
+#!include:.dockerignore
+
+!data/manifestos/chroma/openai
+!data/debates/chroma/openai
