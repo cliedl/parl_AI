@@ -15,3 +15,6 @@ RAG/evaluation
 RAG/local_tests
 RAG/scripts
 
+.env
+.DS_Store
+data/.DS_Store
