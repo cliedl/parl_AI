@@ -19,7 +19,7 @@ class RAG:
         docs = {}
         for db in self.databases:
             docs[db.source_type] = db.database.max_marginal_relevance_search(
-                questions, k=self.k, fetch_k=20, filter={"party": party}
+                questions, k=self.k, fetch_k=5, filter={"party": party}
             )
         return docs
 
