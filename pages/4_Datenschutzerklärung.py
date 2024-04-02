@@ -8,12 +8,12 @@ st.set_page_config(page_title="europarl.ai - Datenschutzerklärung", page_icon="
 
 st.header("Datenschutzerklärung", divider="blue")
 
+### WARNING: Careful, height of html box has to be large enough to fit text!!!!
 
 st.components.v1.html(
     """
-        <h1>Datenschutzerklärung</h1>
 <p>Verantwortlicher im Sinne der Datenschutzgesetze, insbesondere der EU-Datenschutzgrundverordnung (DSGVO), ist:</p>
-<p>electify GbR</p>
+<p>electify GbR, siehe Impressum</p>
 <h2>Ihre Betroffenenrechte</h2>
 <p>Unter den angegebenen Kontaktdaten unseres Datenschutzbeauftragten können Sie jederzeit folgende Rechte ausüben:</p>
 <ul>
