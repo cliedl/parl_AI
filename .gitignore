@@ -175,3 +175,4 @@ RAG/local_tests/
 local_tests/
 EDA/
 RAG/evaluation/Experiments/testing.ipynb
+memory_leak_test.py
