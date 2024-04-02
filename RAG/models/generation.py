@@ -16,7 +16,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 import random
 
 
-# Output format
+# Deprecated: Output format for JSON parser
 class PartySummaries(BaseModel):
     partei_a: str = Field(
         description="Antwort auf die Frage des Nutzers basierend auf den Positionen der Partei_A"
@@ -86,6 +86,18 @@ def get_documents_for_all_parties(self, query, k=5):
 
 
 def get_documents_for_party(db, query, party, k=5):
+    """
+    Retrieve documents from a vector database based on a query using maximal marginal relevance search, while filtering by a specific party.
+
+    Arguments:
+    - db: vector database
+    - query: query string
+    - party: party name (one of: "cdu", "spd", "gruene", "linke", "fdp", "afd")
+    - k: number of documents to retrieve (default: 5)
+
+    Returns:
+    - docs: list of documents
+    """
 
     docs = db.database.max_marginal_relevance_search(
         query, k=k, fetch_k=5, filter={"party": party}
@@ -121,6 +133,14 @@ def build_context(self, query, k=5):
 
 
 def build_context_for_party(db, query, party, k=5):
+    """
+    Generate the "context" string for the prompt based on the documents retrieved for a specific party.
+
+    Arguments:
+    - db: vector database
+    - query: query string
+    - party: party name (one of: "cdu", "spd", "gruene", "linke", "fdp", "afd")
+    """
 
     context_docs = get_documents_for_party(db, query, party, k=k)
 
