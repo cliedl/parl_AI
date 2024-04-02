@@ -139,6 +139,11 @@ if "example_prompts" not in st.session_state:
     st.session_state.example_prompts = {
         key: random.sample(value, 3) for key, value in all_example_prompts.items()
     }
+if "use_trubrics" not in st.session_state:
+    if "TRUBRICS_PASSWORD" in os.environ:
+        st.session_state.use_trubrics = True
+    else:
+        st.session_state.use_trubrics = False
 
 
 ##################################
@@ -332,11 +337,12 @@ if st.session_state.stage == 1:
     ):
         generate_response()
 
-    st.session_state.logged_prompt = collector.log_prompt(
-        config_model={"model": LARGE_LANGUAGE_MODEL.model_name},
-        prompt=query,
-        generation=str(st.session_state.response),
-    )
+    if st.session_state.use_trubrics:
+        st.session_state.logged_prompt = collector.log_prompt(
+            config_model={"model": LARGE_LANGUAGE_MODEL.model_name},
+            prompt=query,
+            generation=str(st.session_state.response),
+        )
 
     st.session_state.stage = 2
 
@@ -449,18 +455,19 @@ if st.session_state.stage > 1:
         )
     )
 
-    st.session_state.feedback = collector.st_feedback(
-        component="default",
-        feedback_type="thumbs",
-        model=LARGE_LANGUAGE_MODEL.model_name,
-        prompt_id=st.session_state.logged_prompt.id,
-        open_feedback_label="Weiteres Feedback (optional)",
-        align="flex-start",
-        key=f"feedback_{st.session_state.feedback_key}",
-    )
-
-    if st.session_state.feedback is not None:
-        st.write(
-            translate("Vielen Dank für dein Feedback!", st.session_state.language)
-            + " 🙏"
+    if st.session_state.use_trubrics:
+        st.session_state.feedback = collector.st_feedback(
+            component="default",
+            feedback_type="thumbs",
+            model=LARGE_LANGUAGE_MODEL.model_name,
+            prompt_id=st.session_state.logged_prompt.id,
+            open_feedback_label="Weiteres Feedback (optional)",
+            align="flex-start",
+            key=f"feedback_{st.session_state.feedback_key}",
         )
+
+        if st.session_state.feedback is not None:
+            st.write(
+                translate("Vielen Dank für dein Feedback!", st.session_state.language)
+                + " 🙏"
+            )
