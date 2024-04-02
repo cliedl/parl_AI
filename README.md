@@ -1,38 +1,53 @@
-# europarl-ai: DSR Final Project for European Elections
+# Electify: Helping voters make an informed decision in the 2024 European Elections
 
 # Overview
-europarl.ai is an interactive app designed to empower voters with clear, concise summaries of political party positions for the European elections 2024. By leveraging a sophisticated AI-driven platform, europarl.ai demystifies the European Union's complex political landscape, offering users the ability to make informed choices. Find more on our organization page https://github.com/europarl-ai
+Electify is an interactive app designed to empower voters with clear, concise summaries of political party positions for the 2024 European Elections. We use Retrieval-Augmented Generation (RAG) to extract relevant information from party manifestos and debates, providing users with an overview of each party's position on any given topic. Find background information on our [organization page](https://github.com/europarl-ai).
 
 # Features
-- Interactive Interface: Ask questions or enter keywords to receive summarized party positions.
-- Anonymous Party Positions: Option to view party stances anonymously for unbiased evaluation.
-- Data-Driven Insights: Utilizes EU election programs of six German parties and speeches from the EU Parliament (2019-2024).
+- Retrieve relevant information from party manifestos and debates
+- Summarize parties' political positions based on user query
+- Hide party names to prevent bias
+- Show all retrieved sources for transparency
 
-# Installation
-To set up europarl.ai, follow these steps:
+# Local setup
+To set up Electify locally, follow the steps below:
 
-### Clone the repository:
+```
 git clone https://github.com/europarl-ai/europarl-ai.git
 
-### Navigate to the cloned repository:
 cd europarl-ai
+```
 
-### Install dependencies (ensure you have Python installed):
+Choose one of the following options to set up the environment:
+
+## Option 1: Docker
+Create `.env` file in the repository's root directory containing your OpenAI API key:
+```
+OPENAI_API_KEY=<value>
+```
+
+Run the following commands to build and run the Docker container:
+```
+docker build -t europarl .
+docker run -p 8080:8080 --env-file .env europarl
+```
+
+Navigate to `http://localhost:8080` in your browser to access the app.
+
+## Option 2: Build the environment manually
+
+Create an environment with Python 3.11, for example with conda:
+```
+conda create -n europarl python=3.11
+conda activate europarl
+```
+
+Install required packages:
+```
 pip install -r requirements.txt
+```
 
-### Run the Streamlit app:
+Run the Streamlit app:
+```
 streamlit run App.py
-
-# Usage
-After launching the app, simply input your question or keyword related to the EU elections. The app will process your inquiry and present a summary of relevant party positions. You can choose to reveal the identities of the parties or keep them anonymous for an unbiased comparison.
-
-# Dockerization
-* Create .env file with environmental variables
-    * OPENAI_API_KEY=<value>
-    * LANGCHAIN_TRACING_V2=<value>
-    * LANGCHAIN_API_KEY=<value>
-    * TRUBRICS_EMAIL=<value>
-    * TRUBRICS_PASSWORD=<value>
-
-* docker build -t europarl .
-* docker run -p 8080:8080 --env-file .env europarl
+```
