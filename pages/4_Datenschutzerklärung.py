@@ -60,7 +60,7 @@ Dem Einsatz dieses Drittanbieters steht nicht entgegen, dass dieser seinen Sitz 
 hat, da der Anbieter hat sich gemäß den EU-Standardvertragsklauseln verpflichtet.</p>
 
 <p>Der Nutzer hat die Möglichkeit, seine Wertschätzung für die zur Verfügung gestellten Informationen durch eine Spende auszudrücken.  
-Dafür nutzen wir den Dienst „Buy me a Coffee“, der Publisherr Inc. (USA). Dabei werden Daten von „Buy me a Coffee“ verarbeitet und auf Systemen von Publisherr Inc. gespeichert. 
+Dies geschieht über einen externen Link zum Dienst „Buy me a Coffee“ der Publisherr Inc. (USA). Dabei werden Daten von „Buy me a Coffee“ verarbeitet und auf Systemen von Publisherr Inc. gespeichert. 
 Wir weisen darauf hin, dass wir keine Kenntnis vom Inhalt der übermittelten Daten sowie deren Nutzung durch „Buy me a Coffee“ erhalten. 
 Weitere Informationen hierzu finden Sie hier: <a href=https://www.buymeacoffee.com/privacy-policy> https://www.buymeacoffee.com/privacy-policy </a>.</p>
 
