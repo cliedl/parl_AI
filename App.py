@@ -3,6 +3,7 @@ import random
 from trubrics.integrations.streamlit import FeedbackCollector
 import os
 import csv
+import json
 import random
 from datetime import datetime
 import base64
@@ -16,31 +17,36 @@ from RAG.database.vector_database import VectorDatabase
 from streamlit_app.utils.translate import translate
 from streamlit_app.utils.support_button import support_button
 
+# Load dictionary with party names, image file paths, and links to manifestos
+with open("streamlit_app/party_dict.json", "r") as file:
+    party_dict = json.load(file)
+
 # The following is necessary to make the code work in the deployed version.
 # (We need a newer version of sqlite3 than the one provided by Streamlit.)
 # The environment variable IS_DEPLOYED is created only in the Streamlit Secrets and set to the string "TRUE".
-if os.getenv("IS_DEPLOYED", default="FALSE") == "TRUE":
-    __import__("pysqlite3")
-    import sys
+# if os.getenv("IS_DEPLOYED", default="FALSE") == "TRUE":
+#     __import__("pysqlite3")
+#     import sys
 
-    sys.modules["sqlite3"] = sys.modules["pysqlite3"]
+#     sys.modules["sqlite3"] = sys.modules["pysqlite3"]
 
-# from RAG.models.embedding import ManifestoBertaEmbeddings
+# Streamlit page conifg
+st.set_page_config(page_title="europarl.ai", page_icon="🇪🇺", layout="centered")
+
+
+##################################
+### RAG SETUP ####################
+##################################
 
 DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
 DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
-DELAY = 0.05  # pause between words in text stream (in seconds)
 TEMPERATURE = 0.0
 LARGE_LANGUAGE_MODEL = ChatOpenAI(
     model_name="gpt-3.5-turbo", max_tokens=400, temperature=TEMPERATURE
 )
 
 
-# Streamlit page conifg
-st.set_page_config(page_title="europarl.ai", page_icon="🇪🇺", layout="centered")
-
-
-### LANGCHAIN SETUP ###
+# Load the OpenAI embeddings model
 @st.cache_resource
 def load_embedding_model():
     return OpenAIEmbeddings(model="text-embedding-3-large")
@@ -49,6 +55,7 @@ def load_embedding_model():
 embedding_model = load_embedding_model()
 
 
+# Load the databases
 @st.cache_resource
 def load_db_manifestos():
     return VectorDatabase(
@@ -74,53 +81,23 @@ rag = RAG(
 )
 
 
-### TRUBRICS SETUP ###
+##################################
+### TRUBRICS SETUP ###############
+##################################
 collector = FeedbackCollector(
     project="default",
     # for local testing, use environment variables:
     email=os.environ.get("TRUBRICS_EMAIL"),
     password=os.environ.get("TRUBRICS_PASSWORD"),
-    # for deployment, use streamlit secrets:
+    # for deployment on Streamlit, use Streamlit secrets:
     # email=st.secrets.TRUBRICS_EMAIL,
     # password=st.secrets.TRUBRICS_PASSWORD,
 )
 
 
-### INITIALIZATION ###
-party_dict = {
-    "cdu": {
-        "name": "CDU/CSU",
-        "image": "streamlit_app/assets/cdu_logo.png",
-        "manifesto_link": "https://assets.ctfassets.net/nwwnl7ifahow/476rnHcYPkmyuONPvSTKO2/972e88ceb862ac4d4905d98441555e0c/europawahlprogramm-cdu-csu-2024_0.pdf",
-    },
-    "spd": {
-        "name": "SPD",
-        "image": "streamlit_app/assets/spd_logo.png",
-        "manifesto_link": "https://www.spd.de/fileadmin/Dokumente/EuroDel/20240128_Europaprogramm.pdf",
-    },
-    "gruene": {
-        "name": "Bündnis 90/Die Grünen",
-        "image": "streamlit_app/assets/gruene_logo.png",
-        "manifesto_link": "https://cms.gruene.de/uploads/assets/Europawahlprogramm-2024-Bu%CC%88ndnis90Die-Gru%CC%88nen_Wohlstand_Gerechtigkeit_Frieden_Freiheit.pdf",
-    },
-    "linke": {
-        "name": "Die Linke",
-        "image": "streamlit_app/assets/linke_logo.png",
-        "manifesto_link": "https://www.die-linke.de/fileadmin/user_upload/Europawahlprogramm_2023_neu2.pdf",
-    },
-    "fdp": {
-        "name": "FDP",
-        "image": "streamlit_app/assets/fdp_logo.png",
-        "manifesto_link": "https://www.fdp.de/sites/default/files/2024-01/fdp_europawahlprogramm-2024_vorabversion.pdf",
-    },
-    "afd": {
-        "name": "AfD",
-        "image": "streamlit_app/assets/afd_logo.png",
-        "manifesto_link": "https://www.afd.de/wp-content/uploads/2023/11/2023-11-16-_-AfD-Europawahlprogramm-2024-_-web.pdf",
-    },
-}
-
-
+##################################
+### SESSION STATES ###############
+##################################
 if "response" not in st.session_state:
     st.session_state.response = None
 if "stage" not in st.session_state:
@@ -147,8 +124,6 @@ if "show_individual_parties" not in st.session_state:
     st.session_state.show_individual_parties = {
         f"party_{i+1}": False for i in range(len(st.session_state.parties))
     }
-
-
 if "show_all_parties" not in st.session_state:
     st.session_state.show_all_parties = True
 if "example_prompts" not in st.session_state:
@@ -166,6 +141,9 @@ if "example_prompts" not in st.session_state:
     }
 
 
+##################################
+### HELPER FUNCTIONS #############
+##################################
 def reveal_party(p):
     st.session_state.show_individual_parties[f"party_{p}"] = True
 
@@ -250,7 +228,9 @@ def convert_date_format(date_string):
     return new_date_string
 
 
-### INTERFACE ###
+##################################
+### USER INTERFACE ###############
+##################################
 support_button(
     text=f"⚡️ {translate('Unterstützen', st.session_state.language)}",
     link="https://buymeacoffee.com/europarlai",
@@ -259,10 +239,8 @@ support_button(
     font_size="18px",
 )
 
-sidebar = st.sidebar.title("")
 
-
-with sidebar:
+with st.sidebar:
     selected_language = st.radio(
         label="Language",
         options=["🇩🇪 Deutsch", "🇬🇧 English"],
@@ -311,6 +289,7 @@ with col_checkbox:
         ),
     )
 
+# STAGE 0: User has not yet submitted a query
 if st.session_state.stage == 0:
     st.write(translate("Oder wähle aus den Beispielen:", st.session_state.language))
 
@@ -322,7 +301,27 @@ if st.session_state.stage == 0:
             key=f"example_prompt_{i}",
         )
 
-# STAGE 1: GENERATE RESPONSE
+# STAGE > 0: Show disclaimer once the user has submitted a query (and keep showing it)
+if st.session_state.stage > 0:
+    st.info(
+        "☝️ "
+        + translate(
+            "**Die Antworten werden von einem Sprachmodell generiert und können fehlerhaft sein.**",
+            st.session_state.language,
+        )
+        + "  \n"
+        + translate(
+            "Bitte informiere dich zusätzlich in den verlinkten Wahlprogrammen.",
+            st.session_state.language,
+        )
+        + "  \n\n"
+        + translate(
+            "Die Reihenfolge der angezeigten Parteien ist zufällig.",
+            st.session_state.language,
+        ),
+    )
+
+# STAGE 1: User submitted a query and we are waiting for the response
 if st.session_state.stage == 1:
     with st.spinner(
         translate(
@@ -331,25 +330,6 @@ if st.session_state.stage == 1:
         )
         + "🕵️"
     ):
-
-        st.info(
-            "☝️ "
-            + translate(
-                "**Die Antworten werden von einem Sprachmodell generiert und können fehlerhaft sein.**",
-                st.session_state.language,
-            )
-            + "  \n"
-            + translate(
-                "Bitte informiere dich zusätzlich in den verlinkten Wahlprogrammen.",
-                st.session_state.language,
-            )
-            + "  \n\n"
-            + translate(
-                "Die Reihenfolge der angezeigten Parteien ist zufällig.",
-                st.session_state.language,
-            ),
-        )
-
         generate_response()
 
     st.session_state.logged_prompt = collector.log_prompt(
@@ -360,7 +340,8 @@ if st.session_state.stage == 1:
 
     st.session_state.stage = 2
 
-# STAGE >= 1: DISPLAY RESPONSE
+
+# STAGE > 1: The response has been generated and is displayed
 if st.session_state.stage > 1:
 
     # Initialize an empty list to hold all columns
@@ -413,6 +394,8 @@ if st.session_state.stage > 1:
                 )
 
     st.markdown("---")
+
+    # Display a section with all retrieved excerpts from the sources
     st.subheader(
         translate(
             "Quellen: Worauf basieren diese Antworten?", st.session_state.language
@@ -454,6 +437,8 @@ if st.session_state.stage > 1:
                 )
 
     st.markdown("---")
+
+    # Show feedback section
     st.write(
         f"### {translate('Waren diese Antworten hilfreich für dich?', st.session_state.language)}"
     )
@@ -463,12 +448,6 @@ if st.session_state.stage > 1:
             st.session_state.language,
         )
     )
-
-    st.session_state.stage = 3
-
-
-# TRUBRICS FEEDBACK
-if st.session_state.stage == 3:
 
     st.session_state.feedback = collector.st_feedback(
         component="default",
@@ -485,27 +464,3 @@ if st.session_state.stage == 3:
             translate("Vielen Dank für dein Feedback!", st.session_state.language)
             + " 🙏"
         )
-
-# # BUY US A COFFEE
-# if st.session_state.stage == 3:
-#     st.markdown("---")
-#     st.write(f"### {translate('Kaffee spendieren?', st.session_state.language)}")
-#     st.write(
-#         translate(
-#             "Dieses App ist ehrenamtlich entstanden. Wenn sie dir hilft, kannst du uns gern einen Kaffee spendieren. Danke :)",
-#             st.session_state.language,
-#         )
-#     )
-
-#     import sys
-
-#     sys.path.append("..")
-
-#     st.button(
-#         translate("Kaffe kaufen", st.session_state.language),
-#         on_click=button,
-#         type="primary",
-#     )
-
-#     def example():
-#         button(username="europarlai", floating=False, width=221)
