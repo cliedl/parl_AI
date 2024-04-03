@@ -3,17 +3,15 @@ import pandas as pd
 import pydeck as pdk
 from urllib.error import URLError
 
-st.set_page_config(page_title="europarl.ai - Team", page_icon="🇪🇺")
+st.set_page_config(page_title="Electify - Über uns", page_icon="🇪🇺")
 
 
-st.header("Das europarl.ai Team:", divider="blue")
-# st.sidebar.header("Das sind wir")
+st.header("Über uns", divider="blue")
 
-st.subheader("GitHub - Account")
 st.write(
     """
-    Wir arbeiten als Team zusammen und haben auf GitHub einen gemeinsamen Account erstellt.
-    Hier findest du [europarl.ai auf GitHub](https://github.com/europarl-ai/).
+    Wir sind ein unabhängiges Team von Data Scientists, die sich für die Demokratie und den Zugang zu Informationen einsetzen.
+    Wir arbeiten als Team zusammen in einer gemeinsamen [Github-Organisation](https://github.com/europarl-ai/).
     """
 )
 
@@ -25,7 +23,7 @@ st.write(
     """
 )
 
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([0.15, 0.85])
 with col1:
     st.link_button("Github", "https://github.com/cliedl")
 
@@ -41,22 +39,22 @@ Anna hat als Journalistin für die ARD, ZDF, funk und die Kooperarive Berlin gea
   """
 )
 
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([0.15, 0.85])
 with col1:
     st.link_button("Webseite", "https://aneifer.de")
 
 with col2:
-    st.link_button("Linkedin", "Linkedin.com/in/anna-neifer/")
+    st.link_button("Linkedin", "https://www.linkedin.com/in/anna-neifer/")
 
 st.subheader("Joshua Nowak")
 
 st.write(
     """
-Joshua hat als User Researcher und Psychologe verschiedene digitale Produkte mitgestaltet.
+Joshua hat als User Researcher und Psychologe verschiedene digitale Produkte mitgestaltet. Seit einigen Jahren programmiert er in Python und R und hat sich auf Data Science spezialisiert.
   """
 )
 
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([0.15, 0.85])
 with col1:
     st.link_button("Github", "https://github.com/josh-nowak")
 

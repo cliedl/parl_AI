@@ -1,13 +1,9 @@
 import streamlit as st
-import pandas as pd
-import pydeck as pdk
-from urllib.error import URLError
 
-st.set_page_config(page_title="europarl.ai - Impressum", page_icon="🇪🇺")
+st.set_page_config(page_title="Electify - Impressum", page_icon="🇪🇺")
 
 
 st.header("Impressum", divider="blue")
-# st.sidebar.header("Daten")
 st.write(
     """
     Electify GbR

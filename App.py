@@ -31,7 +31,7 @@ with open("streamlit_app/party_dict.json", "r") as file:
 #     sys.modules["sqlite3"] = sys.modules["pysqlite3"]
 
 # Streamlit page conifg
-st.set_page_config(page_title="europarl.ai", page_icon="🇪🇺", layout="centered")
+st.set_page_config(page_title="Electify", page_icon="🇪🇺", layout="centered")
 
 
 ##################################
@@ -238,7 +238,7 @@ def convert_date_format(date_string):
 ##################################
 support_button(
     text=f"⚡️ {translate('Unterstützen', st.session_state.language)}",
-    link="https://buymeacoffee.com/europarlai",
+    link="https://www.buymeacoffee.com/electify.eu",
     bg_color="#2b55a6",
     font_color="#ffffff",
     font_size="18px",

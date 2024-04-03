@@ -1,9 +1,6 @@
 import streamlit as st
-import pandas as pd
-import pydeck as pdk
-from urllib.error import URLError
 
-st.set_page_config(page_title="europarl.ai - Datenschutzerklärung", page_icon="🇪🇺")
+st.set_page_config(page_title="Electify - Datenschutzerklärung", page_icon="🇪🇺")
 
 
 st.header("Datenschutzerklärung", divider="blue")
@@ -11,7 +8,7 @@ st.header("Datenschutzerklärung", divider="blue")
 ### WARNING: Careful, height of html box has to be large enough to fit text!!!!
 
 st.components.v1.html(
-    """
+    """<div style="font-family: 'Source Sans Pro', sans-serif">
 <p>Verantwortlicher im Sinne der Datenschutzgesetze, insbesondere der EU-Datenschutzgrundverordnung (DSGVO), ist:</p>
 <p>Electify GbR, siehe Impressum</p>
 <h2>Ihre Betroffenenrechte</h2>
@@ -103,7 +100,7 @@ Weitere Informationen hierzu finden Sie hier: <a href=https://www.buymeacoffee.c
 <h2>Fragen an den Datenschutzbeauftragten</h2>
 <p>Wenn Sie Fragen zum Datenschutz haben, schreiben Sie uns bitte eine E-Mail oder wenden Sie sich direkt an die für den Datenschutz verantwortliche Person in unserer Organisation:</p>
 <p></p><p><em>Die Datenschutzerklärung wurde mithilfe der activeMind AG erstellt, den Experten für <a href="https://www.activemind.de/datenschutz/datenschutzbeauftragter/" target="_blank" rel="noopener">externe Datenschutzbeauftragte</a> (Version #2020-09-30).</em></p>
-
+</div>
         """,
     height=3800,
 )
