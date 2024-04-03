@@ -409,7 +409,7 @@ if st.session_state.stage > 1:
     )
     st.write(
         translate(
-            "Die Antworten wurden von dem KI-Sprachmodell GPT 3.5 generiert – unter Berücksichtigung der Wahlprogramme zur Europawahl 2024 und vergangenen Reden im Europaparlament im Zeitraum 2019-2024.",
+            "Die Antworten wurden von dem KI-Sprachmodell GPT 3.5 generiert – unter Berücksichtigung der Wahlprogramme zur Europawahl 2024 und vergangener Reden im Europaparlament im Zeitraum 2019-2024.",
             st.session_state.language,
         )
     )
