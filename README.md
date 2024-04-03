@@ -9,6 +9,9 @@ Electify is an interactive app designed to empower voters with clear, concise su
 - Hide party names to prevent bias
 - Show all retrieved sources for transparency
 
+# Demo
+You can [watch a walkthrough video](https://www.loom.com/share/f192bc1873fb464686ad456253a5dff2) or try the app yourself at [electify.eu](https://electify.eu), where it will be deployed until the European Elections in June 2024. We welcome your feedback.
+
 # Local setup
 To set up Electify locally, follow the steps below:
 
