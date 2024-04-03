@@ -471,3 +471,7 @@ if st.session_state.stage > 1:
                 translate("Vielen Dank für dein Feedback!", st.session_state.language)
                 + " 🙏"
             )
+    else:
+        st.write(
+            "[Schicke uns gerne eine Nachricht](mailto:electify.eu@gmail.com) mit Anregungen oder Kritik. Wir freuen uns, von dir zu hören."
+        )
