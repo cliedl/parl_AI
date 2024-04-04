@@ -8,7 +8,17 @@ st.write(
     """
     ###### Electify GbR  
     Vertretungsberechtigte Gesellschafter: Christian Liedl, Anna Neifer, Joshua Nowak  
-    Anschrift: Folgt in Kürze  
-    Email: [electify.eu@gmail.com](mailto:electify.eu@gmail.com)
+
+    ###### Anschrift: 
+
+    Christian Liedl  
+    Electify GbR  
+    c/o Postflex #5800  
+    48268 Greven  
+
+    (Keine Pakete oder Päckchen - Annahme wird verweigert)
+
+    ###### Email:  
+    [electify.eu@gmail.com](mailto:electify.eu@gmail.com)
     """
 )
