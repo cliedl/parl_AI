@@ -16,7 +16,7 @@ st.write(
 st.subheader("Ihre Betroffenenrechte")
 st.write(
     """
-    Unter den angegebenen [Kontaktdaten](../Impressum) unseres Datenschutzbeauftragten können Sie jederzeit folgende Rechte ausüben:
+    Unter den angegebenen [Kontaktdaten](../Impressum) können Sie jederzeit folgende Rechte ausüben:
     
     * Auskunft über Ihre bei uns gespeicherten Daten und deren Verarbeitung (Art. 15 DSGVO),
     * Berichtigung unrichtiger personenbezogener Daten (Art. 16 DSGVO),
