@@ -40,7 +40,7 @@ OPENAI_API_KEY=<value>
 Run the following commands to build and run the Docker container:
 ```
 docker build -t electify .
-docker run -p 8080:8080 --env-file .env europarl
+docker run -p 8080:8080 --env-file .env electify
 ```
 
 Navigate to `http://localhost:8080` in your browser to access the app.
@@ -49,8 +49,8 @@ Navigate to `http://localhost:8080` in your browser to access the app.
 
 Create an environment with Python 3.11, for example with conda:
 ```
-conda create -n europarl python=3.11
-conda activate europarl
+conda create -n electify python=3.11
+conda activate electify
 ```
 
 Install required packages:
