@@ -39,7 +39,7 @@ OPENAI_API_KEY=<value>
 
 Run the following commands to build and run the Docker container:
 ```
-docker build -t europarl .
+docker build -t electify .
 docker run -p 8080:8080 --env-file .env europarl
 ```
 
