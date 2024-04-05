@@ -3,6 +3,14 @@
 # Overview
 Electify is an interactive app designed to empower voters with clear, concise summaries of political party positions for the 2024 European Elections. We use Retrieval-Augmented Generation (RAG) to extract relevant information from party manifestos and debates, providing users with an overview of each party's position on any given topic. Find background information on our [organization page](https://github.com/europarl-ai).
 
+# Contributors
+
+[Chris Liedl](https://github.com/cliedl)
+
+[Anna Neifer](https://github.com/Aneifer)
+
+[Joshua Nowak](https://github.com/josh-nowak)
+
 # Features
 - Retrieve relevant information from party manifestos and debates
 - Summarize parties' political positions based on user query
