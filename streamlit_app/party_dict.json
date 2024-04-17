@@ -28,5 +28,30 @@
         "name": "AfD",
         "image": "streamlit_app/assets/afd_logo.png",
         "manifesto_link": "https://www.afd.de/wp-content/uploads/2023/11/2023-11-16-_-AfD-Europawahlprogramm-2024-_-web.pdf"
+    },
+    "volt": {
+        "name": "Volt",
+        "image": "streamlit_app/assets/volt_logo.png",
+        "manifesto_link": "https://voltdeutschland.org/storage/assets-de/pdf/europawahl_2024/volt-wahlprogramm-europawahl-2024.pdf"
+    },
+    "fw": {
+        "name": "Freie Wähler",
+        "image": "streamlit_app/assets/fw_logo.png",
+        "manifesto_link": "https://www.freiewaehler.eu/template/elemente/450/FREIE%20W%C3%84HLER_Europawahlprogramm_2024-2029.pdf"
+    },
+    "familie": {
+        "name": "Familien Partei",
+        "image": "streamlit_app/assets/familie_logo.png",
+        "manifesto_link": "https://www.xn--whlefamilie-l8a.de/_files/ugd/a1be9e_1691882f730745b28bb605780cddd1b2.pdf"
+    },
+    "oedp": {
+        "name": "ÖDP",
+        "image": "streamlit_app/assets/oedp_logo.png",
+        "manifesto_link": "https://www.oedp.de/fileadmin/user_upload/bundesverband/programm/programme/OEDP-Programm_Europawahl2024_230224_ES.pdf"
+    },
+    "piraten": {
+        "name": "Piraten Partei",
+        "image": "streamlit_app/assets/piraten_logo.png",
+        "manifesto_link": "https://wiki.piratenpartei.de/wiki/images/0/08/CEEP_deutsch.pdf"
     }
 }
