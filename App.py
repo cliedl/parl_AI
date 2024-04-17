@@ -260,7 +260,7 @@ with st.sidebar:
         default=rag.parties,
         format_func=lambda x: party_dict[x]["name"],
         max_selections=6,
-        label="Wähle bis zu 6 Parteien aus",
+        label=translate("Wähle bis zu 6 Parteien aus", st.session_state.language),
         label_visibility="visible",
     )
     rag.parties = st.session_state.parties
@@ -319,7 +319,12 @@ if st.session_state.stage == 0:
 # STAGE > 0: Show disclaimer once the user has submitted a query (and keep showing it)
 if st.session_state.stage > 0:
     if len(st.session_state.parties) == 0:
-        st.info("Wähle mindestens eine Partei in der Seitenleiste aus!")
+        st.info(
+            translate(
+                "Wähle mindestens eine Partei in der Seitenleiste aus!",
+                st.session_state.language,
+            )
+        )
         st.session_state.stage = 0
 
     else:
