@@ -9,7 +9,6 @@ from datetime import datetime
 import base64
 from pathlib import Path
 
-
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from RAG.models.RAG import RAG
@@ -32,7 +31,6 @@ with open("streamlit_app/party_dict.json", "r") as file:
 
 # Streamlit page conifg
 st.set_page_config(page_title="Electify", page_icon="🇪🇺", layout="centered")
-
 
 ##################################
 ### RAG SETUP ####################
@@ -74,12 +72,13 @@ def load_db_debates():
     )
 
 
+# Initialize RAG module with default parties
 rag = RAG(
     databases=[load_db_manifestos(), load_db_debates()],
+    parties=["cdu", "spd", "gruene", "fdp", "linke", "afd"],
     llm=LARGE_LANGUAGE_MODEL,
     k=3,
 )
-
 
 ##################################
 ### TRUBRICS SETUP ###############
@@ -115,7 +114,7 @@ if "language" not in st.session_state:
 else:
     rag.language = st.session_state.language
 if "parties" not in st.session_state:
-    st.session_state.parties = list(party_dict.keys())
+    st.session_state.parties = rag.parties
 if "show_individual_parties" not in st.session_state:
     # The values in this dict will only be set true if a party name is explicitly "revealed" by the user.
     # The keys represent the (random) order of appearance of the parties in the app
@@ -197,7 +196,7 @@ def generate_response():
 
             # Assert that the response contains all parties
             assert set(st.session_state.response["answer"].keys()) == set(
-                party_dict.keys()
+                st.session_state.parties
             ), "LLM response does not contain all parties"
             break
 
@@ -255,6 +254,17 @@ with st.sidebar:
     st.session_state.language = languages[selected_language]
     rag.language = st.session_state.language
 
+    available_parties_name = party_dict.keys()
+    st.session_state.parties = st.multiselect(
+        options=available_parties_name,
+        default=rag.parties,
+        format_func=lambda x: party_dict[x]["name"],
+        max_selections=6,
+        label="Wähle bis zu 6 Parteien aus",
+        label_visibility="visible",
+    )
+    rag.parties = st.session_state.parties
+
 
 st.header("🇪🇺 electify.eu", divider="blue")
 st.write(
@@ -308,23 +318,28 @@ if st.session_state.stage == 0:
 
 # STAGE > 0: Show disclaimer once the user has submitted a query (and keep showing it)
 if st.session_state.stage > 0:
-    st.info(
-        "☝️ "
-        + translate(
-            "**Die Antworten werden von einem Sprachmodell generiert und können fehlerhaft sein.**",
-            st.session_state.language,
+    if len(st.session_state.parties) == 0:
+        st.info("Wähle mindestens eine Partei in der Seitenleiste aus!")
+        st.session_state.stage = 0
+
+    else:
+        st.info(
+            "☝️ "
+            + translate(
+                "**Die Antworten werden von einem Sprachmodell generiert und können fehlerhaft sein.**",
+                st.session_state.language,
+            )
+            + "  \n"
+            + translate(
+                "Bitte informiere dich zusätzlich in den verlinkten Wahlprogrammen.",
+                st.session_state.language,
+            )
+            + "  \n\n"
+            + translate(
+                "Die Reihenfolge der angezeigten Parteien ist zufällig.",
+                st.session_state.language,
+            ),
         )
-        + "  \n"
-        + translate(
-            "Bitte informiere dich zusätzlich in den verlinkten Wahlprogrammen.",
-            st.session_state.language,
-        )
-        + "  \n\n"
-        + translate(
-            "Die Reihenfolge der angezeigten Parteien ist zufällig.",
-            st.session_state.language,
-        ),
-    )
 
 # STAGE 1: User submitted a query and we are waiting for the response
 if st.session_state.stage == 1:
