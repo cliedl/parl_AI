@@ -13,13 +13,15 @@ class RAG:
     language: str, language of the generated answer, default is "Deutsch"
     """
 
-    def __init__(self, databases, llm=None, k=3, language="Deutsch"):
+    def __init__(self, databases, parties=None, llm=None, k=3, language="Deutsch"):
         self.databases = databases
         self.llm = llm
         self.k = k
         self.language = language
-        self.parties = ["gruene", "spd", "cdu", "afd", "fdp", "linke"]
-
+        if parties == None:
+            self.parties = ["gruene", "spd", "cdu", "afd", "fdp", "linke"]
+        else:
+            self.parties = parties
         if self.llm == None:
             self.llm = ChatOpenAI(
                 model_name="gpt-3.5-turbo", max_tokens=2000, temperature=0
