@@ -254,16 +254,20 @@ with st.sidebar:
     st.session_state.language = languages[selected_language]
     rag.language = st.session_state.language
 
-    available_parties_name = party_dict.keys()
-    st.session_state.parties = st.multiselect(
-        options=available_parties_name,
-        default=rag.parties,
-        format_func=lambda x: party_dict[x]["name"],
-        max_selections=6,
-        label=translate("Wähle bis zu 6 Parteien aus", st.session_state.language),
-        label_visibility="visible",
-    )
-    rag.parties = st.session_state.parties
+    ######################################################################
+    ### Uncomment the following lines in order to enable small parties ###
+    ######################################################################
+
+    # available_parties_name = party_dict.keys()
+    # st.session_state.parties = st.multiselect(
+    #     options=available_parties_name,
+    #     default=rag.parties,
+    #     format_func=lambda x: party_dict[x]["name"],
+    #     max_selections=6,
+    #     label=translate("Wähle bis zu 6 Parteien aus", st.session_state.language),
+    #     label_visibility="visible",
+    # )
+    # rag.parties = st.session_state.parties
 
 
 st.header("🇪🇺 electify.eu", divider="blue")
