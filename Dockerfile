@@ -18,15 +18,13 @@ EXPOSE 8080
 # Add non-root user
 RUN useradd -m appuser
 
-# Change rights to read-only
+# Change rights to read-execute-only
 RUN chmod -R 555 /app
 # Add appuser as owner of folder app
 RUN chown -R appuser:appuser /app
 
 # Switch to newly-created user account with read-only rights
 USER appuser
-
-
 
 # Run streamlit app
 ENTRYPOINT ["streamlit", "run", "App.py", "--server.port=8080", "--server.address=0.0.0.0"]
