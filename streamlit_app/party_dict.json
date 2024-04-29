@@ -40,7 +40,7 @@
         "manifesto_link": "https://www.freiewaehler.eu/template/elemente/450/FREIE%20W%C3%84HLER_Europawahlprogramm_2024-2029.pdf"
     },
     "familie": {
-        "name": "Familien Partei",
+        "name": "Familien-Partei",
         "image": "streamlit_app/assets/familie_logo.png",
         "manifesto_link": "https://www.xn--whlefamilie-l8a.de/_files/ugd/a1be9e_1691882f730745b28bb605780cddd1b2.pdf"
     },
@@ -50,7 +50,7 @@
         "manifesto_link": "https://www.oedp.de/fileadmin/user_upload/bundesverband/programm/programme/OEDP-Programm_Europawahl2024_230224_ES.pdf"
     },
     "piraten": {
-        "name": "Piraten Partei",
+        "name": "Piraten-Partei",
         "image": "streamlit_app/assets/piraten_logo.png",
         "manifesto_link": "https://wiki.piratenpartei.de/wiki/images/0/08/CEEP_deutsch.pdf"
     }
