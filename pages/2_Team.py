@@ -3,7 +3,7 @@ import pandas as pd
 import pydeck as pdk
 from urllib.error import URLError
 
-st.set_page_config(page_title="Electify - Über uns", page_icon="🇪🇺")
+st.set_page_config(page_title="Electify - Team", page_icon="🇪🇺")
 
 
 st.header("Über uns", divider="blue")

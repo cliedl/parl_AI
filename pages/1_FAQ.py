@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="Electify - Was ist Electify?", page_icon="🇪🇺")
+st.set_page_config(page_title="Electify - FAQ", page_icon="🇪🇺")
 
 st.header(
     "Am 9. Juni 2024 ist Europawahl. 🗳️ :placeholder Informiere dich mit Electify!",
