@@ -37,7 +37,6 @@ st.subheader("Welche Daten verwendet ihr für die App?")
 st.write(
     """
 Wir nutzen die öffentlichen Wahlprogramme der deutschen Parteien zur Europawahl. Außerdem nutzen wir die [öffentlichen Reden](https://data.europarl.europa.eu/de/home) von deutschen Politiker_innen im EU-Parlament aus der Legislaturperiode 2019 - 2024. 
-In der App findest du nur die sechs größten deutschen Parteien, die auch im EU-Parlament vertreten sind.
     """
 )
 
@@ -53,8 +52,12 @@ st.subheader("Bekomme ich Informationen zu jeder Partei?")
 
 st.write(
     """
-Nein, Electify liefert dir eine Zusammenfassung der Positionen der größten Parteien in Deutschland. Es treten jedoch noch sehr viel mehr Kleinstparteien bei der Europawahl an, da es im Gegensatz zur Wahl des Bundestages keine prozentuale Sperrklausel gibt für den Einzug ins EU-Parlament.
-Hier findest du einen [Überblick über alle weiteren Parteien](https://www.europawahl-bw.de/deutsche-parteien).
+Über das Menü "Parteien auswählen" können alle deutschen Parteien (maximal sechs gleichzeitig) ausgewählt werden, die zurzeit im Europaparlament vertreten sind. 
+Standardmäßig sind die sechs größten Parteien ausgewählt.
+Electify liefert dir dann eine Zusammenfassung der Positionen dieser Parteien zu deiner Frage. 
+Es treten jedoch noch sehr viel mehr Kleinparteien bei der Europawahl an, die bis jetzt nicht im Europaparlament vertreten sind. 
+Da unser Modell auch auf den Reden der deutschen Politiker_innen im EU-Parlament basiert, können wir keine Informationen zu diesen Parteien liefern.
+Hier findest du einen [Überblick über alle Parteien, die zur Europawahl antreten](https://www.europawahl-bw.de/deutsche-parteien).
     """
 )
 
