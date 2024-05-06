@@ -1,10 +1,10 @@
 ;Deutsch;English
-0;Stelle eine Frage oder gib ein Stichwort ein:;Ask a question or enter a keyword:
+0;Stelle eine Frage oder gib ein Stichwort ein;Ask a question or enter a keyword
 1;Wie stehen die Parteien zum Emmissionshandel?;What do the parties think about emissions trading?
 2;Frage stellen;Ask question 
 3;Suche nach Antworten in Wahlprogrammen und Parlamentsdebatten...;Searching for answers in the party manifestos and parliament debates…
 4;Die Reihenfolge der Parteien ist zufällig.;The order of the parties is random.
-5;Mehr dazu im;More on this in
+5;Mehr findest du im;Find more in the
 6;Europawahlprogramm der Partei; the European election programme of the party
 7;z.B. Seite;e.g., page
 8;Worauf basieren diese Antworten?;What are these answers based on?
@@ -30,3 +30,7 @@
 28;Unterstützen;Support us
 29;Wähle bis zu 6 Parteien aus;Select up to 6 parties
 30;Wähle mindestens eine Partei in der Seitenleiste aus!;Select at least one party in the sidebar!
+31;Wähle bis zu 6 Parteien aus.;Select up to 6 parties.
+32;Bitte wähle maximal sechs Parteien aus.;Please select a maximum of six parties.
+33;Parteien auswählen;Select parties
+34;Beispiele;Examples

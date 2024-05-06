@@ -20,7 +20,7 @@ from streamlit_app.utils.support_button import support_button
 with open("streamlit_app/party_dict.json", "r") as file:
     party_dict = json.load(file)
 
-# The following is necessary to make the code work in the deployed version.
+# The following is necessary to make the code work for deploying on Streamlit Cloud.
 # (We need a newer version of sqlite3 than the one provided by Streamlit.)
 # The environment variable IS_DEPLOYED is created only in the Streamlit Secrets and set to the string "TRUE".
 # if os.getenv("IS_DEPLOYED", default="FALSE") == "TRUE":
@@ -97,24 +97,35 @@ collector = FeedbackCollector(
 ##################################
 ### SESSION STATES ###############
 ##################################
-if "response" not in st.session_state:
-    st.session_state.response = None
-if "stage" not in st.session_state:
-    st.session_state.stage = 0
+
+# The "query" string will contain the user input (i.e., the question or keyword):
 if "query" not in st.session_state:
     st.session_state.query = ""
-if "logged_prompt" not in st.session_state:
-    st.session_state.logged_prompt = None
-if "feedback" not in st.session_state:
-    st.session_state.feedback = None
-if "feedback_key" not in st.session_state:
-    st.session_state.feedback_key = 0
+
+# The "response" dictionary will contain the generated answer from the RAG system:
+if "response" not in st.session_state:
+    st.session_state.response = None
+
+# The "stage" integer value will determine which part of the app is currently displayed:
+if "stage" not in st.session_state:
+    st.session_state.stage = 0
+
+# The "language" string will determine the language of the interface and response:
 if "language" not in st.session_state:
     st.session_state.language = "Deutsch"
 else:
     rag.language = st.session_state.language
+
+# The "parties" list determines which parties will be used for the RAG query:
 if "parties" not in st.session_state:
     st.session_state.parties = rag.parties
+
+# The "show_all_parties" boolean determines whether all party names are revealed or not:
+if "show_all_parties" not in st.session_state:
+    st.session_state.show_all_parties = True
+    # Note that this will be overridden by the "show_individual_parties" dictionary below if the user reveals individual parties.
+
+# The "show_individual_parties" dictionary will determine which party names are revealed in the app:
 if "show_individual_parties" not in st.session_state:
     # The values in this dict will only be set true if a party name is explicitly "revealed" by the user.
     # The keys represent the (random) order of appearance of the parties in the app
@@ -123,8 +134,8 @@ if "show_individual_parties" not in st.session_state:
     st.session_state.show_individual_parties = {
         f"party_{i+1}": False for i in range(len(st.session_state.parties))
     }
-if "show_all_parties" not in st.session_state:
-    st.session_state.show_all_parties = True
+
+# The "example_prompts" dictionary will contain randomly selected example prompts for the user to choose from:
 if "example_prompts" not in st.session_state:
     all_example_prompts = {}
     with open("streamlit_app/example_prompts.csv", "r") as file:
@@ -138,11 +149,19 @@ if "example_prompts" not in st.session_state:
     st.session_state.example_prompts = {
         key: random.sample(value, 3) for key, value in all_example_prompts.items()
     }
+
+# The following variables are used to store the prompt and feedback with Trubrics:
 if "use_trubrics" not in st.session_state:
     if "TRUBRICS_PASSWORD" in os.environ:
         st.session_state.use_trubrics = True
     else:
         st.session_state.use_trubrics = False
+if "logged_prompt" not in st.session_state:
+    st.session_state.logged_prompt = None
+if "feedback" not in st.session_state:
+    st.session_state.feedback = None
+if "feedback_key" not in st.session_state:
+    st.session_state.feedback_key = 0
 
 
 ##################################
@@ -254,22 +273,6 @@ with st.sidebar:
     st.session_state.language = languages[selected_language]
     rag.language = st.session_state.language
 
-    ######################################################################
-    ### Uncomment the following lines in order to enable small parties ###
-    ######################################################################
-
-    # available_parties_name = party_dict.keys()
-    # st.session_state.parties = st.multiselect(
-    #     options=available_parties_name,
-    #     default=rag.parties,
-    #     format_func=lambda x: party_dict[x]["name"],
-    #     max_selections=6,
-    #     label=translate("Wähle bis zu 6 Parteien aus", st.session_state.language),
-    #     label_visibility="visible",
-    # )
-    # rag.parties = st.session_state.parties
-
-
 st.header("🇪🇺 electify.eu", divider="blue")
 st.write(
     "##### :grey["
@@ -282,7 +285,7 @@ st.write(
 
 query = st.text_input(
     label=translate(
-        "Stelle eine Frage oder gib ein Stichwort ein:",
+        "Stelle eine Frage oder gib ein Stichwort ein",
         st.session_state.language,
     ),
     placeholder="",
@@ -291,6 +294,7 @@ query = st.text_input(
 
 col_submit, col_checkbox = st.columns([1, 3])
 
+# Submit button
 with col_submit:
     st.button(
         translate("Frage stellen", st.session_state.language),
@@ -298,6 +302,7 @@ with col_submit:
         type="primary",
     )
 
+# Checkbox to show/hide party names globally
 with col_checkbox:
     st.session_state.show_all_parties = st.checkbox(
         label=translate("Parteinamen anzeigen", st.session_state.language),
@@ -308,9 +313,51 @@ with col_checkbox:
         ),
     )
 
+# Allow the user to select up to 6 parties
+with st.expander(translate("Parteien auswählen", st.session_state.language)):
+    available_parties = list(party_dict.keys())
+
+    party_selection = {party: False for party in available_parties}
+    for party in st.session_state.parties:
+        party_selection[party] = True
+
+    def update_party_selection(party):
+        party_selection[party] = not party_selection[party]
+        st.session_state.parties = [k for k, v in party_selection.items() if v]
+
+    st.write(
+        translate(
+            "Wähle bis zu 6 Parteien aus.",
+            st.session_state.language,
+        )
+    )
+    for party in available_parties:
+        st.checkbox(
+            label=party_dict[party]["name"],
+            value=party_selection[party],
+            on_change=update_party_selection,
+            kwargs={"party": party},
+        )
+
+    if len(st.session_state.parties) == 0:
+        st.markdown(
+            f"⚠️ **:red[{translate('Bitte wähle mindestens eine Partei aus.', st.session_state.language)}]**"
+        )
+        # Reset to default parties
+        st.session_state.parties = rag.parties
+    elif len(st.session_state.parties) > 6:
+        st.markdown(
+            f"⚠️ **:red[{translate('Bitte wähle maximal sechs Parteien aus.', st.session_state.language)}]**"
+        )
+        # Limit to the six first selected parties
+        st.session_state.parties = st.session_state.parties[:6]
+
+    # Update the RAG module with the selected parties
+    rag.parties = st.session_state.parties
+
 # STAGE 0: User has not yet submitted a query
 if st.session_state.stage == 0:
-    st.write(translate("Oder wähle aus den Beispielen:", st.session_state.language))
+    st.write(translate("Beispiele:", st.session_state.language))
 
     for i in range(3):
         st.button(
@@ -420,7 +467,7 @@ if st.session_state.stage > 1:
             st.write(st.session_state.response["answer"][party])
             if show_party:
                 st.write(
-                    f"""{translate('Mehr dazu im', st.session_state.language)} [{translate('Europawahlprogramm der Partei', st.session_state.language)} **{party_dict[party]['name']}** ({translate('z.B. Seite', st.session_state.language)} {most_relevant_manifesto_page_number + 1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number + 1})"""
+                    f"""{translate('Mehr findest du im', st.session_state.language)} [{translate('Europawahlprogramm der Partei', st.session_state.language)} **{party_dict[party]['name']}** ({translate('z.B. Seite', st.session_state.language)} {most_relevant_manifesto_page_number + 1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number + 1})"""
                 )
 
     st.markdown("---")
