@@ -23,6 +23,10 @@ You can [watch a walkthrough video](https://www.loom.com/share/f192bc1873fb46468
 # Local setup
 To set up Electify locally, follow the steps below:
 
+[Download database from google drive](https://drive.google.com/drive/folders/161BfV8sTnFMX7AjjBx1qHVaHwnNWEYEO?usp=sharing).
+You can also recreate the database using RAG/scripts/create_databases.ipynb, but it is very time-consuming. 
+Copy the databases into the data folder.
+
 ```
 git clone https://github.com/europarl-ai/europarl-ai.git
 
