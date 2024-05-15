@@ -44,7 +44,6 @@ st.write(
     * Sicherstellung eines problemlosen Verbindungsaufbaus der Website,
     * Sicherstellung einer reibungslosen Nutzung unserer Website,
     * Auswertung der Systemsicherheit und -stabilität sowie
-    * zur Optimierung unserer Website.
 
     Wir verwenden Ihre Daten nicht, um Rückschlüsse auf Ihre Person zu ziehen. Informationen dieser Art werden von uns ggfs. anonymisiert statistisch ausgewertet, um unseren Internetauftritt und die dahinterstehende Technik zu optimieren.
     """
