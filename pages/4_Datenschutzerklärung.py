@@ -82,6 +82,10 @@ st.write(
     Dies geschieht über einen externen Link zum Dienst „Buy me a Coffee“ der Publisherr Inc. (USA). Dabei werden Daten von „Buy me a Coffee“ verarbeitet und auf Systemen von Publisherr Inc. gespeichert. 
     Wir weisen darauf hin, dass wir keine Kenntnis vom Inhalt der übermittelten Daten sowie deren Nutzung durch „Buy me a Coffee“ erhalten. 
     Weitere Informationen hierzu finden Sie [hier](https://www.buymeacoffee.com/privacy-policy).
+
+    * Um die Nutzung unserer Website zu verstehen und sie regelmäßig zu verbessern, nutzen wir das Webanalyse Tool Plausible Analytics von Plausible Insights. 
+    Plausible setzt keine Cookies ein und speichert keine Informationen im Browser. Plausible Analytics erhebt auch keinerlei personenenbezogenen Daten. 
+    Mehr Informationen zum Datenschutz von Plausible Analytics finden Sie [hier](https://plausible.io/data-policy).
     """
 )
 
