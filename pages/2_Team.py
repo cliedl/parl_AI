@@ -28,7 +28,7 @@ st.write(
 st.subheader("Anna Neifer")
 st.write(
     """
-Anna hat als Journalistin für die ARD, ZDF, funk und die Kooperarive Berlin gearbeitet. Seit 2023 lernt sie coden und ist jetzt als Data Scientist tätig.  
+Anna hat als Journalistin für die ARD, ZDF, funk und andere gearbeitet. Seit 2023 lernt sie coden und ist interessiert an Projekten an der Schnittstelle von Künstlicher Intelligenz und Journalismus.  
 [Webseite](https://aneifer.de) | [LinkedIn](https://www.linkedin.com/in/anna-neifer/)
 
   """

@@ -20,8 +20,16 @@ Mit Hilfe dieser Information generiert ein KI-Sprachmodell dann übersichtliche 
 """
 )
 
+st.subheader("Ist Electify neutral und unparteiisch?")
 
-st.subheader("Wie stellt ihr sicher, dass das KI-Sprachmodell nicht halluziniert?")
+st.write(
+    """
+Die App zielt darauf ab, objektive Informationen zu liefern, indem sie direkt aus den Aussagen der Parteien und Politiker_innen schöpft. Dabei werden weder unsere persönlichen Meinungen noch Interpretationen hinzugefügt.
+Hinter dem Projekt stehen keine Parteien oder Unternehmen. Wir sind ein unabhängiges Team von Data Scientists, die sich für die Demokratie und den Zugang zu Informationen einsetzen.
+    """
+)
+
+st.subheader("Wie stellt ihr sicher, dass das KI-Sprachmodell keine Fehler macht?")
 
 st.write(
     """
@@ -30,7 +38,6 @@ Außerdem legen wir die Quellen offen, auf denen die Antworten basieren. So kann
 Dennoch lassen sich Fehler nicht zu 100 Prozent ausschließen. Wenn dir Fehler oder Ungereimtheiten auffallen, [melde dich gerne bei uns](mailto:electify.eu@gmail.com). Dadurch kannst du uns helfen, Electify zu verbessern.
     """
 )
-
 
 st.subheader("Welche Daten verwendet ihr für die App?")
 
@@ -52,7 +59,7 @@ st.subheader("Bekomme ich Informationen zu jeder Partei?")
 
 st.write(
     """
-Über das Menü "Parteien auswählen" können alle deutschen Parteien (maximal sechs gleichzeitig) ausgewählt werden, die zurzeit im Europaparlament vertreten sind. 
+Über das Menü "Parteien auswählen" können fast alle deutschen Parteien (maximal sechs gleichzeitig) ausgewählt werden, die zurzeit im Europaparlament vertreten sind. 
 Standardmäßig sind die sechs größten Parteien ausgewählt.
 Electify liefert dir dann eine Zusammenfassung der Positionen dieser Parteien zu deiner Frage. 
 Es treten jedoch noch sehr viel mehr Kleinparteien bei der Europawahl an, die bis jetzt nicht im Europaparlament vertreten sind. 
@@ -61,19 +68,11 @@ Hier findest du einen [Überblick über alle Parteien, die zur Europawahl antret
     """
 )
 
-st.subheader("Ist Electify neutral und unparteiisch?")
-
-st.write(
-    """
-Die App zielt darauf ab, objektive Informationen zu liefern, indem sie direkt aus den Aussagen der Parteien und Politiker_innen schöpft. Dabei werden weder unsere persönlichen Meinungen noch Interpretationen hinzugefügt.
-Hinter dem Projekt stehen keine Parteien oder Unternehmen. Wir sind ein unabhängiges Team von Data Scientists, die sich für die Demokratie und den Zugang zu Informationen einsetzen.
-    """
-)
 st.subheader("Wie aktuell ist Electify?")
 
 st.write(
     """
-Die App ist Anfang April 2024 fertiggestellt worden und wird kurz vor der Europawahl aktualisiert werden.
+Die App ist Anfang April 2024 fertiggestellt worden und wir aktualisieren es kurz vor der Europawahl.
     """
 )
 
