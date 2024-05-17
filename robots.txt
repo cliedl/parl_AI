@@ -1,4 +1,4 @@
 Aallow: /FAQ/
 Allow: /Team/
-Disallowllow: /Impressum/
-Disallow: /Datenschutzerklärung/
+Allow: /Impressum/
+Allow: /Datenschutzerklärung/
