@@ -11,7 +11,7 @@ st.header("Über uns", divider="blue")
 st.write(
     """
     Wir sind ein unabhängiges Team von Data Scientists, die sich für die Demokratie und den Zugang zu Informationen einsetzen.
-    Wir arbeiten als Team zusammen in einer gemeinsamen [Github-Organisation](https://github.com/europarl-ai/).
+    Wir arbeiten als Team zusammen in einer gemeinsamen [Github-Organisation](https://github.com/electify-eu).
     """
 )
 
@@ -28,7 +28,7 @@ st.write(
 st.subheader("Anna Neifer")
 st.write(
     """
-Anna hat als Journalistin für die ARD, ZDF, funk und andere gearbeitet. Seit 2023 lernt sie coden und ist interessiert an Projekten an der Schnittstelle von Künstlicher Intelligenz und Journalismus.  
+Anna hat als Journalistin für die ARD, ZDF, funk und andere Medien gearbeitet. Seit 2023 lernt sie mit Python zu coden und interessiert sich für Projekte an der Schnittstelle von Künstlicher Intelligenz und Journalismus. 
 [Webseite](https://aneifer.de) | [LinkedIn](https://www.linkedin.com/in/anna-neifer/)
 
   """
