@@ -25,7 +25,7 @@ st.subheader("Ist Electify neutral und unparteiisch?")
 st.write(
     """
 Die App zielt darauf ab, objektive Informationen zu liefern, indem sie direkt aus den Aussagen der Parteien und Politiker_innen schöpft. Dabei werden weder unsere persönlichen Meinungen noch Interpretationen hinzugefügt.
-Hinter dem Projekt stehen keine Parteien oder Unternehmen. Wir sind ein unabhängiges Team von Data Scientists, die sich für die Demokratie und den Zugang zu Informationen einsetzen. Mehr zu uns erfährst du [unter Team](https://electify.eu/team).
+Hinter dem Projekt stehen keine Parteien oder Unternehmen. Wir sind ein unabhängiges Team von Data Scientists, die sich für die Demokratie und den Zugang zu Informationen einsetzen. Mehr zu uns erfährst du [unter Team](https://electify.eu/Team).
     """
 )
 

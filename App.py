@@ -257,7 +257,7 @@ def convert_date_format(date_string):
 support_button(
     text=f"⚡️ {translate('Unterstützen', st.session_state.language)}",
     link="https://www.buymeacoffee.com/electify.eu",
-    bg_color="#2b55a6",
+    bg_color="#a62b55",
     font_color="#ffffff",
     font_size="18px",
 )

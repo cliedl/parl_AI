@@ -28,9 +28,9 @@ st.write(
 st.subheader("Anna Neifer")
 st.write(
     """
-Anna hat als Journalistin für die ARD, ZDF, funk und andere Medien gearbeitet. Seit 2023 lernt sie mit Python zu coden und interessiert sich für Projekte an der Schnittstelle von Künstlicher Intelligenz und Journalismus. 
-[Webseite](https://aneifer.de) | [LinkedIn](https://www.linkedin.com/in/anna-neifer/)
-
+  Anna hat als Journalistin für die ARD, ZDF, funk und andere Medien gearbeitet. Seit 2023 lernt sie mit Python zu coden und interessiert sich für Projekte an der Schnittstelle von Künstlicher Intelligenz und Journalismus. 
+  
+  [Webseite](https://aneifer.de) | [LinkedIn](https://www.linkedin.com/in/anna-neifer/)
   """
 )
 
@@ -38,7 +38,7 @@ st.subheader("Joshua Nowak")
 
 st.write(
     """
-Joshua hat als User Researcher und Psychologe verschiedene digitale Produkte mitgestaltet. Seit einigen Jahren programmiert er in Python und R und hat sich auf Data Science spezialisiert.  
-[Github](https://github.com/josh-nowak) | [LinkedIn](https://www.linkedin.com/in/nowakjoshua/)
+  Joshua hat als User Researcher und Psychologe verschiedene digitale Produkte mitgestaltet. Seit einigen Jahren programmiert er in Python und R und hat sich auf Data Science spezialisiert.  
+  [Github](https://github.com/josh-nowak) | [LinkedIn](https://www.linkedin.com/in/nowakjoshua/)
   """
 )
