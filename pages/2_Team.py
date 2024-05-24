@@ -38,7 +38,7 @@ st.subheader("Joshua Nowak")
 
 st.write(
     """
-  Joshua hat als User Researcher und Psychologe verschiedene digitale Produkte mitgestaltet. Seit einigen Jahren programmiert er in Python und R und hat sich auf Data Science spezialisiert.  
+  Joshua hat als User Researcher und Psychologe verschiedene digitale Produkte mitgestaltet. Seit einigen Jahren programmiert er in Python und R.  
   [Github](https://github.com/josh-nowak) | [LinkedIn](https://www.linkedin.com/in/nowakjoshua/)
   """
 )
