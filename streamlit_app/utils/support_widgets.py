@@ -4,11 +4,11 @@ import streamlit as st
 def support_button(
     text: str,
     link: str,
-    bg_color: str = "#FFDD00",
-    font_color: str = "#000000",
+    bg_color: str = "#facf3f",
+    font_color: str = "#fffff",
     bottom: str = "20px",
     right: str = "20px",
-    font_size: str = "16px",
+    font_size: str = "20px",
 ):
     """
     Create a floating action button in a Streamlit app.
@@ -36,6 +36,7 @@ def support_button(
             font-size: {font_size};
             font-weight: 600;
             cursor: pointer;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
             text-decoration: none;
             z-index: 1000;
         ">

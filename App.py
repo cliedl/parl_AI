@@ -281,24 +281,15 @@ st.write(
 )
 
 support_button(
-    text=f"⚡️ {translate('Unterstützen', st.session_state.language)}",
+    text=f"💙  {translate('Unterstützen', st.session_state.language)}",
     link="https://www.buymeacoffee.com/electify.eu",
-    bg_color="#a62b55",
-    font_color="#ffffff",
-    font_size="18px",
 )
 
 if st.session_state.number_of_requests >= 3:
     # Show support banner after 3 requests in a single session.
-    support_banner(
-        text=translate(
-            "Gefällt dir die App? Klicke auf dieses Banner um uns zu unterstützen! 🙏",
-            st.session_state.language,
-        ),
-        link="https://www.buymeacoffee.com/electify.eu",
-        bg_color="#a62b55",
-        font_color="#ffffff",
-        font_size="18px",
+    st.info(
+        f"{translate('**Gefällt dir die App?** Mit einer kleinen Spende kannst du dafür sorgen, dass wir sie bis zur Europawahl weiterhin kostenlos anbieten können. [Jetzt unterstützen]', st.session_state.language)}(https://buymeacoffee.com/electify.eu)",
+        icon="💙",
     )
 
 query = st.text_input(
