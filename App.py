@@ -14,7 +14,9 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from RAG.models.RAG import RAG
 from RAG.database.vector_database import VectorDatabase
 from streamlit_app.utils.translate import translate
-from streamlit_app.utils.support_button import support_button
+from streamlit_app.utils.support_widgets import support_button, support_banner
+from streamlit.components.v1 import html
+
 
 # Load dictionary with party names, image file paths, and links to manifestos
 with open("streamlit_app/party_dict.json", "r") as file:
@@ -150,6 +152,9 @@ if "example_prompts" not in st.session_state:
         key: random.sample(value, 3) for key, value in all_example_prompts.items()
     }
 
+if "number_of_requests" not in st.session_state:
+    st.session_state.number_of_requests = 0
+
 # The following variables are used to store the prompt and feedback with Trubrics:
 if "use_trubrics" not in st.session_state:
     if "TRUBRICS_PASSWORD" in os.environ:
@@ -254,14 +259,6 @@ def convert_date_format(date_string):
 ##################################
 ### USER INTERFACE ###############
 ##################################
-support_button(
-    text=f"⚡️ {translate('Unterstützen', st.session_state.language)}",
-    link="https://www.buymeacoffee.com/electify.eu",
-    bg_color="#a62b55",
-    font_color="#ffffff",
-    font_size="18px",
-)
-
 
 with st.sidebar:
     selected_language = st.radio(
@@ -282,6 +279,27 @@ st.write(
     )
     + "]"
 )
+
+support_button(
+    text=f"⚡️ {translate('Unterstützen', st.session_state.language)}",
+    link="https://www.buymeacoffee.com/electify.eu",
+    bg_color="#a62b55",
+    font_color="#ffffff",
+    font_size="18px",
+)
+
+if st.session_state.number_of_requests >= 3:
+    # Show support banner after 3 requests in a single session.
+    support_banner(
+        text=translate(
+            "Gefällt dir die App? Klicke auf dieses Banner um uns zu unterstützen! 🙏",
+            st.session_state.language,
+        ),
+        link="https://www.buymeacoffee.com/electify.eu",
+        bg_color="#a62b55",
+        font_color="#ffffff",
+        font_size="18px",
+    )
 
 query = st.text_input(
     label=translate(
@@ -399,6 +417,7 @@ if st.session_state.stage > 0:
 
 # STAGE 1: User submitted a query and we are waiting for the response
 if st.session_state.stage == 1:
+    st.session_state.number_of_requests += 1
     with st.spinner(
         translate(
             "Suche nach Antworten in Wahlprogrammen und Parlamentsdebatten...",
