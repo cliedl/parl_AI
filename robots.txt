@@ -1,0 +1,4 @@
+Allow: /FAQ/
+Allow: /Team/
+Allow: /Impressum/
+Allow: /Datenschutzerklärung/

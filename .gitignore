@@ -172,3 +172,8 @@ data/debates/chroma/
 data/manifestos/chroma/
 locust/locustfile.py
 RAG/local_tests/
+local_tests/
+EDA/
+RAG/evaluation/Experiments/testing.ipynb
+memory_leak_test.py
+RAG/local_tests/test.ipynb
