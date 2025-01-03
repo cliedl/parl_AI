@@ -41,9 +41,7 @@ st.set_page_config(page_title="Electify", page_icon="🇪🇺", layout="centered
 DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
 DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
 TEMPERATURE = 0.0
-LARGE_LANGUAGE_MODEL = ChatOpenAI(
-    model_name="gpt-3.5-turbo", max_tokens=400, temperature=TEMPERATURE
-)
+LARGE_LANGUAGE_MODEL = ChatOpenAI(model_name="gpt-4o-mini", max_tokens=400, temperature=TEMPERATURE)
 
 
 # Load the OpenAI embeddings model
@@ -64,22 +62,22 @@ def load_db_manifestos():
         database_directory=DATABASE_DIR_MANIFESTOS,
     )
 
-
-@st.cache_resource
-def load_db_debates():
-    return VectorDatabase(
-        embedding_model=embedding_model,
-        source_type="debates",
-        database_directory=DATABASE_DIR_DEBATES,
-    )
+# TODO: Commented out since we do not use debate data yet
+# @st.cache_resource
+# def load_db_debates():
+#     return VectorDatabase(
+#         embedding_model=embedding_model,
+#         source_type="debates",
+#         database_directory=DATABASE_DIR_DEBATES,
+#     )
 
 
 # Initialize RAG module with default parties
 rag = RAG(
-    databases=[load_db_manifestos(), load_db_debates()],
-    parties=["cdu", "spd", "gruene", "fdp", "linke", "afd"],
-    llm=LARGE_LANGUAGE_MODEL,
-    k=3,
+	databases=[load_db_manifestos()],
+	parties=["cdu", "spd", "gruene", "fdp", "linke", "afd"],
+	llm=LARGE_LANGUAGE_MODEL,
+	k=5,
 )
 
 ##################################
@@ -514,14 +512,16 @@ if st.session_state.stage > 1:
                 st.markdown(
                     f'[**Seite {page_number_of_excerpt} im Wahlprogramm**]({link_to_manifesto_page}): \n "{manifesto_excerpt}"\n\n'
                 )
-            for doc in st.session_state.response["docs"]["debates"][party]:
-                debate_excerpt = doc.page_content.replace("\n", " ")
-                date_of_excerpt = convert_date_format(doc.metadata["date"])
-                speaker_of_excerpt = doc.metadata["fullName"]
 
-                st.write(
-                    f'**Ausschnitt aus einer Rede im EU-Parlament von {speaker_of_excerpt} am {date_of_excerpt}**: "{debate_excerpt}"\n\n'
-                )
+            # TODO: Commented out since we do not use debate data yet
+            # for doc in st.session_state.response["docs"]["debates"][party]:
+            #     debate_excerpt = doc.page_content.replace("\n", " ")
+            #     date_of_excerpt = convert_date_format(doc.metadata["date"])
+            #     speaker_of_excerpt = doc.metadata["fullName"]
+
+            #     st.write(
+            #         f'**Ausschnitt aus einer Rede im EU-Parlament von {speaker_of_excerpt} am {date_of_excerpt}**: "{debate_excerpt}"\n\n'
+            #     )
 
     st.markdown("---")
 
