@@ -30,4 +30,3 @@ jobs:
         run: docker run -d --name electify_container -p 8080:8080 electify
       - name: Stop and remove Docker container
         run: docker stop electify_container && docker rm electify_container
-
