@@ -27,7 +27,9 @@ dev = [
     "pdfminer-six>=20240706",
     "plotly>=6.0.0",
     "ragas>=0.2.12",
+    "requests>=2.32.3",
     "sentence-transformers>=3.4.1",
     "torch>=2.6.0",
+    "tqdm>=4.67.1",
     "transformers>=4.48.2",
 ]

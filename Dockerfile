@@ -1,5 +1,5 @@
 FROM python:3.12-slim
-COPY --from=ghcr.io/astral-sh/uv:0.5.23 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.5.26 /uv /uvx /bin/
 
 # Set working directory
 WORKDIR /app
@@ -17,12 +17,7 @@ COPY streamlit_app/index.html /usr/local/lib/python3.11/site-packages/streamlit/
 EXPOSE 8080
 
 # Add non-root user
-RUN useradd -m appuser
-
-# Change rights to read-execute-only
-RUN chmod -R 555 /app
-# Add appuser as owner of folder app
-RUN chown -R appuser:appuser /app
+RUN useradd -m appuser && chmod -R 755 /app && chown -R appuser:appuser /app
 
 # Switch to newly-created user account with read-only rights
 USER appuser
