@@ -1,4 +1,5 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
+COPY --from=ghcr.io/astral-sh/uv:0.5.23 /uv /uvx /bin/
 
 # Set working directory
 WORKDIR /app
@@ -6,8 +7,8 @@ WORKDIR /app
 # Copy content of current directory in working directory
 COPY . /app
 
-# Install requirements
-RUN pip install -r requirements.txt
+# Install dependencies
+RUN uv sync --frozen --no-dev
 
 # Copy custom index
 COPY streamlit_app/index.html /usr/local/lib/python3.11/site-packages/streamlit/static/index.html
@@ -27,4 +28,4 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 # Run streamlit app
-ENTRYPOINT ["streamlit", "run", "App.py", "--server.port=8080", "--server.address=0.0.0.0"]
+ENTRYPOINT ["uv", "run", "streamlit", "run", "App.py", "--server.port=8080", "--server.address=0.0.0.0"]
