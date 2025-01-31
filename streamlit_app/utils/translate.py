@@ -1,5 +1,6 @@
-import pandas as pd
 import os
+
+import pandas as pd
 
 current_file_directory = os.path.dirname(os.path.abspath(__file__))
 dictionary = pd.read_csv(

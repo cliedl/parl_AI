@@ -1,25 +1,22 @@
-import streamlit as st
-import random
-from trubrics.integrations.streamlit import FeedbackCollector
-import os
+import base64
 import csv
 import json
+import os
 import random
 from datetime import datetime
-import base64
 from pathlib import Path
 
+import streamlit as st
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from trubrics.integrations.streamlit import FeedbackCollector
 
-from RAG.models.RAG import RAG
 from RAG.database.vector_database import VectorDatabase
+from RAG.models.RAG import RAG
+from streamlit_app.utils.support_widgets import support_button
 from streamlit_app.utils.translate import translate
-from streamlit_app.utils.support_widgets import support_button, support_banner
-from streamlit.components.v1 import html
-
 
 # Load dictionary with party names, image file paths, and links to manifestos
-with open("streamlit_app/party_dict.json", "r") as file:
+with open("streamlit_app/party_dict.json") as file:
     party_dict = json.load(file)
 
 # The following is necessary to make the code work for deploying on Streamlit Cloud.
@@ -138,7 +135,7 @@ if "show_individual_parties" not in st.session_state:
 # The "example_prompts" dictionary will contain randomly selected example prompts for the user to choose from:
 if "example_prompts" not in st.session_state:
     all_example_prompts = {}
-    with open("streamlit_app/example_prompts.csv", "r") as file:
+    with open("streamlit_app/example_prompts.csv") as file:
         reader = csv.DictReader(file, delimiter=";")
         for row in reader:
             for key, value in row.items():
@@ -146,9 +143,7 @@ if "example_prompts" not in st.session_state:
                     all_example_prompts[key] = []
                 all_example_prompts[key].append(value)
 
-    st.session_state.example_prompts = {
-        key: random.sample(value, 3) for key, value in all_example_prompts.items()
-    }
+    st.session_state.example_prompts = {key: random.sample(value, 3) for key, value in all_example_prompts.items()}
 
 if "number_of_requests" not in st.session_state:
     st.session_state.number_of_requests = 0
@@ -181,9 +176,7 @@ def img_to_bytes(img_path):
 
 
 def img_to_html(img_path):
-    img_html = "<img src='data:image/png;base64,{}' class='img-fluid' style='width:100%'>".format(
-        img_to_bytes(img_path)
-    )
+    img_html = f"<img src='data:image/png;base64,{ img_to_bytes(img_path)}' class='img-fluid' style='width:100%'>"
     return img_html
 
 
