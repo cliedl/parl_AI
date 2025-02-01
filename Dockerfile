@@ -4,6 +4,12 @@ COPY --from=ghcr.io/astral-sh/uv:0.5.26 /uv /uvx /bin/
 # Set working directory
 WORKDIR /app
 
+# Download and unzip chroma db
+RUN apt-get update && apt-get install -y wget unzip && \
+    mkdir -p /app/data/manifestos/chroma && \
+    wget -O openai.zip "https://huggingface.co/datasets/cliedl/electify/resolve/main/openai.zip?download=true" && \
+    unzip openai.zip -d /app/data/manifestos/chroma/ && rm openai.zip
+
 # Copy content of current directory in working directory
 COPY . /app
 
