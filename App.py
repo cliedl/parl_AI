@@ -1,7 +1,6 @@
 import base64
 import csv
 import json
-import os
 import random
 from datetime import datetime
 from pathlib import Path
@@ -11,6 +10,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from RAG.database.vector_database import VectorDatabase
 from RAG.models.RAG import RAG
+from streamlit_app.utils.log import add_log_dict, update_log_dict
 from streamlit_app.utils.support_widgets import support_button
 from streamlit_app.utils.translate import translate
 
@@ -37,7 +37,9 @@ st.set_page_config(page_title="Electify", page_icon="🗳️", layout="centered"
 DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
 DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
 TEMPERATURE = 0.0
-LARGE_LANGUAGE_MODEL = ChatOpenAI(model_name="gpt-4o-mini", max_tokens=400, temperature=TEMPERATURE)
+LARGE_LANGUAGE_MODEL = ChatOpenAI(
+    model_name="gpt-4o-mini", max_tokens=400, temperature=TEMPERATURE
+)
 
 
 # Load the OpenAI embeddings model
@@ -58,6 +60,7 @@ def load_db_manifestos():
         database_directory=DATABASE_DIR_MANIFESTOS,
     )
 
+
 # TODO: Commented out since we do not use debate data yet
 # @st.cache_resource
 # def load_db_debates():
@@ -70,10 +73,10 @@ def load_db_manifestos():
 
 # Initialize RAG module with default parties
 rag = RAG(
-	databases=[load_db_manifestos()],
-	parties=["cdu", "spd", "gruene", "fdp", "linke", "afd"],
-	llm=LARGE_LANGUAGE_MODEL,
-	k=5,
+    databases=[load_db_manifestos()],
+    parties=["cdu", "spd", "gruene", "fdp", "linke", "afd"],
+    llm=LARGE_LANGUAGE_MODEL,
+    k=5,
 )
 
 
@@ -129,10 +132,27 @@ if "example_prompts" not in st.session_state:
                     all_example_prompts[key] = []
                 all_example_prompts[key].append(value)
 
-    st.session_state.example_prompts = {key: random.sample(value, 3) for key, value in all_example_prompts.items()}
+    st.session_state.example_prompts = {
+        key: random.sample(value, 3) for key, value in all_example_prompts.items()
+    }
 
 if "number_of_requests" not in st.session_state:
     st.session_state.number_of_requests = 0
+
+# The "log_id" string identifies query's log in the database:
+if "log_id" not in st.session_state:
+    st.session_state.log_id = None
+
+# The "feedback_rating" integer will contain the user's rating of the response:
+if "feedback_rating" not in st.session_state:
+    st.session_state.feedback_rating = None
+
+# The "feedback_text" string will contain the user's feedback text:
+if "feedback_text" not in st.session_state:
+    st.session_state.feedback_text = ""
+
+if "feedback_submitted" not in st.session_state:
+    st.session_state.feedback_submitted = False
 
 
 ##################################
@@ -155,6 +175,10 @@ def img_to_html(img_path):
 
 def submit_query():
     st.session_state.response = None
+    st.session_state.log_id = None
+    st.session_state.feedback_rating = None
+    st.session_state.feedback_text = ""
+    st.session_state.feedback_submitted = False
     st.session_state.stage = 1
     st.session_state.show_individual_parties = {
         f"party_{i+1}": False for i in range(len(st.session_state.parties))
@@ -203,6 +227,23 @@ def generate_response():
             else:
                 print(f"Retrying, retry number {retry_count}")
                 pass
+    st.session_state.log_id = add_log_dict(
+        {
+            "query": st.session_state.query,
+            "answer": st.session_state.response["answer"],
+        }
+    )
+
+
+def submit_feedback(feedback_rating, feedback_text):
+    update_log_dict(
+        st.session_state.log_id,
+        {
+            "feedback-rating": feedback_rating,
+            "feedback-text": feedback_text,
+        },
+    )
+    st.rerun()
 
 
 # The following function converts a date string from the format "YYYY-MM-DD" to "DD.MM.YYYY"
@@ -437,11 +478,7 @@ if st.session_state.stage > 1:
     st.markdown("---")
 
     # Display a section with all retrieved excerpts from the sources
-    st.subheader(
-        translate(
-            "sources-subheading", st.session_state.language
-        )
-    )
+    st.subheader(translate("sources-subheading", st.session_state.language))
     st.write(
         translate(
             "sources-intro",
@@ -459,7 +496,8 @@ if st.session_state.stage > 1:
             translate(
                 "sources",
                 st.session_state.language,
-            ) + f": {party_dict[party]['name']}"
+            )
+            + f": {party_dict[party]['name']}"
         ):
             for doc in st.session_state.response["docs"]["manifestos"][party]:
                 manifesto_excerpt = doc.page_content.replace("\n", " ")
@@ -479,6 +517,36 @@ if st.session_state.stage > 1:
             #         f'**Ausschnitt aus einer Rede im EU-Parlament von {speaker_of_excerpt} am {date_of_excerpt}**: "{debate_excerpt}"\n\n'
             #     )
 
-    st.markdown("---")
+    st.write("---")
 
-    # TODO: Update feedback section
+    st.subheader(translate("feedback-heading", st.session_state.language))
+
+    if not st.session_state.feedback_submitted:
+
+        st.write(translate("feedback-intro", st.session_state.language))
+
+        with st.form(key="feedback-form"):
+            feedback_options = {
+                "negative": "☹️",
+                "neutral": "😐",
+                "positive": "😊",
+            }
+
+            feedback_rating = st.segmented_control(
+                label=translate("feedback-question-rating", st.session_state.language),
+                options=feedback_options.keys(),
+                format_func=lambda option: feedback_options[option],
+            )
+            feedback_text = st.text_area(
+                label=translate("feedback-question-text", st.session_state.language)
+            )
+            submitted = st.form_submit_button(
+                label=translate("feedback-submit", st.session_state.language),
+                type="primary",
+            )
+            if submitted:
+                st.session_state.feedback_submitted = True
+                submit_feedback(feedback_rating, feedback_text)
+
+    else:
+        st.success(translate("feedback-thanks", st.session_state.language))
