@@ -109,7 +109,7 @@ if "stage" not in st.session_state:
 
 # The "language" string will determine the language of the interface and response:
 if "language" not in st.session_state:
-    st.session_state.language = "Deutsch"
+    st.session_state.language = "de"
 else:
     rag.language = st.session_state.language
 
@@ -224,7 +224,7 @@ def generate_response():
                 st.session_state.response = None
                 st.error(
                     translate(
-                        "Das Sprachmodell ist gerade nicht verfügbar. **Bitte versuche es gleich nochmal.**",
+                        "error-api-unavailable",
                         st.session_state.language,
                     )
                 )
@@ -257,35 +257,35 @@ with st.sidebar:
         options=["🇩🇪 Deutsch", "🇬🇧 English"],
         horizontal=True,
     )
-    languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
+    languages = {"🇩🇪 Deutsch": "de", "🇬🇧 English": "en"}
     st.session_state.language = languages[selected_language]
     rag.language = st.session_state.language
 
-st.header("🇪🇺 electify.eu", divider="blue")
+st.header("🗳️ electify.eu", divider="blue")
 st.write(
     "##### :grey["
     + translate(
-        "Informiere dich über die Positionen der Parteien zur Europawahl 2024.",
+        "subheadline",
         st.session_state.language,
     )
     + "]"
 )
 
 support_button(
-    text=f"💙  {translate('Unterstützen', st.session_state.language)}",
+    text=f"💙  {translate('support-button', st.session_state.language)}",
     link="https://www.buymeacoffee.com/electify.eu",
 )
 
 if st.session_state.number_of_requests >= 3:
     # Show support banner after 3 requests in a single session.
     st.info(
-        f"{translate('**Gefällt dir die App?** Mit einer kleinen Spende kannst du dafür sorgen, dass wir sie bis zur Europawahl weiterhin kostenlos anbieten können. [Jetzt unterstützen]', st.session_state.language)}(https://buymeacoffee.com/electify.eu)",
+        f"{translate('support-banner', st.session_state.language)}(https://buymeacoffee.com/electify.eu)",
         icon="💙",
     )
 
 query = st.text_input(
     label=translate(
-        "Stelle eine Frage oder gib ein Stichwort ein",
+        "query-instruction",
         st.session_state.language,
     ),
     placeholder="",
@@ -297,7 +297,7 @@ col_submit, col_checkbox = st.columns([1, 3])
 # Submit button
 with col_submit:
     st.button(
-        translate("Frage stellen", st.session_state.language),
+        translate("submit-query", st.session_state.language),
         on_click=submit_query,
         type="primary",
     )
@@ -305,16 +305,16 @@ with col_submit:
 # Checkbox to show/hide party names globally
 with col_checkbox:
     st.session_state.show_all_parties = st.checkbox(
-        label=translate("Parteinamen anzeigen", st.session_state.language),
+        label=translate("show-party-names", st.session_state.language),
         value=True,
         help=translate(
-            "Blende die Parteinamen aus, um Antworten unvoreingenommen lesen zu können.",
+            "show-party-names-help",
             st.session_state.language,
         ),
     )
 
 # Allow the user to select up to 6 parties
-with st.expander(translate("Parteien auswählen", st.session_state.language)):
+with st.expander(translate("select-parties-heading", st.session_state.language)):
     available_parties = list(party_dict.keys())
 
     party_selection = {party: False for party in available_parties}
@@ -327,7 +327,7 @@ with st.expander(translate("Parteien auswählen", st.session_state.language)):
 
     st.write(
         translate(
-            "Wähle bis zu 6 Parteien aus.",
+            "select-parties-instruction",
             st.session_state.language,
         )
     )
@@ -341,13 +341,13 @@ with st.expander(translate("Parteien auswählen", st.session_state.language)):
 
     if len(st.session_state.parties) == 0:
         st.markdown(
-            f"⚠️ **:red[{translate('Bitte wähle mindestens eine Partei aus.', st.session_state.language)}]**"
+            f"⚠️ **:red[{translate('error-min-1-party', st.session_state.language)}]**"
         )
         # Reset to default parties
         st.session_state.parties = rag.parties
     elif len(st.session_state.parties) > 6:
         st.markdown(
-            f"⚠️ **:red[{translate('Bitte wähle maximal sechs Parteien aus.', st.session_state.language)}]**"
+            f"⚠️ **:red[{translate('error-max-6-parties', st.session_state.language)}]**"
         )
         # Limit to the six first selected parties
         st.session_state.parties = st.session_state.parties[:6]
@@ -357,7 +357,7 @@ with st.expander(translate("Parteien auswählen", st.session_state.language)):
 
 # STAGE 0: User has not yet submitted a query
 if st.session_state.stage == 0:
-    st.write(translate("Beispiele:", st.session_state.language))
+    st.write(translate("examples-heading", st.session_state.language))
 
     for i in range(3):
         st.button(
@@ -370,9 +370,9 @@ if st.session_state.stage == 0:
 # STAGE > 0: Show disclaimer once the user has submitted a query (and keep showing it)
 if st.session_state.stage > 0:
     if len(st.session_state.parties) == 0:
-        st.info(
+        st.error(
             translate(
-                "Wähle mindestens eine Partei in der Seitenleiste aus!",
+                "error-min-1-party",
                 st.session_state.language,
             )
         )
@@ -382,17 +382,17 @@ if st.session_state.stage > 0:
         st.info(
             "☝️ "
             + translate(
-                "**Die Antworten werden von einem Sprachmodell generiert und können fehlerhaft sein.**",
+                "disclaimer-llm",
                 st.session_state.language,
             )
             + "  \n"
             + translate(
-                "Bitte informiere dich zusätzlich in den verlinkten Wahlprogrammen.",
+                "disclaimer-research",
                 st.session_state.language,
             )
-            + "  \n\n"
+            + "  \n"
             + translate(
-                "Die Reihenfolge der angezeigten Parteien ist zufällig.",
+                "disclaimer-random-order",
                 st.session_state.language,
             ),
         )
@@ -402,7 +402,7 @@ if st.session_state.stage == 1:
     st.session_state.number_of_requests += 1
     with st.spinner(
         translate(
-            "Suche nach Antworten in Wahlprogrammen und Parlamentsdebatten...",
+            "loading-response",
             st.session_state.language,
         )
         + "🕵️"
@@ -453,7 +453,7 @@ if st.session_state.stage > 1:
                 file_loc = "streamlit_app/assets/placeholder_logo.png"
                 st.markdown(img_to_html(file_loc), unsafe_allow_html=True)
                 st.button(
-                    translate("Partei aufdecken", st.session_state.language),
+                    translate("show-party", st.session_state.language),
                     on_click=reveal_party,
                     args=(p,),
                     key=p,
@@ -463,12 +463,12 @@ if st.session_state.stage > 1:
             if show_party:
                 st.header(party_dict[party]["name"])
             else:
-                st.header(f"{translate('Partei', st.session_state.language)} {p}")
+                st.header(f"{translate('party', st.session_state.language)} {p}")
 
             st.write(st.session_state.response["answer"][party])
             if show_party:
                 st.write(
-                    f"""{translate('Mehr findest du im', st.session_state.language)} [{translate('Europawahlprogramm der Partei', st.session_state.language)} **{party_dict[party]['name']}** ({translate('z.B. Seite', st.session_state.language)} {most_relevant_manifesto_page_number + 1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number + 1})"""
+                    f"""{translate('learn-more-in', st.session_state.language)} [{translate('party-manifesto', st.session_state.language)} **{party_dict[party]['name']}** ({translate('page-reference', st.session_state.language)} {most_relevant_manifesto_page_number + 1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number + 1})"""
                 )
 
     st.markdown("---")
@@ -476,27 +476,27 @@ if st.session_state.stage > 1:
     # Display a section with all retrieved excerpts from the sources
     st.subheader(
         translate(
-            "Quellen: Worauf basieren diese Antworten?", st.session_state.language
+            "sources-subheading", st.session_state.language
         )
     )
     st.write(
         translate(
-            "Die Antworten wurden von dem KI-Sprachmodell GPT 3.5 generiert – unter Berücksichtigung der Wahlprogramme zur Europawahl 2024 und vergangener Reden im Europaparlament im Zeitraum 2019-2024.",
+            "sources-intro",
             st.session_state.language,
         )
     )
     st.write(
         translate(
-            "Hier kannst du die genutzten Ausschnitte aus den Quellen einsehen:",
+            "sources-excerpts-intro",
             st.session_state.language,
         )
     )
     for party in st.session_state.parties:
         with st.expander(
             translate(
-                f"{translate('Quellen', st.session_state.language)}: {party_dict[party]['name']}",
+                "sources",
                 st.session_state.language,
-            )
+            ) + f": {party_dict[party]['name']}"
         ):
             for doc in st.session_state.response["docs"]["manifestos"][party]:
                 manifesto_excerpt = doc.page_content.replace("\n", " ")
@@ -518,34 +518,4 @@ if st.session_state.stage > 1:
 
     st.markdown("---")
 
-    # Show feedback section
-    st.write(
-        f"### {translate('Waren diese Antworten hilfreich für dich?', st.session_state.language)}"
-    )
-    st.write(
-        translate(
-            "Mit deinem Feedback hilfst du uns, die Qualität der Antworten zu verbessern.",
-            st.session_state.language,
-        )
-    )
-
-    if st.session_state.use_trubrics:
-        st.session_state.feedback = collector.st_feedback(
-            component="default",
-            feedback_type="thumbs",
-            model=LARGE_LANGUAGE_MODEL.model_name,
-            prompt_id=st.session_state.logged_prompt.id,
-            open_feedback_label="Weiteres Feedback (optional)",
-            align="flex-start",
-            key=f"feedback_{st.session_state.feedback_key}",
-        )
-
-        if st.session_state.feedback is not None:
-            st.write(
-                translate("Vielen Dank für dein Feedback!", st.session_state.language)
-                + " 🙏"
-            )
-    else:
-        st.write(
-            "[Schicke uns gerne eine Nachricht](mailto:electify.eu@gmail.com) mit Anregungen oder Kritik. Wir freuen uns, von dir zu hören."
-        )
+    # TODO: Update feedback section
