@@ -8,7 +8,6 @@ from pathlib import Path
 
 import streamlit as st
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from trubrics.integrations.streamlit import FeedbackCollector
 
 from RAG.database.vector_database import VectorDatabase
 from RAG.models.RAG import RAG
@@ -29,7 +28,7 @@ with open("streamlit_app/party_dict.json") as file:
 #     sys.modules["sqlite3"] = sys.modules["pysqlite3"]
 
 # Streamlit page conifg
-st.set_page_config(page_title="Electify", page_icon="🇪🇺", layout="centered")
+st.set_page_config(page_title="Electify", page_icon="🗳️", layout="centered")
 
 ##################################
 ### RAG SETUP ####################
@@ -75,19 +74,6 @@ rag = RAG(
 	parties=["cdu", "spd", "gruene", "fdp", "linke", "afd"],
 	llm=LARGE_LANGUAGE_MODEL,
 	k=5,
-)
-
-##################################
-### TRUBRICS SETUP ###############
-##################################
-collector = FeedbackCollector(
-    project="default",
-    # for local testing, use environment variables:
-    email=os.environ.get("TRUBRICS_EMAIL"),
-    password=os.environ.get("TRUBRICS_PASSWORD"),
-    # for deployment on Streamlit, use Streamlit secrets:
-    # email=st.secrets.TRUBRICS_EMAIL,
-    # password=st.secrets.TRUBRICS_PASSWORD,
 )
 
 
@@ -148,19 +134,6 @@ if "example_prompts" not in st.session_state:
 if "number_of_requests" not in st.session_state:
     st.session_state.number_of_requests = 0
 
-# The following variables are used to store the prompt and feedback with Trubrics:
-if "use_trubrics" not in st.session_state:
-    if "TRUBRICS_PASSWORD" in os.environ:
-        st.session_state.use_trubrics = True
-    else:
-        st.session_state.use_trubrics = False
-if "logged_prompt" not in st.session_state:
-    st.session_state.logged_prompt = None
-if "feedback" not in st.session_state:
-    st.session_state.feedback = None
-if "feedback_key" not in st.session_state:
-    st.session_state.feedback_key = 0
-
 
 ##################################
 ### HELPER FUNCTIONS #############
@@ -181,11 +154,8 @@ def img_to_html(img_path):
 
 
 def submit_query():
-    st.session_state.logged_prompt = None
     st.session_state.response = None
-    st.session_state.feedback = None
     st.session_state.stage = 1
-    st.session_state.feedback_key += 1
     st.session_state.show_individual_parties = {
         f"party_{i+1}": False for i in range(len(st.session_state.parties))
     }
@@ -408,13 +378,6 @@ if st.session_state.stage == 1:
         + "🕵️"
     ):
         generate_response()
-
-    if st.session_state.use_trubrics:
-        st.session_state.logged_prompt = collector.log_prompt(
-            config_model={"model": LARGE_LANGUAGE_MODEL.model_name},
-            prompt=query,
-            generation=str(st.session_state.response),
-        )
 
     st.session_state.stage = 2
 
