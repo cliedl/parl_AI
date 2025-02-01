@@ -115,6 +115,8 @@ class VectorDatabase:
 						# If the first half is on page i or the second half is on page i, set page=i
 						if split_1 in doc_page.page_content or split_2 in doc_page.page_content:
 							split.metadata.update({"page": i})
+						else:
+							split.metadata.update({"page": 1})
 
 				splits.extend(splits_temp)
 
