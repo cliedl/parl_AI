@@ -2,12 +2,12 @@
     "cdu": {
         "name": "CDU/CSU",
         "image": "streamlit_app/assets/cdu_logo.png",
-        "manifesto_link": "https://www.politikwechsel.cdu.de/sites/www.politikwechsel.cdu.de/files/docs/politikwechsel-fuer-deutschland-wahlprogramm-von-cdu-csu-1.pdf"
+        "manifesto_link": "https://www.cdu.de/app/uploads/2025/01/km_btw_2025_wahlprogramm_langfassung_ansicht.pdf"
     },
     "spd": {
         "name": "SPD",
         "image": "streamlit_app/assets/spd_logo.png",
-        "manifesto_link": "https://www.spd.de/fileadmin/Dokumente/Beschluesse/Programm/Entwurf_Regierungsprogramm_2025.pdf"
+        "manifesto_link": "https://www.spd.de/fileadmin/Dokumente/Beschluesse/Programm/2025_SPD_Regierungsprogramm.pdf"
     },
     "gruene": {
         "name": "Bündnis 90/Die Grünen",
@@ -17,7 +17,7 @@
     "linke": {
         "name": "Die Linke",
         "image": "streamlit_app/assets/linke_logo.png",
-        "manifesto_link": "https://www.die-linke.de/fileadmin/1_Partei/parteitage/Au%C3%9Ferordentlicher_Parteitag_25/Wahlprogramm_Entwurf.pdf"
+        "manifesto_link": "https://www.die-linke.de/fileadmin/user_upload/Wahlprogramm_Langfassung_Linke-BTW25_01.pdf"
     },
     "fdp": {
         "name": "FDP",
@@ -27,6 +27,11 @@
     "afd": {
         "name": "AfD",
         "image": "streamlit_app/assets/afd_logo.png",
-        "manifesto_link": "https://www.afd.de/wp-content/uploads/2024/11/Leitantrag-Bundestagswahlprogramm-2025.pdf"
+        "manifesto_link": "https://www.bundestagswahl-bw.de/fileadmin/bundestagswahl-bw/2025/Wahlprogramme/AfD_Leitantrag-Bundestagswahlprogramm-2025.pdf"
+    },
+    "bsw": {
+        "name": "Bündnis Sahra Wagenknecht",
+        "image": "streamlit_app/assets/bsw_logo.png",
+        "manifesto_link": "https://bsw-vg.de/wp-content/themes/bsw/assets/downloads/BSW%20Wahlprogramm%202025.pdf"
     }
 }
