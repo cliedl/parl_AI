@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta, timezone
 
 import dotenv
 from bson import ObjectId
@@ -15,6 +16,9 @@ def add_log_dict(dictionary: dict) -> str:
     Returns:
         The inserted id.
     """
+    # Add timestamp to dictionary
+    dictionary["created_at"] = datetime.now(timezone.utc) + timedelta(hours=1)  # Berlin timezone (UTC+1)
+    
     client = MongoClient(os.getenv("MONGODB_URI"), server_api=ServerApi('1'))
     db = client[os.getenv("DATABASE_NAME")]
     collection = db[os.getenv("COLLECTION_NAME")]
@@ -31,6 +35,8 @@ def update_log_dict(_id: str, dictionary: dict):
     Returns:
         The result of the update.
     """
+    # Add updated_at timestamp to dictionary
+    dictionary["updated_at"] = datetime.now(timezone.utc) + timedelta(hours=1)
 
     client = MongoClient(os.getenv("MONGODB_URI"), server_api=ServerApi('1'))
     db = client[os.getenv("DATABASE_NAME")]
@@ -42,8 +48,7 @@ def update_log_dict(_id: str, dictionary: dict):
     return result
 
 if __name__ == "__main__":
-    pass
-    # _id = log_dict({"query": "What?", "answer": "test", "rating": "10"})
-    # print(_id)
-    # result = update_dict(_id, {"answer": "test2"})
-    # print(type(result))
+    _id = add_log_dict({"query": "What?", "answer": "test", "rating": "10"})
+    print(_id)
+    result = update_log_dict(_id, {"answer": "test2"})
+    print(type(result))
