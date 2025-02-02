@@ -108,15 +108,16 @@ class VectorDatabase:
 
 				# For each split, we search for the page on which it has occurred
 				for split in splits_temp:
-					for i, doc_page in enumerate(doc_pages):
+					for page_number, doc_page in enumerate(doc_pages):
 						# Create first and second half of split
 						split_1 = split.page_content[: int(0.5 * len(split.page_content))]
 						split_2 = split.page_content[int(0.5 * len(split.page_content)) :]
-						# If the first half is on page i or the second half is on page i, set page=i
+						# If the first half is on page page_number or the second half is on page page_number, set page=page_number
 						if split_1 in doc_page.page_content or split_2 in doc_page.page_content:
-							split.metadata.update({"page": i})
-						else:
-							split.metadata.update({"page": 1})
+							split.metadata.update({"page": page_number})
+					
+					if split.metadata.get("page") is None:
+						split.metadata.update({"page": 1})
 
 				splits.extend(splits_temp)
 
