@@ -29,6 +29,7 @@ dev = [
     "pdfminer-six>=20240706",
     "playwright>=1.49.1",
     "plotly>=6.0.0",
+    "pytest-timeout>=2.3.1",
     "pytest>=8.3.4",
     "ragas>=0.2.12",
     "requests>=2.32.3",
