@@ -16,6 +16,9 @@ COPY . /app
 # Install dependencies
 RUN uv sync --frozen --no-dev
 
+# Activate virtual environment
+ENV PATH="/app/.venv/bin:$PATH"
+
 # Copy custom index
 COPY streamlit_app/index.html /usr/local/lib/python3.11/site-packages/streamlit/static/index.html
 
@@ -23,4 +26,4 @@ COPY streamlit_app/index.html /usr/local/lib/python3.11/site-packages/streamlit/
 EXPOSE 8080
 
 # Run streamlit app
-ENTRYPOINT ["uv", "run", "streamlit", "run", "App.py", "--server.port=8080", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "App.py", "--server.port=8080", "--server.address=0.0.0.0"]
