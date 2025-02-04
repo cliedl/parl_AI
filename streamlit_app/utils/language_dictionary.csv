@@ -23,7 +23,7 @@ sources-intro;Die Antworten wurden von dem KI-Sprachmodell GPT 3.5 generiert –
 sources-excerpts-intro;Hier kannst du die genutzten Ausschnitte aus den Quellen einsehen:;Here you can view the extracts used from the sources (only available in German):
 sources;Quellen;Sources
 support-button;Unterstützen;Support us
-support-banner;**Gefällt dir die App?** Mit einer kleinen Spende kannst du dafür sorgen, dass wir sie bis zur Europawahl weiterhin kostenlos anbieten können. [Jetzt unterstützen];**Enjoying the app?** A small tip helps us offer it for free until the European elections. [Support now]
+support-banner;**Gefällt dir die App?** Mit einer kleinen Spende kannst du dafür sorgen, dass wir sie bis zur Wahl weiterhin kostenlos anbieten können. [Jetzt unterstützen];**Enjoying the app?** A small tip helps us offer it for free until the elections. [Support now]
 error-api-unavailable;"Das Sprachmodell ist gerade nicht verfügbar. **Bitte versuche es gleich nochmal.**";"The language model is currently unavailable. **Please try again in a moment.**"
 feedback-heading;Feedback;Feedback
 feedback-intro;Hilf uns mit deinem Feedback, Electify zu verbessern!;Help us improve Electify with your feedback!

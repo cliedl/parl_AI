@@ -3,7 +3,7 @@ import streamlit as st
 st.set_page_config(page_title="Electify - FAQ", page_icon="🇪🇺")
 
 st.header(
-    "Am 23. Februar 2025 ist Europawahl. 🗳️ :placeholder Informiere dich mit Electify!",
+    "Am 23. Februar 2025 ist Bundestagswahl in Deutschland. 🗳️ :placeholder Informiere dich mit Electify!",
     divider="blue",
 )
 
@@ -51,7 +51,7 @@ st.subheader("Wo finde ich den Code von Electify?")
 
 st.write(
     """
-Das Open-Source-Projekt Electify findest du auf [GitHub](https://github.com/electify-eu/europarl-ai).
+Das Open-Source-Projekt Electify findest du auf [GitHub](https://github.com/electify-eu/electify-app).
     """
 )
 
