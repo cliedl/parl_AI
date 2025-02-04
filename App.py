@@ -476,8 +476,19 @@ if st.session_state.stage > 1:
 
             st.write(st.session_state.response["answer"][party])
             if show_party:
+                is_answer_empty = (
+                    "keine passende antwort"
+                    in st.session_state.response["answer"][party].lower()
+                )
+
+                page_reference_string = (
+                    ""
+                    if is_answer_empty
+                    else f" ({translate('page-reference', st.session_state.language)} {most_relevant_manifesto_page_number + 1})"
+                )
+
                 st.write(
-                    f"""{translate('learn-more-in', st.session_state.language)} [{translate('party-manifesto', st.session_state.language)} **{party_dict[party]['name']}** ({translate('page-reference', st.session_state.language)} {most_relevant_manifesto_page_number + 1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number + 1})"""
+                    f"""{translate('learn-more-in', st.session_state.language)} [{translate('party-manifesto', st.session_state.language)} **{party_dict[party]['name']}**{page_reference_string}]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number + 1})."""
                 )
 
     st.markdown("---")
