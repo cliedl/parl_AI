@@ -2,56 +2,36 @@
     "cdu": {
         "name": "CDU/CSU",
         "image": "streamlit_app/assets/cdu_logo.png",
-        "manifesto_link": "https://assets.ctfassets.net/nwwnl7ifahow/476rnHcYPkmyuONPvSTKO2/972e88ceb862ac4d4905d98441555e0c/europawahlprogramm-cdu-csu-2024_0.pdf"
+        "manifesto_link": "https://www.cdu.de/app/uploads/2025/01/km_btw_2025_wahlprogramm_langfassung_ansicht.pdf"
     },
     "spd": {
         "name": "SPD",
         "image": "streamlit_app/assets/spd_logo.png",
-        "manifesto_link": "https://www.spd.de/fileadmin/Dokumente/EuroDel/20240128_Europaprogramm.pdf"
+        "manifesto_link": "https://www.spd.de/fileadmin/Dokumente/Beschluesse/Programm/2025_SPD_Regierungsprogramm.pdf"
     },
     "gruene": {
         "name": "Bündnis 90/Die Grünen",
         "image": "streamlit_app/assets/gruene_logo.png",
-        "manifesto_link": "https://cms.gruene.de/uploads/assets/Europawahlprogramm-2024-Bu%CC%88ndnis90Die-Gru%CC%88nen_Wohlstand_Gerechtigkeit_Frieden_Freiheit.pdf"
+        "manifesto_link": "https://cms.gruene.de/uploads/assets/20241216_BTW25_Programmentwurf_DINA4_digital.pdf"
     },
     "linke": {
         "name": "Die Linke",
         "image": "streamlit_app/assets/linke_logo.png",
-        "manifesto_link": "https://www.die-linke.de/fileadmin/user_upload/Europawahlprogramm_2023_neu2.pdf"
+        "manifesto_link": "https://www.die-linke.de/fileadmin/user_upload/Wahlprogramm_Langfassung_Linke-BTW25_01.pdf"
     },
     "fdp": {
         "name": "FDP",
         "image": "streamlit_app/assets/fdp_logo.png",
-        "manifesto_link": "https://www.fdp.de/sites/default/files/2024-01/fdp_europawahlprogramm-2024_vorabversion.pdf"
+        "manifesto_link": "https://www.fdp.de/sites/default/files/2024-12/fdp-wahlprogramm_2025.pdf"
     },
     "afd": {
         "name": "AfD",
         "image": "streamlit_app/assets/afd_logo.png",
-        "manifesto_link": "https://www.afd.de/wp-content/uploads/2023/11/2023-11-16-_-AfD-Europawahlprogramm-2024-_-web.pdf"
+        "manifesto_link": "https://www.bundestagswahl-bw.de/fileadmin/bundestagswahl-bw/2025/Wahlprogramme/AfD_Leitantrag-Bundestagswahlprogramm-2025.pdf"
     },
-    "volt": {
-        "name": "Volt",
-        "image": "streamlit_app/assets/volt_logo.png",
-        "manifesto_link": "https://voltdeutschland.org/storage/assets-de/pdf/europawahl_2024/volt-wahlprogramm-europawahl-2024.pdf"
-    },
-    "fw": {
-        "name": "Freie Wähler",
-        "image": "streamlit_app/assets/fw_logo.png",
-        "manifesto_link": "https://www.freiewaehler.eu/template/elemente/450/FREIE%20W%C3%84HLER_Europawahlprogramm_2024-2029.pdf"
-    },
-    "familie": {
-        "name": "Familien-Partei",
-        "image": "streamlit_app/assets/familie_logo.png",
-        "manifesto_link": "https://www.xn--whlefamilie-l8a.de/_files/ugd/a1be9e_1691882f730745b28bb605780cddd1b2.pdf"
-    },
-    "oedp": {
-        "name": "ÖDP",
-        "image": "streamlit_app/assets/oedp_logo.png",
-        "manifesto_link": "https://www.oedp.de/fileadmin/user_upload/bundesverband/programm/programme/OEDP-Programm_Europawahl2024_230224_ES.pdf"
-    },
-    "piraten": {
-        "name": "Piraten-Partei",
-        "image": "streamlit_app/assets/piraten_logo.png",
-        "manifesto_link": "https://wiki.piratenpartei.de/wiki/images/0/08/CEEP_deutsch.pdf"
+    "bsw": {
+        "name": "Bündnis Sahra Wagenknecht",
+        "image": "streamlit_app/assets/bsw_logo.png",
+        "manifesto_link": "https://bsw-vg.de/wp-content/themes/bsw/assets/downloads/BSW%20Wahlprogramm%202025.pdf"
     }
 }

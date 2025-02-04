@@ -48,11 +48,27 @@ st.write(
     Wir verwenden Ihre Daten nicht, um Rückschlüsse auf Ihre Person zu ziehen. Informationen dieser Art werden von uns ggfs. anonymisiert statistisch ausgewertet, um unseren Internetauftritt und die dahinterstehende Technik zu optimieren.
     """
 )
+
+st.write(
+    """
+    Darüber hinaus erfassen wir folgende Daten, wenn Sie unsere Wahlhilfe-Funktion nutzen:
+
+    * Die von Ihnen eingegebenen Fragen und Suchanfragen im Textfeld der Wahlhilfe-Funktion. Diese Daten werden erfasst, um die Qualität und Relevanz unseres Dienstes zu verbessern und häufige Informationsbedürfnisse unserer Nutzer zu erkennen.
+    * Wenn Sie das optionale Feedback-Formular nutzen, speichern wir Ihr anonym übermitteltes Feedback zusammen mit der zugehörigen Suchanfrage. Diese Daten dienen der Qualitätssicherung und Verbesserung unseres Dienstes.
+
+    Diese zusätzlichen Daten werden ausschließlich in anonymisierter Form gespeichert und ausgewertet. Eine Zuordnung zu einzelnen Nutzern erfolgt nicht. Die Daten werden verwendet, um:
+
+    * die Qualität der KI-basierten Antworten zu verbessern
+    * häufig gestellte Fragen zu identifizieren
+    * die Nutzerfreundlichkeit unseres Dienstes zu optimieren
+    * das Informationsangebot an die Bedürfnisse der Nutzer anzupassen
+    """
+)
 st.write(
     """
     ##### Rechtsgrundlage und berechtigtes Interesse:
 
-    Die Verarbeitung erfolgt gemäß Art. 6 Abs. 1 lit. f DSGVO auf Basis unseres berechtigten Interesses an der Verbesserung der Stabilität und Funktionalität unserer Website. 
+    Die Verarbeitung erfolgt gemäß Art. 6 Abs. 1 lit. f DSGVO auf Basis unseres berechtigten Interesses an der Verbesserung der Stabilität und Optimierung der Funktionalität unserer Website. 
     """
 )
 
@@ -92,7 +108,7 @@ st.write(
     """
     ##### Speicherdauer: 
 
-    Die Daten werden gelöscht, sobald diese für den Zweck der Erhebung nicht mehr erforderlich sind. Dies ist für die Daten, die der Bereitstellung der Website dienen, grundsätzlich der Fall, wenn die jeweilige Sitzung beendet ist.
+    Die Daten werden gelöscht, sobald diese für den Zweck der Erhebung nicht mehr erforderlich sind. Dies ist für die Daten, die der Bereitstellung der Website dienen, grundsätzlich der Fall, wenn die jeweilige Sitzung beendet ist. Die von Ihnen eingegebenen Fragen und das optionale anonyme Feedback werden für einen Zeitraum von maximal 12 Monaten gespeichert und danach automatisch gelöscht.
 
     ##### Bereitstellung vorgeschrieben oder erforderlich:
 

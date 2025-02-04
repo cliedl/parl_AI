@@ -1,5 +1,6 @@
-from langchain_openai import ChatOpenAI
 import asyncio
+
+from langchain_openai import ChatOpenAI
 
 
 class RAG:
@@ -13,7 +14,7 @@ class RAG:
     language: str, language of the generated answer, default is "Deutsch"
     """
 
-    def __init__(self, databases, parties=None, llm=None, k=3, language="Deutsch"):
+    def __init__(self, databases, parties=None, llm=None, k=3, language="de"):
         self.databases = databases
         self.llm = llm
         self.k = k
@@ -23,9 +24,7 @@ class RAG:
         else:
             self.parties = parties
         if self.llm == None:
-            self.llm = ChatOpenAI(
-                model_name="gpt-3.5-turbo", max_tokens=2000, temperature=0
-            )
+            self.llm = ChatOpenAI(model_name="gpt-3.5-turbo", max_tokens=2000, temperature=0)
 
     def get_documents_for_party(self, question, party):
         """
@@ -59,17 +58,11 @@ class RAG:
         context = ""
         for source_type in docs:
             if source_type == "manifestos":
-                context_header = (
-                    "Ausschnitte aus den Wahlprogrammen zur Europawahl 2024:\n"
-                )
+                context_header = "Ausschnitte aus den Wahlprogrammen zur Bundestagswahl 2025:\n"
             elif source_type == "debates":
-                context_header = "Ausschnitte aus vergangenen Reden im Europaparlament im Zeitraum 2019-2024:\n\n"
+                context_header = "Ausschnitte aus vergangenen Reden im Bundestag im Zeitraum 2021-2025:\n\n"
 
-            context_source = (
-                context_header
-                + "\n\n".join([doc.page_content for doc in docs[source_type]])
-                + "\n\n"
-            )
+            context_source = context_header + "\n\n".join([doc.page_content for doc in docs[source_type]]) + "\n\n"
 
             context += context_source
 
@@ -88,14 +81,15 @@ class RAG:
         """
         docs = self.get_documents_for_party(question, party)
         context = self.build_context_from_docs(docs)
+        languages = {"de": "Deutsch", "en": "Englisch"}
         prompt = f"""   
             Beantworte die unten folgende FRAGE DES NUTZERS, indem du die politischen Positionen der Partei im unten angegebenen KONTEXT zusammenfasst.
-            Der KONTEXT umfasst Ausschnitte aus Redebeiträgen im EU-Parlament und aus dem EU-Wahlprogramm für 2024 für die Partei. 
+            Der KONTEXT umfasst Ausschnitte aus dem Wahlprogramm für die Bundestagswahl 2025 der Partei. 
             Deine Antwort soll ausschließlich die Informationen aus dem genannten KONTEXT beinhalten.
             Verwende in deiner Antwort NICHT den Namen der Partei, sondern beziehe dich auf die Partei ausschließlich mit "die Partei".
             Sollte der KONTEXT keine Antwort auf die FRAGE DES NUTZERS zulassen, gib anstelle der Zusammenfassung NUR die folgende Rückmeldung: 
             "Es wurde keine passende Antwort in den Quellen gefunden."
-            Gib die Antwort auf {self.language}.
+            Gib die Antwort auf {languages[self.language]}.
 
             KONTEXT:
             {context}
@@ -116,10 +110,7 @@ class RAG:
         Returns:
         prompts_dict: dict, dictionary containing the question, prompt, and documents for each party
         """
-        prompts_dict = {
-            party: self.generate_prompt_for_party(question, party)
-            for party in self.parties
-        }
+        prompts_dict = {party: self.generate_prompt_for_party(question, party) for party in self.parties}
         return prompts_dict
 
     def query(self, question):
@@ -135,11 +126,7 @@ class RAG:
         response_dict = self.generate_prompts(question)
 
         # Run LLM on all prompts in parallel
-        response_ = asyncio.run(
-            self.llm.abatch(
-                [response_dict[party]["prompt"] for party in response_dict.keys()]
-            )
-        )
+        response_ = asyncio.run(self.llm.abatch([response_dict[party]["prompt"] for party in response_dict]))
 
         # Attach response content to party dictionary
         for i, party in enumerate(response_dict):
@@ -160,13 +147,11 @@ class RAG:
         response: dict, formatted dictionary containing the question, prompt, documents, and answer for each party
         """
         q = response[list(response.keys())[0]]["question"]
-        p = {party: response[party]["prompt"] for party in response.keys()}
+        p = {party: response[party]["prompt"] for party in response}
         d = {
-            source: {
-                party: response[party]["docs"][source] for party in response.keys()
-            }
-            for source in response[list(response.keys())[0]]["docs"].keys()
+            source: {party: response[party]["docs"][source] for party in response}
+            for source in response[list(response.keys())[0]]["docs"]
         }
-        a = {party: response[party]["answer"] for party in response.keys()}
+        a = {party: response[party]["answer"] for party in response}
         response = {"question": q, "prompt": p, "docs": d, "answer": a}
         return response

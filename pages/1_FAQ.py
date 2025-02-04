@@ -2,20 +2,17 @@ import streamlit as st
 
 st.set_page_config(page_title="Electify - FAQ", page_icon="🇪🇺")
 
-st.header(
-    "Am 9. Juni 2024 ist Europawahl. 🗳️ :placeholder Informiere dich mit Electify!",
-    divider="blue",
-)
+st.header("Am 23. Februar 2025 ist Bundestagswahl in Deutschland. 🗳️ Informiere dich mit Electify!", divider="blue")
 
 st.subheader("Was ist Electify?")
 
 st.write(
     """
-Electify ist eine App, mit der du dich zur Europawahl 2024 in Deutschland informieren kannst. 
+Electify ist eine App, mit der du dich zur Bundestagswahl 2025 in Deutschland informieren kannst. 
 Stelle deine Frage und unser Modell fasst die Positionen der Parteien zusammen.
 
-Im Hintergrund nutzen wir eine Retrieval-Augmented Generation (RAG) Engine, die Zugriff auf tausende politische Dokumente hat (Wahlprogramme und Parlamentsdebatten). 
-Unser Algorithmus sucht nach den Dokumenten, die am relevantesten für deine Frage sind. 
+Im Hintergrund nutzen wir eine Retrieval-Augmented Generation (RAG) Engine, die Zugriff auf die Wahlprogramme der Parteien hat. 
+Unser Algorithmus sucht nach den Textpassagen, die am relevantesten für deine Frage sind. 
 Mit Hilfe dieser Information generiert ein KI-Sprachmodell dann übersichtliche Zusammenfassungen für die verschiedenen Parteien.
 """
 )
@@ -43,7 +40,7 @@ st.subheader("Welche Daten verwendet ihr für die App?")
 
 st.write(
     """
-Wir nutzen die öffentlichen Wahlprogramme der deutschen Parteien zur Europawahl. Außerdem nutzen wir die [öffentlichen Reden](https://data.europarl.europa.eu/de/home) von deutschen Politiker_innen im EU-Parlament aus der Legislaturperiode 2019 - 2024. 
+Wir nutzen die öffentlichen Wahlprogramme der deutschen Parteien zur Bundestagswahl 2025. 
     """
 )
 
@@ -51,7 +48,7 @@ st.subheader("Wo finde ich den Code von Electify?")
 
 st.write(
     """
-Das Open-Source-Projekt Electify findest du auf [GitHub](https://github.com/electify-eu/europarl-ai) (MIT-Lizenz).
+Das Open-Source-Projekt Electify findest du auf [GitHub](https://github.com/electify-eu/electify-app).
     """
 )
 
@@ -59,13 +56,12 @@ st.subheader("Bekomme ich Informationen zu jeder Partei?")
 
 st.write(
     """
-Über das Menü "Parteien auswählen" können fast alle deutschen Parteien (maximal sechs gleichzeitig) ausgewählt werden, die zurzeit im Europaparlament vertreten sind. 
+Über das Menü "Parteien auswählen" können fast alle deutschen Parteien (maximal sechs gleichzeitig) ausgewählt werden, die zurzeit im Bundestag vertreten sind. 
 Wir haben "Die Partei" nicht in Electify integriert, da KI-Sprachmodelle Satire und Ironie nur schwer erkennen können.
 Standardmäßig sind die sechs größten Parteien ausgewählt.
 Electify liefert dir dann eine Zusammenfassung der Positionen dieser Parteien zu deiner Frage. 
-Es treten jedoch noch sehr viel mehr Kleinparteien bei der Europawahl an, die bis jetzt nicht im Europaparlament vertreten sind. 
-Da unser Modell auch auf den Reden der deutschen Politiker_innen im EU-Parlament basiert, können wir keine Informationen zu diesen Parteien liefern.
-Hier findest du einen [Überblick über alle Parteien, die zur Europawahl antreten](https://www.europawahl-bw.de/deutsche-parteien).
+Es treten jedoch noch sehr viel mehr Kleinparteien bei der Bundestagswahl an, die bis jetzt nicht im Bundestag vertreten sind. 
+Hier findest du einen [Überblick über alle Parteien, die zur Bundestagswahl antreten](https://www.bundeswahlleiterin.de/info/presse/mitteilungen/bundestagswahl-2025/10_25_parteien-wahlteilnahme.html).
     """
 )
 
@@ -73,7 +69,7 @@ st.subheader("Wie aktuell ist Electify?")
 
 st.write(
     """
-Wir haben Electify Anfang April 2024 fertiggestellt und aktualisieren die App laufend bis zur Europawahl anhand des Feedbacks, das wir erhalten.
+Die Wahlprogramme der Parteien sind teilweise noch nicht beschlossen, sondern stellen nur Entwürfe dar. Wir aktualisieren Electify laufend, sobald neue Informationen verfügbar sind.
     """
 )
 
@@ -81,7 +77,7 @@ st.subheader("Warum wurde Electify entwickelt?")
 
 st.write(
     """
-Electify ist unser Abschluss-Projekt für das ["Data Science Retreat"](https://datascienceretreat.com/), ein Weiterbildungsprogramm für Data Science, Maschinelles Lernen und Künstliche Intelligenz.
-Mit Electify wollen wir es Wähler_innen erleichtern, sich vor der Europawahl 2024 besser über die Standpunkte der verschiedenen Parteien zu informieren.
+Electify wurde zunächst für die Europawahl 2024 entwickelt und hat über 6000 Nutzern bei der Wahlentscheidung unterstützt. Für die Bundestagswahl 2025 wird Electify weiter verbessert und aktualisiert.
+Mit Electify wollen wir es Wähler_innen erleichtern, sich vor Wahlen besser über die Standpunkte der verschiedenen Parteien zu informieren.
     """
 )
