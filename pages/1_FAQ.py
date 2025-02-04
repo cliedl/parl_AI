@@ -2,10 +2,7 @@ import streamlit as st
 
 st.set_page_config(page_title="Electify - FAQ", page_icon="🇪🇺")
 
-st.header(
-    "Am 23. Februar 2025 ist Bundestagswahl in Deutschland. 🗳️ :placeholder Informiere dich mit Electify!",
-    divider="blue",
-)
+st.header("Am 23. Februar 2025 ist Bundestagswahl in Deutschland. 🗳️ Informiere dich mit Electify!", divider="blue")
 
 st.subheader("Was ist Electify?")
 
