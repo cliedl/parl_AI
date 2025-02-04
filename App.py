@@ -469,6 +469,11 @@ if st.session_state.stage > 1:
             else:
                 st.header(f"{translate('party', st.session_state.language)} {p}")
 
+            if party == "afd":
+                st.caption(
+                    f"⚠️ **{translate("warning-afd", st.session_state.language)}**"
+                )
+
             st.write(st.session_state.response["answer"][party])
             if show_party:
                 st.write(
