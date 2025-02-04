@@ -1,7 +1,7 @@
-# Electify: Helping voters make an informed decision in the 2024 European Elections
+# Electify: Helping voters make an informed decision
 
 # Overview
-Electify is an interactive app designed to empower voters with clear, concise summaries of political party positions for the 2024 European Elections. We use Retrieval-Augmented Generation (RAG) to extract relevant information from party manifestos and debates, providing users with an overview of each party's position on any given topic. Find background information on our [organization page](https://github.com/electify-eu).
+Electify is an interactive app designed to empower voters with clear, concise summaries of political party positions. It was first developed for the 2024 European Elections. We use Retrieval-Augmented Generation (RAG) to extract relevant information from party manifestos and debates, providing users with an overview of each party's position on any given topic. Find background information on our [organization page](https://github.com/electify-eu).
 
 # Contributors
 
@@ -18,24 +18,20 @@ Electify is an interactive app designed to empower voters with clear, concise su
 - Show all retrieved sources for transparency
 
 # Demo
-You can [watch a walkthrough video](https://www.loom.com/share/f192bc1873fb464686ad456253a5dff2) or try the app yourself at [electify.eu](https://electify.eu), where it will be deployed until the European Elections in June 2024. We welcome your feedback.
+You can [watch a walkthrough video](https://www.loom.com/share/f192bc1873fb464686ad456253a5dff2) or try the app yourself at [electify.eu](https://electify.eu).
 
 # Local setup
 To set up Electify locally, follow the steps below:
 
-[Download database from google drive](https://drive.google.com/drive/folders/161BfV8sTnFMX7AjjBx1qHVaHwnNWEYEO?usp=sharing).
-You can also recreate the database using RAG/scripts/create_databases.ipynb, but it is very time-consuming. 
-Copy the databases into the data folder.
-
 ```
-git clone https://github.com/europarl-ai/europarl-ai.git
+git clone https://github.com/europarl-ai/electify-app.git
 
-cd europarl-ai
+cd electify-app
 ```
 
-Choose one of the following options to set up the environment:
+Choose one of the following options:
 
-## Option 1: Docker
+## Option 1: Deploy using Docker
 Create `.env` file in the repository's root directory containing your OpenAI API key:
 ```
 OPENAI_API_KEY=<value>
@@ -49,17 +45,16 @@ docker run -p 8080:8080 --env-file .env electify
 
 Navigate to `http://localhost:8080` in your browser to access the app.
 
-## Option 2: Build the environment manually
+## Option 2: Deploy on host machine
 
-Create an environment with Python 3.11, for example with conda:
+Install dependencies, e.g. with [uv](https://docs.astral.sh/uv/getting-started/installation/):
 ```
-conda create -n electify python=3.11
-conda activate electify
+uv sync --frozen --no-dev
 ```
 
-Install required packages:
+Activate the environment:
 ```
-pip install -r requirements.txt
+source .venv/bin/activate
 ```
 
 Run the Streamlit app:

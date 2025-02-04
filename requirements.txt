@@ -1,9 +1,8 @@
-trubrics==1.6.2
-trubrics[streamlit]
-streamlit==1.32.2
-streamlit-feedback==0.1.2
-streamlit-extras==0.4.0
-langchain==0.1.12
-langchain_openai
-chromadb==0.4.22
-#pysqlite3-binary
+chromadb>=0.6.3
+langchain-community>=0.3.16
+langchain-openai>=0.3.2
+pymongo>=4.11
+streamlit>=1.41.1
+streamlit-extras>=0.5.0
+streamlit-feedback>=0.1.4
+trubrics>=1.6.2
