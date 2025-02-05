@@ -14,6 +14,7 @@ EDA
 RAG/evaluation
 RAG/local_tests
 RAG/scripts
+local_tests/
 
 .env
 .venv
