@@ -1,18 +1,22 @@
 import base64
 import csv
 import json
+import os
 import random
 from datetime import datetime
 from pathlib import Path
 
+import dotenv
 import streamlit as st
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI, ChatOpenAI, OpenAIEmbeddings  # noqa: F401
 
 from RAG.database.vector_database import VectorDatabase
 from RAG.models.RAG import RAG
 from streamlit_app.utils.log import add_log_dict, update_log_dict
 from streamlit_app.utils.support_widgets import support_button
 from streamlit_app.utils.translate import translate
+
+dotenv.load_dotenv()
 
 # Load dictionary with party names, image file paths, and links to manifestos
 with open("streamlit_app/party_dict.json") as file:
@@ -35,10 +39,20 @@ st.set_page_config(page_title="Electify", page_icon="🗳️", layout="centered"
 ##################################
 
 DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
-DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
+# DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
 TEMPERATURE = 0.0
-LARGE_LANGUAGE_MODEL = ChatOpenAI(
-    model_name="gpt-4o-mini", max_tokens=400, temperature=TEMPERATURE
+MAX_TOKENS = 400
+
+# LARGE_LANGUAGE_MODEL = ChatOpenAI(
+#     model_name="gpt-4o-mini", max_tokens=MAX_TOKENS, temperature=TEMPERATURE
+# )
+LARGE_LANGUAGE_MODEL = AzureChatOpenAI(
+    azure_deployment="gpt-4o-mini", 
+    azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT_SWEDEN"],
+    api_key=os.environ["AZURE_OPENAI_API_KEY_SWEDEN"],
+    api_version=os.environ["AZURE_OPENAI_API_VERSION_SWEDEN"], 
+    max_tokens=MAX_TOKENS, 
+    temperature=TEMPERATURE
 )
 
 
