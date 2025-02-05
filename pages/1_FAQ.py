@@ -77,7 +77,7 @@ st.subheader("Warum wurde Electify entwickelt?")
 
 st.write(
     """
-Electify wurde zunächst für die Europawahl 2024 entwickelt und hat über 6000 Nutzern bei der Wahlentscheidung unterstützt. Für die Bundestagswahl 2025 wird Electify weiter verbessert und aktualisiert.
-Mit Electify wollen wir es Wähler_innen erleichtern, sich vor Wahlen besser über die Standpunkte der verschiedenen Parteien zu informieren.
+Electify wurde zunächst für die Europawahl 2024 entwickelt und hat über 6000 Nutzer_innen bei der Wahlentscheidung unterstützt. Für die Bundestagswahl 2025 wird Electify weiter verbessert und aktualisiert.
+Mit Electify wollen wir es Wähler_innen erleichtern, sich vor Wahlen schnell und einfach über die Standpunkte der verschiedenen Parteien zu informieren.
     """
 )
