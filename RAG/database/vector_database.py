@@ -1,7 +1,7 @@
 import glob
 import os
 
-from langchain_community.document_loaders import PDFMinerLoader
+from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -92,11 +92,11 @@ class VectorDatabase:
 				party = file_name.split("_")[0]
 
 				# Load pdf as single doc
-				loader = PDFMinerLoader(pdf_path, concatenate_pages=True)
+				loader = PyMuPDFLoader(pdf_path, mode="single")
 				doc = loader.load()
 
 				# Also load pdf as individual pages, this is important to extract the page number later
-				loader = PDFMinerLoader(pdf_path, concatenate_pages=False)
+				loader = PyMuPDFLoader(pdf_path, mode="page")
 				doc_pages = loader.load()
 
 				# Add party to metadata
