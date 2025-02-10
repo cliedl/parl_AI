@@ -19,6 +19,9 @@ RUN uv sync --frozen --no-dev
 # Activate virtual environment
 ENV PATH="/app/.venv/bin:$PATH"
 
+# Copy custom index.html with SEO tags
+RUN cp streamlit_app/index.html $(python -c "import streamlit; import os; print(os.path.dirname(streamlit.__file__))")/static/index.html
+
 # Expose port 8080 to world outside of the container
 EXPOSE 8080
 
