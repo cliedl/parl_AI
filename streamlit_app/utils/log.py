@@ -18,9 +18,7 @@ def add_log_dict(dictionary: dict) -> str:
         The inserted id.
     """
     # Add timestamp to dictionary
-    dictionary["created_at"] = datetime.now(timezone.utc) + timedelta(
-        hours=1
-    )  # Berlin timezone (UTC+1)
+    dictionary["created_at"] = datetime.now(timezone.utc) + timedelta(hours=1)  # Berlin timezone (UTC+1)
 
     client = MongoClient(os.getenv("MONGODB_URI"), server_api=ServerApi("1"))
     db = client[os.getenv("DATABASE_NAME")]
@@ -44,9 +42,7 @@ def update_log_dict(_id: str, dictionary: dict):
     client = MongoClient(os.getenv("MONGODB_URI"), server_api=ServerApi("1"))
     db = client[os.getenv("DATABASE_NAME")]
     collection = db[os.getenv("COLLECTION_NAME")]
-    result = collection.update_one(
-        filter={"_id": ObjectId(_id)}, update={"$set": dictionary}
-    )
+    result = collection.update_one(filter={"_id": ObjectId(_id)}, update={"$set": dictionary})
     return result
 
 

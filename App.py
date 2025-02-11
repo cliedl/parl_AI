@@ -47,12 +47,12 @@ MAX_TOKENS = 400
 #     model_name="gpt-4o-mini", max_tokens=MAX_TOKENS, temperature=TEMPERATURE
 # )
 LARGE_LANGUAGE_MODEL = AzureChatOpenAI(
-    azure_deployment="gpt-4o-mini", 
+    azure_deployment="gpt-4o-mini",
     azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT_SWEDEN"],
     api_key=os.environ["AZURE_OPENAI_API_KEY_SWEDEN"],
-    api_version=os.environ["AZURE_OPENAI_API_VERSION_SWEDEN"], 
-    max_tokens=MAX_TOKENS, 
-    temperature=TEMPERATURE
+    api_version=os.environ["AZURE_OPENAI_API_VERSION_SWEDEN"],
+    max_tokens=MAX_TOKENS,
+    temperature=TEMPERATURE,
 )
 
 
@@ -69,9 +69,7 @@ embedding_model = load_embedding_model()
 @st.cache_resource
 def load_db_manifestos():
     return VectorDatabase(
-        embedding_model=embedding_model,
-        source_type="manifestos",
-        database_directory=DATABASE_DIR_MANIFESTOS,
+        embedding_model=embedding_model, source_type="manifestos", database_directory=DATABASE_DIR_MANIFESTOS
     )
 
 
@@ -131,9 +129,7 @@ if "show_individual_parties" not in st.session_state:
     # The keys represent the (random) order of appearance of the parties in the app
     # and not fixed parties as opposed to the above party_dict.
 
-    st.session_state.show_individual_parties = {
-        f"party_{i+1}": False for i in range(len(st.session_state.parties))
-    }
+    st.session_state.show_individual_parties = {f"party_{i + 1}": False for i in range(len(st.session_state.parties))}
 
 # The "example_prompts" dictionary will contain randomly selected example prompts for the user to choose from:
 if "example_prompts" not in st.session_state:
@@ -146,9 +142,7 @@ if "example_prompts" not in st.session_state:
                     all_example_prompts[key] = []
                 all_example_prompts[key].append(value)
 
-    st.session_state.example_prompts = {
-        key: random.sample(value, 3) for key, value in all_example_prompts.items()
-    }
+    st.session_state.example_prompts = {key: random.sample(value, 3) for key, value in all_example_prompts.items()}
 
 if "number_of_requests" not in st.session_state:
     st.session_state.number_of_requests = 0
@@ -183,7 +177,7 @@ def img_to_bytes(img_path):
 
 
 def img_to_html(img_path):
-    img_html = f"<img src='data:image/png;base64,{ img_to_bytes(img_path)}' class='img-fluid' style='width:100%'>"
+    img_html = f"<img src='data:image/png;base64,{img_to_bytes(img_path)}' class='img-fluid' style='width:100%'>"
     return img_html
 
 
@@ -194,9 +188,7 @@ def submit_query():
     st.session_state.feedback_text = ""
     st.session_state.feedback_submitted = False
     st.session_state.stage = 1
-    st.session_state.show_individual_parties = {
-        f"party_{i+1}": False for i in range(len(st.session_state.parties))
-    }
+    st.session_state.show_individual_parties = {f"party_{i + 1}": False for i in range(len(st.session_state.parties))}
     random.shuffle(st.session_state.parties)
 
 
@@ -218,9 +210,9 @@ def generate_response():
             st.session_state.response = rag.query(query)
 
             # Assert that the response contains all parties
-            assert set(st.session_state.response["answer"].keys()) == set(
-                st.session_state.parties
-            ), "LLM response does not contain all parties"
+            assert set(st.session_state.response["answer"].keys()) == set(st.session_state.parties), (
+                "LLM response does not contain all parties"
+            )
             break
 
         except Exception as e:
@@ -230,33 +222,19 @@ def generate_response():
             if retry_count > max_retries:
                 print(f"Max number of tries ({max_retries}) reached, aborting")
                 st.session_state.response = None
-                st.error(
-                    translate(
-                        "error-api-unavailable",
-                        st.session_state.language,
-                    )
-                )
+                st.error(translate("error-api-unavailable", st.session_state.language))
                 # Display error message in app:
                 raise e
             else:
                 print(f"Retrying, retry number {retry_count}")
                 pass
     st.session_state.log_id = add_log_dict(
-        {
-            "query": st.session_state.query,
-            "answer": st.session_state.response["answer"],
-        }
+        {"query": st.session_state.query, "answer": st.session_state.response["answer"]}
     )
 
 
 def submit_feedback(feedback_rating, feedback_text):
-    update_log_dict(
-        st.session_state.log_id,
-        {
-            "feedback-rating": feedback_rating,
-            "feedback-text": feedback_text,
-        },
-    )
+    update_log_dict(st.session_state.log_id, {"feedback-rating": feedback_rating, "feedback-text": feedback_text})
     st.rerun()
 
 
@@ -277,24 +255,13 @@ def convert_date_format(date_string):
 ##################################
 
 with st.sidebar:
-    selected_language = st.radio(
-        label="Language",
-        options=["🇩🇪 Deutsch", "🇬🇧 English"],
-        horizontal=True,
-    )
+    selected_language = st.radio(label="Language", options=["🇩🇪 Deutsch", "🇬🇧 English"], horizontal=True)
     languages = {"🇩🇪 Deutsch": "de", "🇬🇧 English": "en"}
     st.session_state.language = languages[selected_language]
     rag.language = st.session_state.language
 
 st.header("🗳️ electify.eu", divider="blue")
-st.write(
-    "##### :grey["
-    + translate(
-        "subheadline",
-        st.session_state.language,
-    )
-    + "]"
-)
+st.write("##### :grey[" + translate("subheadline", st.session_state.language) + "]")
 
 support_button(
     text=f"💙  {translate('support-button', st.session_state.language)}",
@@ -304,38 +271,25 @@ support_button(
 if st.session_state.number_of_requests >= 3:
     # Show support banner after 3 requests in a single session.
     st.info(
-        f"{translate('support-banner', st.session_state.language)}(https://buymeacoffee.com/electify.eu)",
-        icon="💙",
+        f"{translate('support-banner', st.session_state.language)}(https://buymeacoffee.com/electify.eu)", icon="💙"
     )
 
 query = st.text_input(
-    label=translate(
-        "query-instruction",
-        st.session_state.language,
-    ),
-    placeholder="",
-    value=st.session_state.query,
+    label=translate("query-instruction", st.session_state.language), placeholder="", value=st.session_state.query
 )
 
 col_submit, col_checkbox = st.columns([1, 3])
 
 # Submit button
 with col_submit:
-    st.button(
-        translate("submit-query", st.session_state.language),
-        on_click=submit_query,
-        type="primary",
-    )
+    st.button(translate("submit-query", st.session_state.language), on_click=submit_query, type="primary")
 
 # Checkbox to show/hide party names globally
 with col_checkbox:
     st.session_state.show_all_parties = st.checkbox(
         label=translate("show-party-names", st.session_state.language),
         value=True,
-        help=translate(
-            "show-party-names-help",
-            st.session_state.language,
-        ),
+        help=translate("show-party-names-help", st.session_state.language),
     )
 
 # Allow the user to select up to 6 parties
@@ -350,12 +304,7 @@ with st.expander(translate("select-parties-heading", st.session_state.language))
         party_selection[party] = not party_selection[party]
         st.session_state.parties = [k for k, v in party_selection.items() if v]
 
-    st.write(
-        translate(
-            "select-parties-instruction",
-            st.session_state.language,
-        )
-    )
+    st.write(translate("select-parties-instruction", st.session_state.language))
     for party in available_parties:
         st.checkbox(
             label=party_dict[party]["name"],
@@ -365,15 +314,11 @@ with st.expander(translate("select-parties-heading", st.session_state.language))
         )
 
     if len(st.session_state.parties) == 0:
-        st.markdown(
-            f"⚠️ **:red[{translate('error-min-1-party', st.session_state.language)}]**"
-        )
+        st.markdown(f"⚠️ **:red[{translate('error-min-1-party', st.session_state.language)}]**")
         # Reset to default parties
         st.session_state.parties = rag.parties
     elif len(st.session_state.parties) > 6:
-        st.markdown(
-            f"⚠️ **:red[{translate('error-max-6-parties', st.session_state.language)}]**"
-        )
+        st.markdown(f"⚠️ **:red[{translate('error-max-6-parties', st.session_state.language)}]**")
         # Limit to the six first selected parties
         st.session_state.parties = st.session_state.parties[:6]
 
@@ -395,43 +340,23 @@ if st.session_state.stage == 0:
 # STAGE > 0: Show disclaimer once the user has submitted a query (and keep showing it)
 if st.session_state.stage > 0:
     if len(st.session_state.parties) == 0:
-        st.error(
-            translate(
-                "error-min-1-party",
-                st.session_state.language,
-            )
-        )
+        st.error(translate("error-min-1-party", st.session_state.language))
         st.session_state.stage = 0
 
     else:
         st.info(
             "☝️ "
-            + translate(
-                "disclaimer-llm",
-                st.session_state.language,
-            )
+            + translate("disclaimer-llm", st.session_state.language)
             + "  \n"
-            + translate(
-                "disclaimer-research",
-                st.session_state.language,
-            )
+            + translate("disclaimer-research", st.session_state.language)
             + "  \n"
-            + translate(
-                "disclaimer-random-order",
-                st.session_state.language,
-            ),
+            + translate("disclaimer-random-order", st.session_state.language)
         )
 
 # STAGE 1: User submitted a query and we are waiting for the response
 if st.session_state.stage == 1:
     st.session_state.number_of_requests += 1
-    with st.spinner(
-        translate(
-            "loading-response",
-            st.session_state.language,
-        )
-        + "🕵️"
-    ):
+    with st.spinner(translate("loading-response", st.session_state.language) + "🕵️"):
         generate_response()
 
     st.session_state.stage = 2
@@ -439,7 +364,6 @@ if st.session_state.stage == 1:
 
 # STAGE > 1: The response has been generated and is displayed
 if st.session_state.stage > 1:
-
     # Initialize an empty list to hold all columns
     col_list = []
     # Create a pair of columns for each party
@@ -451,14 +375,11 @@ if st.session_state.stage > 1:
         p = i + 1
         col1, col2 = col_list[i]
 
-        most_relevant_manifesto_page_number = st.session_state.response["docs"][
-            "manifestos"
-        ][party][0].metadata["page"]
+        most_relevant_manifesto_page_number = st.session_state.response["docs"]["manifestos"][party][0].metadata[
+            "page"
+        ]
 
-        show_party = (
-            st.session_state.show_all_parties
-            or st.session_state.show_individual_parties[f"party_{p}"]
-        )
+        show_party = st.session_state.show_all_parties or st.session_state.show_individual_parties[f"party_{p}"]
 
         # In this column, we show the party image
         with col1:
@@ -470,12 +391,7 @@ if st.session_state.stage > 1:
             else:
                 file_loc = "streamlit_app/assets/placeholder_logo.png"
                 st.markdown(img_to_html(file_loc), unsafe_allow_html=True)
-                st.button(
-                    translate("show-party", st.session_state.language),
-                    on_click=reveal_party,
-                    args=(p,),
-                    key=p,
-                )
+                st.button(translate("show-party", st.session_state.language), on_click=reveal_party, args=(p,), key=p)
         # In this column, we show the RAG response
         with col2:
             if show_party:
@@ -483,17 +399,12 @@ if st.session_state.stage > 1:
             else:
                 st.header(f"{translate('party', st.session_state.language)} {p}")
 
-            if party == "afd":
-                st.caption(
-                    f"⚠️ **{translate("warning-afd", st.session_state.language)}**"
-                )
+            if party == "afd" and show_party:
+                st.caption(f"⚠️ **{translate('warning-afd', st.session_state.language)}**")
 
             st.write(st.session_state.response["answer"][party])
             if show_party:
-                is_answer_empty = (
-                    "keine passende antwort"
-                    in st.session_state.response["answer"][party].lower()
-                )
+                is_answer_empty = "keine passende antwort" in st.session_state.response["answer"][party].lower()
 
                 page_reference_string = (
                     ""
@@ -502,33 +413,17 @@ if st.session_state.stage > 1:
                 )
 
                 st.write(
-                    f"""{translate('learn-more-in', st.session_state.language)} [{translate('party-manifesto', st.session_state.language)} **{party_dict[party]['name']}**{page_reference_string}]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number + 1})."""
+                    f"""{translate("learn-more-in", st.session_state.language)} [{translate("party-manifesto", st.session_state.language)} **{party_dict[party]["name"]}**{page_reference_string}]({party_dict[party]["manifesto_link"]}#page={most_relevant_manifesto_page_number + 1})."""
                 )
 
     st.markdown("---")
 
     # Display a section with all retrieved excerpts from the sources
     st.subheader(translate("sources-subheading", st.session_state.language))
-    st.write(
-        translate(
-            "sources-intro",
-            st.session_state.language,
-        )
-    )
-    st.write(
-        translate(
-            "sources-excerpts-intro",
-            st.session_state.language,
-        )
-    )
+    st.write(translate("sources-intro", st.session_state.language))
+    st.write(translate("sources-excerpts-intro", st.session_state.language))
     for party in st.session_state.parties:
-        with st.expander(
-            translate(
-                "sources",
-                st.session_state.language,
-            )
-            + f": {party_dict[party]['name']}"
-        ):
+        with st.expander(translate("sources", st.session_state.language) + f": {party_dict[party]['name']}"):
             for doc in st.session_state.response["docs"]["manifestos"][party]:
                 manifesto_excerpt = doc.page_content.replace("\n", " ")
                 page_number_of_excerpt = doc.metadata["page"] + 1
@@ -552,27 +447,19 @@ if st.session_state.stage > 1:
     st.subheader(translate("feedback-heading", st.session_state.language))
 
     if not st.session_state.feedback_submitted:
-
         st.write(translate("feedback-intro", st.session_state.language))
 
         with st.form(key="feedback-form"):
-            feedback_options = {
-                "negative": "☹️",
-                "neutral": "😐",
-                "positive": "😊",
-            }
+            feedback_options = {"negative": "☹️", "neutral": "😐", "positive": "😊"}
 
             feedback_rating = st.segmented_control(
                 label=translate("feedback-question-rating", st.session_state.language),
                 options=feedback_options.keys(),
                 format_func=lambda option: feedback_options[option],
             )
-            feedback_text = st.text_area(
-                label=translate("feedback-question-text", st.session_state.language)
-            )
+            feedback_text = st.text_area(label=translate("feedback-question-text", st.session_state.language))
             submitted = st.form_submit_button(
-                label=translate("feedback-submit", st.session_state.language),
-                type="primary",
+                label=translate("feedback-submit", st.session_state.language), type="primary"
             )
             if submitted:
                 st.session_state.feedback_submitted = True

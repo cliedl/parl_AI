@@ -17,7 +17,7 @@ class Evaluator:
 
         context = ""
         for i, doc in enumerate(context_docs):
-            context += f"Dokument {i+1}: {doc}\n\n"
+            context += f"Dokument {i + 1}: {doc}\n\n"
 
         prompt = f"""
         {instruction}
@@ -29,11 +29,7 @@ class Evaluator:
         {question}"""
 
         completion = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            temperature=0,
-            messages=[
-                {"role": "user", "content": prompt},
-            ],
+            model="gpt-3.5-turbo", temperature=0, messages=[{"role": "user", "content": prompt}]
         )
         # Parse output into list
         try:

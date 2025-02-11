@@ -45,8 +45,8 @@ def clean_up_old_database():
 
 
 def download_manifestos():
-    """Downloads manifesto PDFs from manifesto links in the party_dict.json file. 
-        Saves them to the data/manifestos/01_pdf_originals directory.
+    """Downloads manifesto PDFs from manifesto links in the party_dict.json file.
+    Saves them to the data/manifestos/01_pdf_originals directory.
     """
     # Download manifesto PDFs
     logger.info("Downloading manifesto PDFs...")
@@ -61,9 +61,10 @@ def download_manifestos():
         with open(data_path, "wb") as f:
             f.write(response.content)
 
+
 def build_database():
     """Builds a vector database from the manifesto PDFs.
-        Saves the database to the data/manifestos/chroma/{embedding_name}/ directory.
+    Saves the database to the data/manifestos/chroma/{embedding_name}/ directory.
     """
     # instantiate database
     logger.info("Initializing vector database...")
