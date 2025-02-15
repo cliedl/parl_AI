@@ -37,8 +37,8 @@ st.set_page_config(page_title="Electify", page_icon="🗳️", layout="centered"
 ##################################
 ### RAG SETUP ####################
 ##################################
+DATABASE_DIR_MANIFESTOS = os.getenv("DATABASE_DIR_MANIFESTOS") or "./data/manifestos/chroma/openai"
 
-DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
 # DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
 TEMPERATURE = 0.0
 MAX_TOKENS = 400
