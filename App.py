@@ -43,9 +43,7 @@ DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
 TEMPERATURE = 0.0
 MAX_TOKENS = 400
 
-# LARGE_LANGUAGE_MODEL = ChatOpenAI(
-#     model_name="gpt-4o-mini", max_tokens=MAX_TOKENS, temperature=TEMPERATURE
-# )
+# LARGE_LANGUAGE_MODEL = ChatOpenAI(model_name="gpt-4o-mini", max_tokens=MAX_TOKENS, temperature=TEMPERATURE)
 LARGE_LANGUAGE_MODEL = AzureChatOpenAI(
     azure_deployment="gpt-4o-mini",
     azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT_SWEDEN"],
@@ -181,7 +179,12 @@ def img_to_html(img_path):
     return img_html
 
 
+def set_query(query):
+    st.session_state.query = query
+
+
 def submit_query():
+    set_query(query)
     st.session_state.response = None
     st.session_state.log_id = None
     st.session_state.feedback_rating = None
@@ -190,10 +193,6 @@ def submit_query():
     st.session_state.stage = 1
     st.session_state.show_individual_parties = {f"party_{i + 1}": False for i in range(len(st.session_state.parties))}
     random.shuffle(st.session_state.parties)
-
-
-def set_query(query):
-    st.session_state.query = query
 
 
 def submit_example(query):
@@ -228,9 +227,7 @@ def generate_response():
             else:
                 print(f"Retrying, retry number {retry_count}")
                 pass
-    st.session_state.log_id = add_log_dict(
-        {"query": st.session_state.query, "answer": st.session_state.response["answer"]}
-    )
+    st.session_state.log_id = add_log_dict({"query": query, "answer": st.session_state.response["answer"]})
 
 
 def submit_feedback(feedback_rating, feedback_text):
