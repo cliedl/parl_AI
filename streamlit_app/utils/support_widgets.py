@@ -4,8 +4,8 @@ import streamlit as st
 def support_button(
     text: str,
     link: str,
-    bg_color: str = "#facf3f",
-    font_color: str = "#fffff",
+    bg_color: str = "#28509b",
+    font_color: str = "#ffffff",
     bottom: str = "20px",
     right: str = "20px",
     font_size: str = "20px",
