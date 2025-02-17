@@ -261,14 +261,14 @@ st.header("🗳️ electify.eu", divider="blue")
 st.write("##### :grey[" + translate("subheadline", st.session_state.language) + "]")
 
 support_button(
-    text=f"💙  {translate('support-button', st.session_state.language)}",
+    text=f"💛  {translate('support-button', st.session_state.language)}",
     link="https://www.buymeacoffee.com/electify.eu",
 )
 
 if st.session_state.number_of_requests >= 3:
     # Show support banner after 3 requests in a single session.
     st.info(
-        f"{translate('support-banner', st.session_state.language)}(https://buymeacoffee.com/electify.eu)", icon="💙"
+        f"{translate('support-banner', st.session_state.language)}(https://buymeacoffee.com/electify.eu)", icon="💛"
     )
 
 query = st.text_input(
