@@ -1,19 +1,15 @@
-import pandas as pd
 import os
 
+import pandas as pd
+
 current_file_directory = os.path.dirname(os.path.abspath(__file__))
-dictionary = pd.read_csv(
-    os.path.join(current_file_directory, "language_dictionary.csv"), delimiter=";"
-)
-dictionary = dictionary.set_index("Deutsch")
+dictionary = pd.read_csv(os.path.join(current_file_directory, "language_dictionary.csv"), delimiter=";")
+dictionary = dictionary.set_index("key")
 
 
-def translate(text, language):
-    if language == "Deutsch":
-        return text
+def translate(key, language):
+    if language in dictionary.columns:
+        return dictionary.loc[key][language]
     else:
-        if text in dictionary.index:
-            text_translated = dictionary.loc[text][language]
-            return text_translated
-        else:
-            return text
+        # default to English if language not found
+        return dictionary.loc[key]["English"]

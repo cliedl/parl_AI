@@ -1,19 +1,14 @@
-from transformers import AutoModel, AutoTokenizer
-from sentence_transformers import SentenceTransformer
-from langchain_core.embeddings import Embeddings
 import torch
 import torch.nn.functional as F
-from typing import List
+from langchain_core.embeddings import Embeddings
+from sentence_transformers import SentenceTransformer
+from transformers import AutoModel, AutoTokenizer
 
 
 def mean_pooling(model_output, attention_mask):
     token_embeddings = model_output[0]
-    input_mask_expanded = (
-        attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
-    )
-    return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(
-        input_mask_expanded.sum(1), min=1e-9
-    )
+    input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+    return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
 
 
 class ManifestoBertaEmbeddings(Embeddings):
@@ -28,7 +23,7 @@ class ManifestoBertaEmbeddings(Embeddings):
             "manifesto-project/manifestoberta-xlm-roberta-56policy-topics-sentence-2023-1-1"
         )
 
-    def _embed(self, text: str, mean_over_tokens=True) -> List[float]:
+    def _embed(self, text: str, mean_over_tokens=True) -> list[float]:
         """Embed a text using ManifestoBerta.
 
         Args:
@@ -39,9 +34,7 @@ class ManifestoBertaEmbeddings(Embeddings):
         """
 
         # Encode the text
-        inputs = self.tokenizer(
-            text, return_tensors="pt", padding=True, truncation=True, max_length=512
-        )
+        inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
 
         # Get model output (make sure to set output_hidden_states to True)
         with torch.no_grad():
@@ -61,10 +54,10 @@ class ManifestoBertaEmbeddings(Embeddings):
 
         return embedding_list[0]
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
         return [self._embed(text) for text in texts]
 
-    def embed_query(self, text: str) -> List[float]:
+    def embed_query(self, text: str) -> list[float]:
         # return self.embed_documents([text])[0] # previous version
         return self._embed(text)
 
@@ -78,7 +71,7 @@ class E5BaseEmbedding(Embeddings):
 
         self.model = AutoModel.from_pretrained("danielheinz/e5-base-sts-en-de")
 
-    def _embed(self, text: str, mean_over_tokens=True) -> List[float]:
+    def _embed(self, text: str, mean_over_tokens=True) -> list[float]:
         """Embed a text using ManifestoBerta.
 
         Args:
@@ -89,9 +82,7 @@ class E5BaseEmbedding(Embeddings):
         """
 
         # Encode the text
-        inputs = self.tokenizer(
-            text, return_tensors="pt", padding=True, truncation=True, max_length=512
-        )
+        inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
 
         # Get model output (make sure to set output_hidden_states to True)
         with torch.no_grad():
@@ -111,10 +102,10 @@ class E5BaseEmbedding(Embeddings):
 
         return embedding_list[0]
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
         return [self._embed(text) for text in texts]
 
-    def embed_query(self, text: str) -> List[float]:
+    def embed_query(self, text: str) -> list[float]:
         # return self.embed_documents([text])[0] # previous version
         return self._embed(text)
 
@@ -124,14 +115,10 @@ class JinaAIEmbedding(Embeddings):
 
     def __init__(self):
         # Load the tokenizer and model
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            "jinaai/jina-embeddings-v2-base-de"
-        )
-        self.model = AutoModel.from_pretrained(
-            "jinaai/jina-embeddings-v2-base-de", trust_remote_code=True
-        )
+        self.tokenizer = AutoTokenizer.from_pretrained("jinaai/jina-embeddings-v2-base-de")
+        self.model = AutoModel.from_pretrained("jinaai/jina-embeddings-v2-base-de", trust_remote_code=True)
 
-    def _embed(self, text: str, mean_over_tokens=True) -> List[float]:
+    def _embed(self, text: str, mean_over_tokens=True) -> list[float]:
         """Embed a text using ManifestoBerta.
 
         Args:
@@ -142,9 +129,7 @@ class JinaAIEmbedding(Embeddings):
         """
 
         # Encode the text
-        inputs = self.tokenizer(
-            text, padding=True, truncation=True, return_tensors="pt"
-        )
+        inputs = self.tokenizer(text, padding=True, truncation=True, return_tensors="pt")
 
         # Get model output (make sure to set output_hidden_states to True)
         with torch.no_grad():
@@ -158,10 +143,10 @@ class JinaAIEmbedding(Embeddings):
 
         return embedding_list[0]
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
         return [self._embed(text) for text in texts]
 
-    def embed_query(self, text: str) -> List[float]:
+    def embed_query(self, text: str) -> list[float]:
         # return self.embed_documents([text])[0] # previous version
         return self._embed(text)
 
@@ -173,7 +158,7 @@ class SentenceTransformerEmbedding(Embeddings):
         # Load the tokenizer and model
         self.model = SentenceTransformer(model_name)
 
-    def _embed(self, text: str) -> List[float]:
+    def _embed(self, text: str) -> list[float]:
         """Embed a text using ManifestoBerta.
 
         Args:
@@ -188,9 +173,9 @@ class SentenceTransformerEmbedding(Embeddings):
         embedding = [float(e) for e in embedding]
         return embedding
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
         return [self._embed(text) for text in texts]
 
-    def embed_query(self, text: str) -> List[float]:
+    def embed_query(self, text: str) -> list[float]:
         # return self.embed_documents([text])[0] # previous version
         return self._embed(text)

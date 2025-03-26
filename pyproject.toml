@@ -1,0 +1,42 @@
+[project]
+name = "electify-app"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "chromadb>=0.6.3",
+    "langchain-community>=0.3.16",
+    "langchain-openai>=0.3.2",
+    "pymongo>=4.11",
+    "streamlit>=1.41.1",
+    "streamlit-extras>=0.5.0",
+    "streamlit-feedback>=0.1.4",
+    "trubrics>=1.6.2",
+]
+
+[dependency-groups]
+dev = [
+    "datasets>=3.2.0",
+    "huggingface-hub>=0.28.0",
+    "ipykernel>=6.29.5",
+    "langchain-anthropic>=0.3.5",
+    "langchain-core>=0.3.32",
+    "langchain-google-genai>=2.0.9",
+    "langchain-mistralai>=0.2.6",
+    "pandas>=2.2.3",
+    "pdfminer>=20191125",
+    "pdfminer-six>=20240706",
+    "playwright>=1.49.1",
+    "plotly>=6.0.0",
+    "pytest-timeout>=2.3.1",
+    "pytest>=8.3.4",
+    "ragas>=0.2.12",
+    "requests>=2.32.3",
+    "ruff>=0.9.4",
+    "sentence-transformers>=3.4.1",
+    "torch>=2.6.0",
+    "tqdm>=4.67.1",
+    "transformers>=4.48.2",
+    "pymupdf>=1.25.3",
+]

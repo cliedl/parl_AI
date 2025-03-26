@@ -1,25 +1,25 @@
-import streamlit as st
-import random
-from trubrics.integrations.streamlit import FeedbackCollector
-import os
+import base64
 import csv
 import json
+import os
 import random
 from datetime import datetime
-import base64
 from pathlib import Path
 
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+import dotenv
+import streamlit as st
+from langchain_openai import AzureChatOpenAI, ChatOpenAI, OpenAIEmbeddings  # noqa: F401
 
-from RAG.models.RAG import RAG
 from RAG.database.vector_database import VectorDatabase
+from RAG.models.RAG import RAG
+from streamlit_app.utils.log import add_log_dict, update_log_dict
+from streamlit_app.utils.support_widgets import support_button
 from streamlit_app.utils.translate import translate
-from streamlit_app.utils.support_widgets import support_button, support_banner
-from streamlit.components.v1 import html
 
+dotenv.load_dotenv()
 
 # Load dictionary with party names, image file paths, and links to manifestos
-with open("streamlit_app/party_dict.json", "r") as file:
+with open("streamlit_app/party_dict.json") as file:
     party_dict = json.load(file)
 
 # The following is necessary to make the code work for deploying on Streamlit Cloud.
@@ -32,17 +32,25 @@ with open("streamlit_app/party_dict.json", "r") as file:
 #     sys.modules["sqlite3"] = sys.modules["pysqlite3"]
 
 # Streamlit page conifg
-st.set_page_config(page_title="Electify", page_icon="🇪🇺", layout="centered")
+st.set_page_config(page_title="Electify", page_icon="🗳️", layout="centered")
 
 ##################################
 ### RAG SETUP ####################
 ##################################
 
 DATABASE_DIR_MANIFESTOS = "./data/manifestos/chroma/openai"
-DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
+# DATABASE_DIR_DEBATES = "./data/debates/chroma/openai"
 TEMPERATURE = 0.0
-LARGE_LANGUAGE_MODEL = ChatOpenAI(
-    model_name="gpt-3.5-turbo", max_tokens=400, temperature=TEMPERATURE
+MAX_TOKENS = 400
+
+# LARGE_LANGUAGE_MODEL = ChatOpenAI(model_name="gpt-4o-mini", max_tokens=MAX_TOKENS, temperature=TEMPERATURE)
+LARGE_LANGUAGE_MODEL = AzureChatOpenAI(
+    azure_deployment="gpt-4o-mini",
+    azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT_SWEDEN"],
+    api_key=os.environ["AZURE_OPENAI_API_KEY_SWEDEN"],
+    api_version=os.environ["AZURE_OPENAI_API_VERSION_SWEDEN"],
+    max_tokens=MAX_TOKENS,
+    temperature=TEMPERATURE,
 )
 
 
@@ -59,40 +67,26 @@ embedding_model = load_embedding_model()
 @st.cache_resource
 def load_db_manifestos():
     return VectorDatabase(
-        embedding_model=embedding_model,
-        source_type="manifestos",
-        database_directory=DATABASE_DIR_MANIFESTOS,
+        embedding_model=embedding_model, source_type="manifestos", database_directory=DATABASE_DIR_MANIFESTOS
     )
 
 
-@st.cache_resource
-def load_db_debates():
-    return VectorDatabase(
-        embedding_model=embedding_model,
-        source_type="debates",
-        database_directory=DATABASE_DIR_DEBATES,
-    )
+# TODO: Commented out since we do not use debate data yet
+# @st.cache_resource
+# def load_db_debates():
+#     return VectorDatabase(
+#         embedding_model=embedding_model,
+#         source_type="debates",
+#         database_directory=DATABASE_DIR_DEBATES,
+#     )
 
 
 # Initialize RAG module with default parties
 rag = RAG(
-    databases=[load_db_manifestos(), load_db_debates()],
+    databases=[load_db_manifestos()],
     parties=["cdu", "spd", "gruene", "fdp", "linke", "afd"],
     llm=LARGE_LANGUAGE_MODEL,
-    k=3,
-)
-
-##################################
-### TRUBRICS SETUP ###############
-##################################
-collector = FeedbackCollector(
-    project="default",
-    # for local testing, use environment variables:
-    email=os.environ.get("TRUBRICS_EMAIL"),
-    password=os.environ.get("TRUBRICS_PASSWORD"),
-    # for deployment on Streamlit, use Streamlit secrets:
-    # email=st.secrets.TRUBRICS_EMAIL,
-    # password=st.secrets.TRUBRICS_PASSWORD,
+    k=5,
 )
 
 
@@ -114,7 +108,7 @@ if "stage" not in st.session_state:
 
 # The "language" string will determine the language of the interface and response:
 if "language" not in st.session_state:
-    st.session_state.language = "Deutsch"
+    st.session_state.language = "de"
 else:
     rag.language = st.session_state.language
 
@@ -133,14 +127,12 @@ if "show_individual_parties" not in st.session_state:
     # The keys represent the (random) order of appearance of the parties in the app
     # and not fixed parties as opposed to the above party_dict.
 
-    st.session_state.show_individual_parties = {
-        f"party_{i+1}": False for i in range(len(st.session_state.parties))
-    }
+    st.session_state.show_individual_parties = {f"party_{i + 1}": False for i in range(len(st.session_state.parties))}
 
 # The "example_prompts" dictionary will contain randomly selected example prompts for the user to choose from:
 if "example_prompts" not in st.session_state:
     all_example_prompts = {}
-    with open("streamlit_app/example_prompts.csv", "r") as file:
+    with open("streamlit_app/example_prompts.csv") as file:
         reader = csv.DictReader(file, delimiter=";")
         for row in reader:
             for key, value in row.items():
@@ -148,25 +140,25 @@ if "example_prompts" not in st.session_state:
                     all_example_prompts[key] = []
                 all_example_prompts[key].append(value)
 
-    st.session_state.example_prompts = {
-        key: random.sample(value, 3) for key, value in all_example_prompts.items()
-    }
+    st.session_state.example_prompts = {key: random.sample(value, 3) for key, value in all_example_prompts.items()}
 
 if "number_of_requests" not in st.session_state:
     st.session_state.number_of_requests = 0
 
-# The following variables are used to store the prompt and feedback with Trubrics:
-if "use_trubrics" not in st.session_state:
-    if "TRUBRICS_PASSWORD" in os.environ:
-        st.session_state.use_trubrics = True
-    else:
-        st.session_state.use_trubrics = False
-if "logged_prompt" not in st.session_state:
-    st.session_state.logged_prompt = None
-if "feedback" not in st.session_state:
-    st.session_state.feedback = None
-if "feedback_key" not in st.session_state:
-    st.session_state.feedback_key = 0
+# The "log_id" string identifies query's log in the database:
+if "log_id" not in st.session_state:
+    st.session_state.log_id = None
+
+# The "feedback_rating" integer will contain the user's rating of the response:
+if "feedback_rating" not in st.session_state:
+    st.session_state.feedback_rating = None
+
+# The "feedback_text" string will contain the user's feedback text:
+if "feedback_text" not in st.session_state:
+    st.session_state.feedback_text = ""
+
+if "feedback_submitted" not in st.session_state:
+    st.session_state.feedback_submitted = False
 
 
 ##################################
@@ -183,26 +175,24 @@ def img_to_bytes(img_path):
 
 
 def img_to_html(img_path):
-    img_html = "<img src='data:image/png;base64,{}' class='img-fluid' style='width:100%'>".format(
-        img_to_bytes(img_path)
-    )
+    img_html = f"<img src='data:image/png;base64,{img_to_bytes(img_path)}' class='img-fluid' style='width:100%'>"
     return img_html
-
-
-def submit_query():
-    st.session_state.logged_prompt = None
-    st.session_state.response = None
-    st.session_state.feedback = None
-    st.session_state.stage = 1
-    st.session_state.feedback_key += 1
-    st.session_state.show_individual_parties = {
-        f"party_{i+1}": False for i in range(len(st.session_state.parties))
-    }
-    random.shuffle(st.session_state.parties)
 
 
 def set_query(query):
     st.session_state.query = query
+
+
+def submit_query():
+    set_query(query)
+    st.session_state.response = None
+    st.session_state.log_id = None
+    st.session_state.feedback_rating = None
+    st.session_state.feedback_text = ""
+    st.session_state.feedback_submitted = False
+    st.session_state.stage = 1
+    st.session_state.show_individual_parties = {f"party_{i + 1}": False for i in range(len(st.session_state.parties))}
+    random.shuffle(st.session_state.parties)
 
 
 def submit_example(query):
@@ -219,9 +209,9 @@ def generate_response():
             st.session_state.response = rag.query(query)
 
             # Assert that the response contains all parties
-            assert set(st.session_state.response["answer"].keys()) == set(
-                st.session_state.parties
-            ), "LLM response does not contain all parties"
+            assert set(st.session_state.response["answer"].keys()) == set(st.session_state.parties), (
+                "LLM response does not contain all parties"
+            )
             break
 
         except Exception as e:
@@ -231,17 +221,18 @@ def generate_response():
             if retry_count > max_retries:
                 print(f"Max number of tries ({max_retries}) reached, aborting")
                 st.session_state.response = None
-                st.error(
-                    translate(
-                        "Das Sprachmodell ist gerade nicht verfügbar. **Bitte versuche es gleich nochmal.**",
-                        st.session_state.language,
-                    )
-                )
+                st.error(translate("error-api-unavailable", st.session_state.language))
                 # Display error message in app:
                 raise e
             else:
                 print(f"Retrying, retry number {retry_count}")
                 pass
+    st.session_state.log_id = add_log_dict({"query": query, "answer": st.session_state.response["answer"]})
+
+
+def submit_feedback(feedback_rating, feedback_text):
+    update_log_dict(st.session_state.log_id, {"feedback-rating": feedback_rating, "feedback-text": feedback_text})
+    st.rerun()
 
 
 # The following function converts a date string from the format "YYYY-MM-DD" to "DD.MM.YYYY"
@@ -261,69 +252,45 @@ def convert_date_format(date_string):
 ##################################
 
 with st.sidebar:
-    selected_language = st.radio(
-        label="Language",
-        options=["🇩🇪 Deutsch", "🇬🇧 English"],
-        horizontal=True,
-    )
-    languages = {"🇩🇪 Deutsch": "Deutsch", "🇬🇧 English": "English"}
+    selected_language = st.radio(label="Language", options=["🇩🇪 Deutsch", "🇬🇧 English"], horizontal=True)
+    languages = {"🇩🇪 Deutsch": "de", "🇬🇧 English": "en"}
     st.session_state.language = languages[selected_language]
     rag.language = st.session_state.language
 
-st.header("🇪🇺 electify.eu", divider="blue")
-st.write(
-    "##### :grey["
-    + translate(
-        "Informiere dich über die Positionen der Parteien zur Europawahl 2024.",
-        st.session_state.language,
-    )
-    + "]"
-)
+st.header("🗳️ electify.eu", divider="blue")
+st.write("##### :grey[" + translate("subheadline", st.session_state.language) + "]")
 
 support_button(
-    text=f"💙  {translate('Unterstützen', st.session_state.language)}",
+    text=f"💛  {translate('support-button', st.session_state.language)}",
     link="https://www.buymeacoffee.com/electify.eu",
 )
 
 if st.session_state.number_of_requests >= 3:
     # Show support banner after 3 requests in a single session.
     st.info(
-        f"{translate('**Gefällt dir die App?** Mit einer kleinen Spende kannst du dafür sorgen, dass wir sie bis zur Europawahl weiterhin kostenlos anbieten können. [Jetzt unterstützen]', st.session_state.language)}(https://buymeacoffee.com/electify.eu)",
-        icon="💙",
+        f"{translate('support-banner', st.session_state.language)}(https://buymeacoffee.com/electify.eu)", icon="💛"
     )
 
 query = st.text_input(
-    label=translate(
-        "Stelle eine Frage oder gib ein Stichwort ein",
-        st.session_state.language,
-    ),
-    placeholder="",
-    value=st.session_state.query,
+    label=translate("query-instruction", st.session_state.language), placeholder="", value=st.session_state.query
 )
 
 col_submit, col_checkbox = st.columns([1, 3])
 
 # Submit button
 with col_submit:
-    st.button(
-        translate("Frage stellen", st.session_state.language),
-        on_click=submit_query,
-        type="primary",
-    )
+    st.button(translate("submit-query", st.session_state.language), on_click=submit_query, type="primary")
 
 # Checkbox to show/hide party names globally
 with col_checkbox:
     st.session_state.show_all_parties = st.checkbox(
-        label=translate("Parteinamen anzeigen", st.session_state.language),
+        label=translate("show-party-names", st.session_state.language),
         value=True,
-        help=translate(
-            "Blende die Parteinamen aus, um Antworten unvoreingenommen lesen zu können.",
-            st.session_state.language,
-        ),
+        help=translate("show-party-names-help", st.session_state.language),
     )
 
 # Allow the user to select up to 6 parties
-with st.expander(translate("Parteien auswählen", st.session_state.language)):
+with st.expander(translate("select-parties-heading", st.session_state.language)):
     available_parties = list(party_dict.keys())
 
     party_selection = {party: False for party in available_parties}
@@ -334,12 +301,7 @@ with st.expander(translate("Parteien auswählen", st.session_state.language)):
         party_selection[party] = not party_selection[party]
         st.session_state.parties = [k for k, v in party_selection.items() if v]
 
-    st.write(
-        translate(
-            "Wähle bis zu 6 Parteien aus.",
-            st.session_state.language,
-        )
-    )
+    st.write(translate("select-parties-instruction", st.session_state.language))
     for party in available_parties:
         st.checkbox(
             label=party_dict[party]["name"],
@@ -349,15 +311,11 @@ with st.expander(translate("Parteien auswählen", st.session_state.language)):
         )
 
     if len(st.session_state.parties) == 0:
-        st.markdown(
-            f"⚠️ **:red[{translate('Bitte wähle mindestens eine Partei aus.', st.session_state.language)}]**"
-        )
+        st.markdown(f"⚠️ **:red[{translate('error-min-1-party', st.session_state.language)}]**")
         # Reset to default parties
         st.session_state.parties = rag.parties
     elif len(st.session_state.parties) > 6:
-        st.markdown(
-            f"⚠️ **:red[{translate('Bitte wähle maximal sechs Parteien aus.', st.session_state.language)}]**"
-        )
+        st.markdown(f"⚠️ **:red[{translate('error-max-6-parties', st.session_state.language)}]**")
         # Limit to the six first selected parties
         st.session_state.parties = st.session_state.parties[:6]
 
@@ -366,7 +324,7 @@ with st.expander(translate("Parteien auswählen", st.session_state.language)):
 
 # STAGE 0: User has not yet submitted a query
 if st.session_state.stage == 0:
-    st.write(translate("Beispiele:", st.session_state.language))
+    st.write(translate("examples-heading", st.session_state.language))
 
     for i in range(3):
         st.button(
@@ -379,58 +337,30 @@ if st.session_state.stage == 0:
 # STAGE > 0: Show disclaimer once the user has submitted a query (and keep showing it)
 if st.session_state.stage > 0:
     if len(st.session_state.parties) == 0:
-        st.info(
-            translate(
-                "Wähle mindestens eine Partei in der Seitenleiste aus!",
-                st.session_state.language,
-            )
-        )
+        st.error(translate("error-min-1-party", st.session_state.language))
         st.session_state.stage = 0
 
     else:
         st.info(
             "☝️ "
-            + translate(
-                "**Die Antworten werden von einem Sprachmodell generiert und können fehlerhaft sein.**",
-                st.session_state.language,
-            )
+            + translate("disclaimer-llm", st.session_state.language)
             + "  \n"
-            + translate(
-                "Bitte informiere dich zusätzlich in den verlinkten Wahlprogrammen.",
-                st.session_state.language,
-            )
-            + "  \n\n"
-            + translate(
-                "Die Reihenfolge der angezeigten Parteien ist zufällig.",
-                st.session_state.language,
-            ),
+            + translate("disclaimer-research", st.session_state.language)
+            + "  \n"
+            + translate("disclaimer-random-order", st.session_state.language)
         )
 
 # STAGE 1: User submitted a query and we are waiting for the response
 if st.session_state.stage == 1:
     st.session_state.number_of_requests += 1
-    with st.spinner(
-        translate(
-            "Suche nach Antworten in Wahlprogrammen und Parlamentsdebatten...",
-            st.session_state.language,
-        )
-        + "🕵️"
-    ):
+    with st.spinner(translate("loading-response", st.session_state.language) + "🕵️"):
         generate_response()
-
-    if st.session_state.use_trubrics:
-        st.session_state.logged_prompt = collector.log_prompt(
-            config_model={"model": LARGE_LANGUAGE_MODEL.model_name},
-            prompt=query,
-            generation=str(st.session_state.response),
-        )
 
     st.session_state.stage = 2
 
 
 # STAGE > 1: The response has been generated and is displayed
 if st.session_state.stage > 1:
-
     # Initialize an empty list to hold all columns
     col_list = []
     # Create a pair of columns for each party
@@ -442,14 +372,11 @@ if st.session_state.stage > 1:
         p = i + 1
         col1, col2 = col_list[i]
 
-        most_relevant_manifesto_page_number = st.session_state.response["docs"][
-            "manifestos"
-        ][party][0].metadata["page"]
+        most_relevant_manifesto_page_number = st.session_state.response["docs"]["manifestos"][party][0].metadata[
+            "page"
+        ]
 
-        show_party = (
-            st.session_state.show_all_parties
-            or st.session_state.show_individual_parties[f"party_{p}"]
-        )
+        show_party = st.session_state.show_all_parties or st.session_state.show_individual_parties[f"party_{p}"]
 
         # In this column, we show the party image
         with col1:
@@ -461,52 +388,39 @@ if st.session_state.stage > 1:
             else:
                 file_loc = "streamlit_app/assets/placeholder_logo.png"
                 st.markdown(img_to_html(file_loc), unsafe_allow_html=True)
-                st.button(
-                    translate("Partei aufdecken", st.session_state.language),
-                    on_click=reveal_party,
-                    args=(p,),
-                    key=p,
-                )
+                st.button(translate("show-party", st.session_state.language), on_click=reveal_party, args=(p,), key=p)
         # In this column, we show the RAG response
         with col2:
             if show_party:
                 st.header(party_dict[party]["name"])
             else:
-                st.header(f"{translate('Partei', st.session_state.language)} {p}")
+                st.header(f"{translate('party', st.session_state.language)} {p}")
+
+            if party == "afd" and show_party:
+                st.caption(f"⚠️ **{translate('warning-afd', st.session_state.language)}**")
 
             st.write(st.session_state.response["answer"][party])
             if show_party:
+                is_answer_empty = "keine passende antwort" in st.session_state.response["answer"][party].lower()
+
+                page_reference_string = (
+                    ""
+                    if is_answer_empty
+                    else f" ({translate('page-reference', st.session_state.language)} {most_relevant_manifesto_page_number + 1})"
+                )
+
                 st.write(
-                    f"""{translate('Mehr findest du im', st.session_state.language)} [{translate('Europawahlprogramm der Partei', st.session_state.language)} **{party_dict[party]['name']}** ({translate('z.B. Seite', st.session_state.language)} {most_relevant_manifesto_page_number + 1})]({party_dict[party]['manifesto_link']}#page={most_relevant_manifesto_page_number + 1})"""
+                    f"""{translate("learn-more-in", st.session_state.language)} [{translate("party-manifesto", st.session_state.language)} **{party_dict[party]["name"]}**{page_reference_string}]({party_dict[party]["manifesto_link"]}#page={most_relevant_manifesto_page_number + 1})."""
                 )
 
     st.markdown("---")
 
     # Display a section with all retrieved excerpts from the sources
-    st.subheader(
-        translate(
-            "Quellen: Worauf basieren diese Antworten?", st.session_state.language
-        )
-    )
-    st.write(
-        translate(
-            "Die Antworten wurden von dem KI-Sprachmodell GPT 3.5 generiert – unter Berücksichtigung der Wahlprogramme zur Europawahl 2024 und vergangener Reden im Europaparlament im Zeitraum 2019-2024.",
-            st.session_state.language,
-        )
-    )
-    st.write(
-        translate(
-            "Hier kannst du die genutzten Ausschnitte aus den Quellen einsehen:",
-            st.session_state.language,
-        )
-    )
+    st.subheader(translate("sources-subheading", st.session_state.language))
+    st.write(translate("sources-intro", st.session_state.language))
+    st.write(translate("sources-excerpts-intro", st.session_state.language))
     for party in st.session_state.parties:
-        with st.expander(
-            translate(
-                f"{translate('Quellen', st.session_state.language)}: {party_dict[party]['name']}",
-                st.session_state.language,
-            )
-        ):
+        with st.expander(translate("sources", st.session_state.language) + f": {party_dict[party]['name']}"):
             for doc in st.session_state.response["docs"]["manifestos"][party]:
                 manifesto_excerpt = doc.page_content.replace("\n", " ")
                 page_number_of_excerpt = doc.metadata["page"] + 1
@@ -514,45 +428,39 @@ if st.session_state.stage > 1:
                 st.markdown(
                     f'[**Seite {page_number_of_excerpt} im Wahlprogramm**]({link_to_manifesto_page}): \n "{manifesto_excerpt}"\n\n'
                 )
-            for doc in st.session_state.response["docs"]["debates"][party]:
-                debate_excerpt = doc.page_content.replace("\n", " ")
-                date_of_excerpt = convert_date_format(doc.metadata["date"])
-                speaker_of_excerpt = doc.metadata["fullName"]
 
-                st.write(
-                    f'**Ausschnitt aus einer Rede im EU-Parlament von {speaker_of_excerpt} am {date_of_excerpt}**: "{debate_excerpt}"\n\n'
-                )
+            # TODO: Commented out since we do not use debate data yet
+            # for doc in st.session_state.response["docs"]["debates"][party]:
+            #     debate_excerpt = doc.page_content.replace("\n", " ")
+            #     date_of_excerpt = convert_date_format(doc.metadata["date"])
+            #     speaker_of_excerpt = doc.metadata["fullName"]
 
-    st.markdown("---")
+            #     st.write(
+            #         f'**Ausschnitt aus einer Rede im EU-Parlament von {speaker_of_excerpt} am {date_of_excerpt}**: "{debate_excerpt}"\n\n'
+            #     )
 
-    # Show feedback section
-    st.write(
-        f"### {translate('Waren diese Antworten hilfreich für dich?', st.session_state.language)}"
-    )
-    st.write(
-        translate(
-            "Mit deinem Feedback hilfst du uns, die Qualität der Antworten zu verbessern.",
-            st.session_state.language,
-        )
-    )
+    st.write("---")
 
-    if st.session_state.use_trubrics:
-        st.session_state.feedback = collector.st_feedback(
-            component="default",
-            feedback_type="thumbs",
-            model=LARGE_LANGUAGE_MODEL.model_name,
-            prompt_id=st.session_state.logged_prompt.id,
-            open_feedback_label="Weiteres Feedback (optional)",
-            align="flex-start",
-            key=f"feedback_{st.session_state.feedback_key}",
-        )
+    st.subheader(translate("feedback-heading", st.session_state.language))
 
-        if st.session_state.feedback is not None:
-            st.write(
-                translate("Vielen Dank für dein Feedback!", st.session_state.language)
-                + " 🙏"
+    if not st.session_state.feedback_submitted:
+        st.write(translate("feedback-intro", st.session_state.language))
+
+        with st.form(key="feedback-form"):
+            feedback_options = {"negative": "☹️", "neutral": "😐", "positive": "😊"}
+
+            feedback_rating = st.segmented_control(
+                label=translate("feedback-question-rating", st.session_state.language),
+                options=feedback_options.keys(),
+                format_func=lambda option: feedback_options[option],
             )
+            feedback_text = st.text_area(label=translate("feedback-question-text", st.session_state.language))
+            submitted = st.form_submit_button(
+                label=translate("feedback-submit", st.session_state.language), type="primary"
+            )
+            if submitted:
+                st.session_state.feedback_submitted = True
+                submit_feedback(feedback_rating, feedback_text)
+
     else:
-        st.write(
-            "[Schicke uns gerne eine Nachricht](mailto:electify.eu@gmail.com) mit Anregungen oder Kritik. Wir freuen uns, von dir zu hören."
-        )
+        st.success(translate("feedback-thanks", st.session_state.language))

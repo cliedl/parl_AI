@@ -1,20 +1,25 @@
 data/metrics
 data/prompts
 data/questions
-
+data/*
 data/debates/chroma/manifestoberta
 data/manifestos/chroma/manifestoberta
 
 data/debates/*.csv
 data/manifestos/*.csv
 
-data_scraping
+data_scraping/
 EDA
 
 RAG/evaluation
 RAG/local_tests
 RAG/scripts
+local_tests/
 
 .env
-.DS_Store
-data/.DS_Store
+.venv
+.github/*
+.pytest_cache
+.ruff_cache
+
+*/.DS_Store

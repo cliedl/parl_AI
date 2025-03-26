@@ -1,0 +1,44 @@
+name: 1. Quality Assurance
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs: 
+  quality:
+    if: ${{ github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: check .
+
+  tests:
+    if: ${{ github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      AZURE_OPENAI_API_KEY_SWEDEN: ${{ secrets.AZURE_OPENAI_API_KEY_SWEDEN }}
+      AZURE_OPENAI_ENDPOINT_SWEDEN: ${{ secrets.AZURE_OPENAI_ENDPOINT_SWEDEN }}
+      AZURE_OPENAI_API_VERSION_SWEDEN: ${{ vars.AZURE_OPENAI_API_VERSION_SWEDEN }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      DATABASE_NAME: ${{ vars.DATABASE_NAME }}
+      COLLECTION_NAME: ${{ vars.COLLECTION_NAME }}
+  
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: download database
+        run: |
+          apt-get update && apt-get install -y wget unzip
+          mkdir -p data/manifestos/chroma/openai/
+          wget -O openai.zip "https://huggingface.co/datasets/cliedl/electify/resolve/main/openai.zip?download=true"
+          unzip openai.zip -d data/manifestos/chroma/openai/ && rm openai.zip
+        
+      - name: Run tests
+        run: uv run pytest tests

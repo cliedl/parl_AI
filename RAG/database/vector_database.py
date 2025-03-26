@@ -1,11 +1,10 @@
-from langchain_community.document_loaders import PyPDFDirectoryLoader, PDFMinerLoader
-from langchain_community.document_loaders.pdf import UnstructuredPDFLoader
-from langchain_community.document_loaders.csv_loader import CSVLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
 import glob
 import os
-import random
+
+from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders.csv_loader import CSVLoader
+from langchain_community.vectorstores import Chroma
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 class VectorDatabase:
@@ -51,15 +50,10 @@ class VectorDatabase:
         - The loaded Chroma database.
         """
         if os.path.exists(self.database_directory):
-            self.database = Chroma(
-                persist_directory=self.database_directory,
-                embedding_function=self.embedding_model,
-            )
+            self.database = Chroma(persist_directory=self.database_directory, embedding_function=self.embedding_model)
             print("reloaded database")
         else:
-            raise AssertionError(
-                f"{self.database_directory} does not include database."
-            )
+            raise AssertionError(f"{self.database_directory} does not include database.")
 
         return self.database
 
@@ -85,9 +79,7 @@ class VectorDatabase:
             raise AssertionError("Delete old database first and restart session!")
 
         # Define text_splitter
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-        )
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap)
 
         if self.loader == "pdf":
             # loader = PyPDFDirectoryLoader(self.data_path)
@@ -100,11 +92,11 @@ class VectorDatabase:
                 party = file_name.split("_")[0]
 
                 # Load pdf as single doc
-                loader = PDFMinerLoader(pdf_path, concatenate_pages=True)
+                loader = PyMuPDFLoader(pdf_path, mode="single")
                 doc = loader.load()
 
                 # Also load pdf as individual pages, this is important to extract the page number later
-                loader = PDFMinerLoader(pdf_path, concatenate_pages=False)
+                loader = PyMuPDFLoader(pdf_path, mode="page")
                 doc_pages = loader.load()
 
                 # Add party to metadata
@@ -116,28 +108,21 @@ class VectorDatabase:
 
                 # For each split, we search for the page on which it has occurred
                 for split in splits_temp:
-                    for i, doc_page in enumerate(doc_pages):
+                    for page_number, doc_page in enumerate(doc_pages):
                         # Create first and second half of split
-                        split_1 = split.page_content[
-                            : int(0.5 * len(split.page_content))
-                        ]
-                        split_2 = split.page_content[
-                            int(0.5 * len(split.page_content)) :
-                        ]
-                        # If the first half is on page i, set page=i
-                        if split_1 in doc_page.page_content:
-                            split.metadata.update({"page": i})
-                        # If the second half is on page i, set page=i
-                        elif split_2 in doc_page.page_content:
-                            split.metadata.update({"page": i})
+                        split_1 = split.page_content[: int(0.5 * len(split.page_content))]
+                        split_2 = split.page_content[int(0.5 * len(split.page_content)) :]
+                        # If the first half is on page page_number or the second half is on page page_number, set page=page_number
+                        if split_1 in doc_page.page_content or split_2 in doc_page.page_content:
+                            split.metadata.update({"page": page_number})
+
+                    if split.metadata.get("page") is None:
+                        split.metadata.update({"page": 1})
 
                 splits.extend(splits_temp)
 
         elif self.loader == "csv":
-            loader = CSVLoader(
-                self.data_path,
-                metadata_columns=["date", "fullName", "politicalGroup", "party"],
-            )
+            loader = CSVLoader(self.data_path, metadata_columns=["date", "fullName", "politicalGroup", "party"])
             # Load documents
             docs = loader.load()
 
